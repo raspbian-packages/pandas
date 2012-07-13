@@ -1,0 +1,73 @@
+Source: pandas
+Section: python
+Priority: optional
+Maintainer: NeuroDebian Team <team@neuro.debian.net>
+Uploaders: Yaroslav Halchenko <debian@onerussian.com>, Michael Hanke <michael.hanke@gmail.com>
+Build-Depends: debhelper (>= 7.0.50),
+               python-all-dev (>= 2.5), python-support (>= 0.6),
+               python-setuptools, cython (>= 0.12~),
+               python-numpy (>= 1:1.6~), python-dateutil,
+               python-scipy,
+               python-tz,
+               python-tables, python-xlrd,
+               python-sphinx (>= 1.0~),
+               python-nose,
+               python-matplotlib,
+               python-tk,
+               python-openpyxl, python-xlwt, python-xlrd,
+Standards-Version: 3.9.2
+Homepage: http://pandas.sourceforge.net
+Vcs-Browser: http://github.com/neurodebian/pandas
+Vcs-Git: git://github.com/neurodebian/pandas.git
+
+Package: python-pandas
+Architecture: all
+Depends: ${misc:Depends}, ${python:Depends},
+         python-numpy (>= 1:1.6~),
+         python-dateutil,
+         python-pandas-lib(>= ${source:Version})
+Recommends: python-scipy,
+            python-matplotlib,
+            python-tables,
+            python-tz,
+            python-xlrd,
+            python-statsmodels,
+            python-openpyxl, python-xlwt, python-xlrd,
+Provides: ${python:Provides}
+Suggests: python-pandas-doc
+Description: data structures for "relational" or "labeled" data
+ pandas is a Python package providing fast, flexible, and expressive
+ data structures designed to make working with "relational" or
+ "labeled" data both easy and intuitive. It aims to be the fundamental
+ high-level building block for doing practical, real world data
+ analysis in Python. pandas is well suited for many different kinds of
+ data:
+ .
+  - Tabular data with heterogeneously-typed columns, as in an SQL
+    table or Excel spreadsheet
+  - Ordered and unordered (not necessarily fixed-frequency) time
+    series data.
+  - Arbitrary matrix data (homogeneously typed or heterogeneous) with
+    row and column labels
+  - Any other form of observational / statistical data sets. The data
+    actually need not be labeled at all to be placed into a pandas
+    data structure
+
+# No doc package built due to dependency on ipython 0.11 - only experimental
+# Package: python-pandas-doc
+# Architecture: all
+# Section: doc
+# Depends: ${misc:Depends}, libjs-jquery
+# Suggests: python-pandas
+# Description: documentation and examples for pandas
+#  This package contains documentation and example scripts for
+#  python-pandas.
+
+Package: python-pandas-lib
+Architecture: any
+Depends: ${misc:Depends}, ${shlibs:Depends}, ${python:Depends}, python-numpy
+Provides: ${python:Provides}
+XB-Python-Version: ${python:Versions}
+Description: low-level implementations and bindings for pandas
+ This is an add-on package for python-pandas providing
+ architecture-dependent extensions.
