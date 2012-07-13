@@ -1,0 +1,100 @@
+pandas (0.8.0-2) unstable; urgency=medium
+
+  * up_tag_yahoo_test_requiring_network patch cherry-picked from upstream
+    GIT so that tests would not be excercised at package build time
+    (Closes: #681449)
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Fri, 13 Jul 2012 08:54:41 -0400
+
+pandas (0.8.0-1) unstable; urgency=low
+
+  * Fresh upstream release
+  * debian/control
+    - drop python-statsmodels from Build-Depends since it might not be yet
+      available on some architectures and is not critical for the test
+    - recommend python-statsmodels instead of deprecated
+      python-scikits.statsmodels
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Fri, 29 Jun 2012 13:02:28 -0400
+
+pandas (0.8.0~rc2+git26-g76c6351-1) experimental; urgency=low
+
+  * Fresh upstream release candidate
+    - all patches dropped (upstreamed)
+    - requires numpy >= 1.6
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Tue, 12 Jun 2012 13:23:27 -0400
+
+pandas (0.7.3-1) unstable; urgency=low
+
+  * Fresh upstream release
+    - few post-release patches (submitted upstream) to exclude unittests
+  	  requiring network access
+  * debian/control:
+    - python-openpyxl, python-xlwt, python-xlrd into Build-Depends
+      and Recommends
+  * debian/rules:
+    - exclude running tests marked with @network
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Thu, 12 Apr 2012 11:27:31 -0400
+
+pandas (0.7.1+git1-ga2e86c2-1) unstable; urgency=low
+
+  * New upstream release with a bugfix which followed
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Thu, 01 Mar 2012 22:28:10 -0500
+
+pandas (0.7.0-1) unstable; urgency=low
+
+  * New upstream release
+  * Updated pre-cythoned .c files for older Debian/Ubuntu releases.
+    Added a stamp file with upstream version to assure up-to-dateness
+    of the generated files
+  * Dropped all exclusions of unittests and patches -- shouldn't be necessary
+    any longer
+  * Build only for requested versions (not all supported) of Python
+  * Do nothing for build operation, rely on overloaded install
+    (to avoid undesired re-cythonization on elderly Ubuntus)
+  * Adjusted url in watch due to migration of repository under pydata
+    organization
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Mon, 16 Jan 2012 19:31:50 -0500
+
+pandas (0.6.1-1) UNRELEASED; urgency=low
+
+  * New upstream release
+  * python-tk into Build-Depends
+  * Create matplotlibrc with backend: Agg to allow tests run without $DISPLAY
+  * Carry pre-cythonized .c files for systems with older Cython
+  * Skip few tests known to fail
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Tue, 13 Dec 2011 18:36:11 -0500
+
+pandas (0.5.0+git7-gcf32be2-1) unstable; urgency=low
+
+  * New upstream release with post-release fixes
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Tue, 01 Nov 2011 21:15:06 -0400
+
+pandas (0.4.3-1) unstable; urgency=low
+
+  * New upstream release(s): primarily bugfixes and optimizations but also
+    with some minor API changes and new functionality
+  * Adjusted debian/watch to match new layout on github
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Tue, 18 Oct 2011 11:27:50 -0400
+
+pandas (0.4.1-1) unstable; urgency=low
+
+  * New upstream bugfix release
+    - incorporated all debian/patches
+  * debian/rules: 'clean' removes generated pandas/version.py
+  * debian/copyright: adjusted to become DEP-5 compliant
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Sun, 25 Sep 2011 21:48:30 -0400
+
+pandas (0.4.0-1) unstable; urgency=low
+
+  * Initial Debian release (Closes: #641464)
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Tue, 13 Sep 2011 12:24:05 -0400
