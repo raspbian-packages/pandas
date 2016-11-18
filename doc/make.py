@@ -29,7 +29,8 @@ import sphinx  # noqa
 import argparse
 import jinja2  # noqa
 
-os.environ['PYTHONPATH'] = '..'
+# Debian's debian/rules overrides it to point to correct built pandas
+# os.environ['PYTHONPATH'] = '..'
 
 SPHINX_BUILD = 'sphinxbuild'
 
