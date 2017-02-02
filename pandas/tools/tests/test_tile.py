@@ -271,6 +271,21 @@ class TestCut(tm.TestCase):
                                     np.array([0, 0, 1, 1], dtype=np.int8))
         tm.assert_numpy_array_equal(bins, np.array([0, 1.5, 3]))
 
+    def test_single_bin(self):
+        # issue 14652
+        # Explicit dtype since Series produces int64 for ints, while cut
+        # (due to numpy.searchsorted) would use int32 on i386, so let's assure
+        # correct default to the architecture int
+        expected = Series([0, 0], dtype=np.dtype(int))
+
+        s = Series([9., 9.])
+        result = cut(s, 1, labels=False)
+        tm.assert_series_equal(result, expected)
+
+        s = Series([-9., -9.])
+        result = cut(s, 1, labels=False)
+        tm.assert_series_equal(result, expected)
+
 
 def curpath():
     pth, _ = os.path.split(os.path.abspath(__file__))

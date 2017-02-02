@@ -2101,14 +2101,6 @@ class TestPeriodIndex(tm.TestCase):
         exp = idx.values < idx.values[10]
         self.assert_numpy_array_equal(result, exp)
 
-    def test_getitem_ndim2(self):
-        idx = period_range('2007-01', periods=3, freq='M')
-
-        result = idx[:, None]
-        # MPL kludge, internally has incorrect shape
-        tm.assertIsInstance(result, PeriodIndex)
-        self.assertEqual(result.shape, (len(idx), ))
-
     def test_getitem_index(self):
         idx = period_range('2007-01', periods=10, freq='M', name='x')
 
@@ -3730,11 +3722,11 @@ class TestMethods(tm.TestCase):
         # GH 4731
         dt1 = Period(freq='D', year=2008, month=1, day=1)
         dt2 = Period(freq='D', year=2008, month=1, day=2)
-        msg = "unsupported operand type\(s\)"
+        msg = r"unsupported operand type\(s\)"
         with tm.assertRaisesRegexp(TypeError, msg):
             dt1 + "str"
 
-        msg = "unsupported operand type\(s\)"
+        msg = r"unsupported operand type\(s\)"
         with tm.assertRaisesRegexp(TypeError, msg):
             "str" + dt1
 
@@ -3748,7 +3740,7 @@ class TestMethods(tm.TestCase):
         self.assertEqual(dt1 - dt2, -14)
         self.assertEqual(dt2 - dt1, 14)
 
-        msg = "Input has different freq=M from Period\(freq=D\)"
+        msg = r"Input has different freq=M from Period\(freq=D\)"
         with tm.assertRaisesRegexp(period.IncompatibleFrequency, msg):
             dt1 - pd.Period('2011-02', freq='M')
 
@@ -4112,7 +4104,7 @@ class TestMethods(tm.TestCase):
         exp = pd.Period('2011-03-30', freq='D')
         self.assertEqual(result, exp)
 
-        msg = "Input cannot be converted to Period\(freq=D\)"
+        msg = r"Input cannot be converted to Period\(freq=D\)"
         with tm.assertRaisesRegexp(period.IncompatibleFrequency, msg):
             p + offsets.Hour(2)
 
@@ -4161,7 +4153,7 @@ class TestPeriodIndexSeriesMethods(tm.TestCase):
                            '2011-04'], freq='M', name='idx')
         s = pd.Series(idx)
 
-        msg = "unsupported operand type\(s\)"
+        msg = r"unsupported operand type\(s\)"
 
         for obj in [idx, s]:
             for ng in ["str", 1.5]:
@@ -4265,8 +4257,8 @@ class TestPeriodIndexSeriesMethods(tm.TestCase):
 
         # Series op is applied per Period instance, thus error is raised
         # from Period
-        msg_idx = "Input has different freq from PeriodIndex\(freq=D\)"
-        msg_s = "Input cannot be converted to Period\(freq=D\)"
+        msg_idx = r"Input has different freq from PeriodIndex\(freq=D\)"
+        msg_s = r"Input cannot be converted to Period\(freq=D\)"
         for obj, msg in [(idx, msg_idx), (s, msg_s)]:
             with tm.assertRaisesRegexp(period.IncompatibleFrequency, msg):
                 obj + offsets.Hour(2)

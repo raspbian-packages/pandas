@@ -272,7 +272,7 @@ cdef class TextReader:
         parser_t *parser
         object file_handle, na_fvalues
         object true_values, false_values
-        object dsource
+        object handle
         bint na_filter, verbose, has_usecols, has_mi_columns
         int parser_start
         list clocks
@@ -554,9 +554,9 @@ cdef class TextReader:
     def close(self):
         # we need to properly close an open derived
         # filehandle here, e.g. and UTFRecoder
-        if self.dsource is not None:
+        if self.handle is not None:
             try:
-                self.dsource.close()
+                self.handle.close()
             except:
                 pass
 
@@ -570,7 +570,8 @@ cdef class TextReader:
         if not QUOTE_MINIMAL <= quoting <= QUOTE_NONE:
             raise TypeError('bad "quoting" value')
 
-        if not isinstance(quote_char, (str, bytes)) and quote_char is not None:
+        if not isinstance(quote_char, (str, compat.text_type,
+                                       bytes)) and quote_char is not None:
             dtype = type(quote_char).__name__
             raise TypeError('"quotechar" must be string, '
                             'not {dtype}'.format(dtype=dtype))
@@ -640,6 +641,7 @@ cdef class TextReader:
             else:
                 raise ValueError('Unrecognized compression type: %s' %
                                  self.compression)
+            self.handle = source
 
         if isinstance(source, basestring):
             if not isinstance(source, bytes):
@@ -683,8 +685,6 @@ cdef class TextReader:
             raise IOError('Expected file path name or file-like object,'
                           ' got %s type' % type(source))
 
-        self.dsource = source
-
     cdef _get_header(self):
         # header is now a list of lists, so field_count should use header[0]
 
@@ -714,7 +714,9 @@ cdef class TextReader:
                     start = self.parser.line_start[0]
 
                 # e.g., if header=3 and file only has 2 lines
-                elif self.parser.lines < hr + 1:
+                elif (self.parser.lines < hr + 1
+                      and not isinstance(self.orig_header, list)) or (
+                          self.parser.lines < hr):
                     msg = self.orig_header
                     if isinstance(msg, list):
                         msg = "[%s], len of %d," % (
@@ -937,7 +939,7 @@ cdef class TextReader:
                 raise_parser_error('Error tokenizing data', self.parser)
             footer = self.skipfooter
 
-        if self.parser_start == self.parser.lines:
+        if self.parser_start >= self.parser.lines:
             raise StopIteration
         self._end_clock('Tokenization')
 
@@ -1241,19 +1243,23 @@ cdef class TextReader:
             return None, set()
 
         if isinstance(self.na_values, dict):
+            key = None
             values = None
+
             if name is not None and name in self.na_values:
-                values = self.na_values[name]
-                if values is not None and not isinstance(values, list):
-                    values = list(values)
-                fvalues = self.na_fvalues[name]
-                if fvalues is not None and not isinstance(fvalues, set):
-                    fvalues = set(fvalues)
-            else:
-                if i in self.na_values:
-                    return self.na_values[i], self.na_fvalues[i]
-                else:
-                    return _NA_VALUES, set()
+                key = name
+            elif i in self.na_values:
+                key = i
+            else:  # No na_values provided for this column.
+                return _NA_VALUES, set()
+
+            values = self.na_values[key]
+            if values is not None and not isinstance(values, list):
+                values = list(values)
+
+            fvalues = self.na_fvalues[key]
+            if fvalues is not None and not isinstance(fvalues, set):
+                fvalues = set(fvalues)
 
             return _ensure_encoded(values), fvalues
         else:

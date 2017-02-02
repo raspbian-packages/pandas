@@ -71,11 +71,11 @@ class CParserTests(object):
 3.0 3
 """
         # base cases
-        result = self.read_csv(StringIO(data), sep='\s+', header=None)
+        result = self.read_csv(StringIO(data), sep=r'\s+', header=None)
         expected = DataFrame([[1.0, 1], [2.0, 2], [3.0, 3]])
         tm.assert_frame_equal(result, expected)
 
-        result = self.read_csv(StringIO(data), sep='\s+',
+        result = self.read_csv(StringIO(data), sep=r'\s+',
                                header=None, names=['a', 'b'])
         expected = DataFrame(
             [[1.0, 1], [2.0, 2], [3.0, 3]], columns=['a', 'b'])
@@ -83,7 +83,7 @@ class CParserTests(object):
 
         # fallback casting
         result = self.read_csv(StringIO(
-            data), sep='\s+', header=None,
+            data), sep=r'\s+', header=None,
             names=['a', 'b'], dtype={'a': np.int32})
         expected = DataFrame([[1, 1], [2, 2], [3, 3]],
                              columns=['a', 'b'])
@@ -97,7 +97,7 @@ nan 2
 """
         # fallback casting, but not castable
         with tm.assertRaisesRegexp(ValueError, 'cannot safely convert'):
-            self.read_csv(StringIO(data), sep='\s+', header=None,
+            self.read_csv(StringIO(data), sep=r'\s+', header=None,
                           names=['a', 'b'], dtype={'a': np.int32})
 
     def test_passing_dtype(self):
@@ -561,3 +561,66 @@ No,No,No"""
 
         result = self.read_csv(StringIO(data), names=names)
         tm.assert_frame_equal(result, expected)
+
+    def test_empty_dtype(self):
+        # see gh-14712
+        data = 'a,b'
+
+        expected = pd.DataFrame(columns=['a', 'b'], dtype=np.float64)
+        result = self.read_csv(StringIO(data), header=0, dtype=np.float64)
+        tm.assert_frame_equal(result, expected)
+
+        expected = pd.DataFrame({'a': pd.Categorical([]),
+                                 'b': pd.Categorical([])},
+                                index=[])
+        result = self.read_csv(StringIO(data), header=0,
+                               dtype='category')
+        tm.assert_frame_equal(result, expected)
+
+        expected = pd.DataFrame(columns=['a', 'b'], dtype='datetime64[ns]')
+        result = self.read_csv(StringIO(data), header=0,
+                               dtype='datetime64[ns]')
+        tm.assert_frame_equal(result, expected)
+
+        expected = pd.DataFrame({'a': pd.Series([], dtype='timedelta64[ns]'),
+                                 'b': pd.Series([], dtype='timedelta64[ns]')},
+                                index=[])
+        result = self.read_csv(StringIO(data), header=0,
+                               dtype='timedelta64[ns]')
+        tm.assert_frame_equal(result, expected)
+
+        expected = pd.DataFrame(columns=['a', 'b'])
+        expected['a'] = expected['a'].astype(np.float64)
+        result = self.read_csv(StringIO(data), header=0,
+                               dtype={'a': np.float64})
+        tm.assert_frame_equal(result, expected)
+
+        expected = pd.DataFrame(columns=['a', 'b'])
+        expected['a'] = expected['a'].astype(np.float64)
+        result = self.read_csv(StringIO(data), header=0,
+                               dtype={0: np.float64})
+        tm.assert_frame_equal(result, expected)
+
+        expected = pd.DataFrame(columns=['a', 'b'])
+        expected['a'] = expected['a'].astype(np.int32)
+        expected['b'] = expected['b'].astype(np.float64)
+        result = self.read_csv(StringIO(data), header=0,
+                               dtype={'a': np.int32, 1: np.float64})
+        tm.assert_frame_equal(result, expected)
+
+    def test_read_nrows_large(self):
+        # gh-7626 - Read only nrows of data in for large inputs (>262144b)
+        header_narrow = '\t'.join(['COL_HEADER_' + str(i)
+                                  for i in range(10)]) + '\n'
+        data_narrow = '\t'.join(['somedatasomedatasomedata1'
+                                for i in range(10)]) + '\n'
+        header_wide = '\t'.join(['COL_HEADER_' + str(i)
+                                for i in range(15)]) + '\n'
+        data_wide = '\t'.join(['somedatasomedatasomedata2'
+                              for i in range(15)]) + '\n'
+        test_input = (header_narrow + data_narrow * 1050 +
+                      header_wide + data_wide * 2)
+
+        df = self.read_csv(StringIO(test_input), sep='\t', nrows=1010)
+
+        self.assertTrue(df.size == 1010 * 10)

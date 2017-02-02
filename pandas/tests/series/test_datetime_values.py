@@ -273,7 +273,7 @@ class TestSeriesDatetimeValues(TestData, tm.TestCase):
             self.assertRaises(com.SettingWithCopyError, f)
 
     def test_dt_accessor_no_new_attributes(self):
-        # https://github.com/pydata/pandas/issues/10673
+        # https://github.com/pandas-dev/pandas/issues/10673
         s = Series(date_range('20130101', periods=5, freq='D'))
         with tm.assertRaisesRegexp(AttributeError,
                                    "You cannot add any new attribute"):
@@ -326,7 +326,7 @@ class TestSeriesDatetimeValues(TestData, tm.TestCase):
         period_index = period_range('20150301', periods=5)
         result = period_index.strftime("%Y/%m/%d")
         expected = np.array(['2015/03/01', '2015/03/02', '2015/03/03',
-                             '2015/03/04', '2015/03/05'], dtype='<U10')
+                             '2015/03/04', '2015/03/05'], dtype='=U10')
         self.assert_numpy_array_equal(result, expected)
 
         s = Series([datetime(2013, 1, 1, 2, 32, 59), datetime(2013, 1, 2, 14,

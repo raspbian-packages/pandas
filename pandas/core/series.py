@@ -25,6 +25,7 @@ from pandas.types.common import (_coerce_to_dtype, is_categorical_dtype,
                                  is_iterator,
                                  is_dict_like,
                                  is_scalar,
+                                 _is_unorderable_exception,
                                  _ensure_platform_int)
 from pandas.types.generic import ABCSparseArray, ABCDataFrame
 from pandas.types.cast import (_maybe_upcast, _infer_dtype_from_scalar,
@@ -186,7 +187,8 @@ class Series(base.IndexOpsMixin, strings.StringAccessorMixin,
                         if len(data):
                             # coerce back to datetime objects for lookup
                             data = _dict_compat(data)
-                            data = lib.fast_multiget(data, index.astype('O'),
+                            data = lib.fast_multiget(data,
+                                                     index.asobject.values,
                                                      default=np.nan)
                         else:
                             data = np.nan
@@ -753,7 +755,7 @@ class Series(base.IndexOpsMixin, strings.StringAccessorMixin,
                     raise ValueError("Can only tuple-index with a MultiIndex")
 
                 # python 3 type errors should be raised
-                if 'unorderable' in str(e):  # pragma: no cover
+                if _is_unorderable_exception(e):
                     raise IndexError(key)
 
             if com.is_bool_indexer(key):
@@ -1940,7 +1942,7 @@ class Series(base.IndexOpsMixin, strings.StringAccessorMixin,
         >>> s = pd.Series(np.random.randn(1e6))
         >>> s.nlargest(10)  # only sorts up to the N requested
         """
-        return algos.select_n(self, n=n, keep=keep, method='nlargest')
+        return algos.select_n_series(self, n=n, keep=keep, method='nlargest')
 
     @deprecate_kwarg('take_last', 'keep', mapping={True: 'last',
                                                    False: 'first'})
@@ -1978,7 +1980,7 @@ class Series(base.IndexOpsMixin, strings.StringAccessorMixin,
         >>> s = pd.Series(np.random.randn(1e6))
         >>> s.nsmallest(10)  # only sorts up to the N requested
         """
-        return algos.select_n(self, n=n, keep=keep, method='nsmallest')
+        return algos.select_n_series(self, n=n, keep=keep, method='nsmallest')
 
     def sortlevel(self, level=0, ascending=True, sort_remaining=True):
         """
@@ -2915,8 +2917,8 @@ def _sanitize_array(data, index, dtype=None, copy=False,
 
         return subarr
 
-    # scalar like
-    if subarr.ndim == 0:
+    # scalar like, GH
+    if getattr(subarr, 'ndim', 0) == 0:
         if isinstance(data, list):  # pragma: no cover
             subarr = np.array(data, dtype=object)
         elif index is not None:

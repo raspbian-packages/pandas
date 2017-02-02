@@ -6,8 +6,8 @@ import pandas.util.testing as tm
 from pandas.indexes.api import Index, MultiIndex
 from .common import Base
 
-from pandas.compat import (is_platform_windows, range, lrange, lzip, u,
-                           zip, PY3)
+from pandas.compat import (range, lrange, lzip, u,
+                           zip, PY3, PY36)
 import operator
 import os
 
@@ -913,12 +913,13 @@ class TestIndex(Base, tm.TestCase):
     def test_format(self):
         self._check_method_works(Index.format)
 
-        index = Index([datetime.now()])
-
+        # GH 14626
         # windows has different precision on datetime.datetime.now (it doesn't
         # include us since the default for Timestamp shows these but Index
-        # formating does not we are skipping
-        if not is_platform_windows():
+        # formating does not we are skipping)
+        now = datetime.now()
+        if not str(now).endswith("000"):
+            index = Index([now])
             formatted = index.format()
             expected = [str(index[0])]
             self.assertEqual(formatted, expected)
@@ -1763,7 +1764,12 @@ class TestMixedIntIndex(Base, tm.TestCase):
     def test_order(self):
         idx = self.create_index()
         # 9816 deprecated
-        if PY3:
+        if PY36:
+            with tm.assertRaisesRegexp(TypeError, "'>' not supported "
+                                       "between instances of 'str' and 'int'"):
+                with tm.assert_produces_warning(FutureWarning):
+                    idx.order()
+        elif PY3:
             with tm.assertRaisesRegexp(TypeError, "unorderable types"):
                 with tm.assert_produces_warning(FutureWarning):
                     idx.order()
@@ -1773,7 +1779,11 @@ class TestMixedIntIndex(Base, tm.TestCase):
 
     def test_argsort(self):
         idx = self.create_index()
-        if PY3:
+        if PY36:
+            with tm.assertRaisesRegexp(TypeError, "'>' not supported "
+                                       "between instances of 'str' and 'int'"):
+                result = idx.argsort()
+        elif PY3:
             with tm.assertRaisesRegexp(TypeError, "unorderable types"):
                 result = idx.argsort()
         else:
@@ -1783,7 +1793,11 @@ class TestMixedIntIndex(Base, tm.TestCase):
 
     def test_numpy_argsort(self):
         idx = self.create_index()
-        if PY3:
+        if PY36:
+            with tm.assertRaisesRegexp(TypeError, "'>' not supported "
+                                       "between instances of 'str' and 'int'"):
+                result = np.argsort(idx)
+        elif PY3:
             with tm.assertRaisesRegexp(TypeError, "unorderable types"):
                 result = np.argsort(idx)
         else:

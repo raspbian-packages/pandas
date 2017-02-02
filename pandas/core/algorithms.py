@@ -285,18 +285,27 @@ def factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None):
     note: an array of Periods will ignore sort as it returns an always sorted
     PeriodIndex
     """
-    from pandas import Index, Series, DatetimeIndex
+    from pandas import Index, Series, DatetimeIndex, PeriodIndex
 
-    vals = np.asarray(values)
+    # handling two possibilities here
+    # - for a numpy datetimelike simply view as i8 then cast back
+    # - for an extension datetimelike view as i8 then
+    #   reconstruct from boxed values to transfer metadata
+    dtype = None
+    if needs_i8_conversion(values):
+        if is_period_dtype(values):
+            values = PeriodIndex(values)
+            vals = values.asi8
+        elif is_datetimetz(values):
+            values = DatetimeIndex(values)
+            vals = values.asi8
+        else:
+            # numpy dtype
+            dtype = values.dtype
+            vals = values.view(np.int64)
+    else:
+        vals = np.asarray(values)
 
-    # localize to UTC
-    is_datetimetz_type = is_datetimetz(values)
-    if is_datetimetz_type:
-        values = DatetimeIndex(values)
-        vals = values.asi8
-
-    is_datetime = is_datetime64_dtype(vals)
-    is_timedelta = is_timedelta64_dtype(vals)
     (hash_klass, vec_klass), vals = _get_data_algo(vals, _hashtables)
 
     table = hash_klass(size_hint or len(vals))
@@ -311,13 +320,9 @@ def factorize(values, sort=False, order=None, na_sentinel=-1, size_hint=None):
         uniques, labels = safe_sort(uniques, labels, na_sentinel=na_sentinel,
                                     assume_unique=True)
 
-    if is_datetimetz_type:
-        # reset tz
-        uniques = values._shallow_copy(uniques)
-    elif is_datetime:
-        uniques = uniques.astype('M8[ns]')
-    elif is_timedelta:
-        uniques = uniques.astype('m8[ns]')
+    if dtype is not None:
+        uniques = uniques.astype(dtype)
+
     if isinstance(values, Index):
         uniques = values._shallow_copy(uniques, name=None)
     elif isinstance(values, Series):
@@ -679,11 +684,12 @@ def select_n_slow(dropped, n, keep, method):
 _select_methods = {'nsmallest': nsmallest, 'nlargest': nlargest}
 
 
-def select_n(series, n, keep, method):
-    """Implement n largest/smallest.
+def select_n_series(series, n, keep, method):
+    """Implement n largest/smallest for pandas Series
 
     Parameters
     ----------
+    series : pandas.Series object
     n : int
     keep : {'first', 'last'}, default 'first'
     method : str, {'nlargest', 'nsmallest'}
@@ -710,6 +716,31 @@ def select_n(series, n, keep, method):
 
     inds = _select_methods[method](dropped.values, n, keep)
     return dropped.iloc[inds]
+
+
+def select_n_frame(frame, columns, n, method, keep):
+    """Implement n largest/smallest for pandas DataFrame
+
+    Parameters
+    ----------
+    frame : pandas.DataFrame object
+    columns : list or str
+    n : int
+    keep : {'first', 'last'}, default 'first'
+    method : str, {'nlargest', 'nsmallest'}
+
+    Returns
+    -------
+    nordered : DataFrame
+    """
+    from pandas.core.series import Series
+    if not is_list_like(columns):
+        columns = [columns]
+    columns = list(columns)
+    ser = getattr(frame[columns[0]], method)(n, keep=keep)
+    if isinstance(ser, Series):
+        ser = ser.to_frame()
+    return ser.merge(frame, on=columns[0], left_index=True)[frame.columns]
 
 
 def _finalize_nsmallest(arr, kth_val, n, keep, narr):

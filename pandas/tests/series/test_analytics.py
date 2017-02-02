@@ -1515,6 +1515,15 @@ class TestSeriesAnalytics(TestData, tm.TestCase):
         with tm.assertRaisesRegexp(ValueError, msg):
             s.nlargest(keep='invalid')
 
+        # GH 13412
+        s = Series([1, 4, 3, 2], index=[0, 0, 1, 1])
+        result = s.nlargest(3)
+        expected = s.sort_values(ascending=False).head(3)
+        assert_series_equal(result, expected)
+        result = s.nsmallest(3)
+        expected = s.sort_values().head(3)
+        assert_series_equal(result, expected)
+
     def test_sortlevel(self):
         mi = MultiIndex.from_tuples([[1, 1, 3], [1, 1, 1]], names=list('ABC'))
         s = Series([1, 2], mi)
@@ -1618,7 +1627,7 @@ class TestSeriesAnalytics(TestData, tm.TestCase):
             tm.assertRaisesRegexp(TypeError, msg, a.reshape, (2, 2), foo=2)
 
         with tm.assert_produces_warning(FutureWarning, check_stacklevel=False):
-            msg = "reshape\(\) got an unexpected keyword argument 'foo'"
+            msg = r"reshape\(\) got an unexpected keyword argument 'foo'"
             tm.assertRaisesRegexp(TypeError, msg, a.reshape, a.shape, foo=2)
 
     def test_numpy_reshape(self):

@@ -20,6 +20,7 @@ from pandas.types.common import (is_integer, _ensure_object,
                                  is_float,
                                  is_scalar)
 from pandas.core.index import Index, MultiIndex, RangeIndex
+from pandas.core.series import Series
 from pandas.core.frame import DataFrame
 from pandas.core.common import AbstractMethodError
 from pandas.core.config import get_option
@@ -1456,6 +1457,8 @@ class CParserWrapper(ParserBase):
     def close(self):
         for f in self.handles:
             f.close()
+
+        # close additional handles opened by C parser (for compression)
         try:
             self._reader.close()
         except:
@@ -1507,10 +1510,11 @@ class CParserWrapper(ParserBase):
             if self._first_chunk:
                 self._first_chunk = False
                 names = self._maybe_dedup_names(self.orig_names)
-
                 index, columns, col_dict = _get_empty_meta(
                     names, self.index_col, self.index_names,
                     dtype=self.kwds.get('dtype'))
+                columns = self._maybe_make_multi_index_columns(
+                    columns, self.col_names)
 
                 if self.usecols is not None:
                     columns = self._filter_usecols(columns)
@@ -1759,6 +1763,9 @@ class PythonParser(ParserBase):
         self.delimiter = kwds['delimiter']
 
         self.quotechar = kwds['quotechar']
+        if isinstance(self.quotechar, compat.text_type):
+            self.quotechar = str(self.quotechar)
+
         self.escapechar = kwds['escapechar']
         self.doublequote = kwds['doublequote']
         self.skipinitialspace = kwds['skipinitialspace']
@@ -1974,8 +1981,11 @@ class PythonParser(ParserBase):
         if not len(content):  # pragma: no cover
             # DataFrame with the right metadata, even though it's length 0
             names = self._maybe_dedup_names(self.orig_names)
-            return _get_empty_meta(names, self.index_col,
-                                   self.index_names)
+            index, columns, col_dict = _get_empty_meta(
+                names, self.index_col, self.index_names)
+            columns = self._maybe_make_multi_index_columns(
+                columns, self.col_names)
+            return index, columns, col_dict
 
         # handle new style for names in index
         count_empty_content_vals = count_empty_vals(content[0])
@@ -2030,8 +2040,27 @@ class PythonParser(ParserBase):
                 col = self.orig_names[col]
             clean_conv[col] = f
 
-        return self._convert_to_ndarrays(data, self.na_values, self.na_fvalues,
-                                         self.verbose, clean_conv)
+        # Apply NA values.
+        clean_na_values = {}
+        clean_na_fvalues = {}
+
+        if isinstance(self.na_values, dict):
+            for col in self.na_values:
+                na_value = self.na_values[col]
+                na_fvalue = self.na_fvalues[col]
+
+                if isinstance(col, int) and col not in self.orig_names:
+                    col = self.orig_names[col]
+
+                clean_na_values[col] = na_value
+                clean_na_fvalues[col] = na_fvalue
+        else:
+            clean_na_values = self.na_values
+            clean_na_fvalues = self.na_fvalues
+
+        return self._convert_to_ndarrays(data, clean_na_values,
+                                         clean_na_fvalues, self.verbose,
+                                         clean_conv)
 
     def _to_recarray(self, data, columns):
         dtypes = []
@@ -2078,6 +2107,12 @@ class PythonParser(ParserBase):
                     # We have an empty file, so check
                     # if columns are provided. That will
                     # serve as the 'line' for parsing
+                    if have_mi_columns and hr > 0:
+                        if clear_buffer:
+                            self._clear_buffer()
+                        columns.append([None] * len(columns[-1]))
+                        return columns, num_original_columns
+
                     if not self.names:
                         raise EmptyDataError(
                             "No columns to parse from file")
@@ -2311,14 +2346,23 @@ class PythonParser(ParserBase):
                 try:
                     orig_line = next(self.data)
                 except csv.Error as e:
+                    msg = str(e)
+
                     if 'NULL byte' in str(e):
-                        raise csv.Error(
-                            'NULL byte detected. This byte '
-                            'cannot be processed in Python\'s '
-                            'native csv library at the moment, '
-                            'so please pass in engine=\'c\' instead.')
-                    else:
-                        raise
+                        msg = ('NULL byte detected. This byte '
+                               'cannot be processed in Python\'s '
+                               'native csv library at the moment, '
+                               'so please pass in engine=\'c\' instead')
+
+                    if self.skipfooter > 0:
+                        reason = ('Error could possibly be due to '
+                                  'parsing errors in the skipped footer rows '
+                                  '(the skipfooter keyword is only applied '
+                                  'after Python\'s csv library has parsed '
+                                  'all rows).')
+                        msg += '. ' + reason
+
+                    raise csv.Error(msg)
                 line = self._check_comments([orig_line])[0]
                 self.pos += 1
                 if (not self.skip_blank_lines and
@@ -2499,6 +2543,11 @@ class PythonParser(ParserBase):
 
             msg = ('Expected %d fields in line %d, saw %d' %
                    (col_len, row_num + 1, zip_len))
+            if len(self.delimiter) > 1 and self.quoting != csv.QUOTE_NONE:
+                # see gh-13374
+                reason = ('Error could possibly be due to quotes being '
+                          'ignored when a multi-char delimiter is used.')
+                msg += '. ' + reason
             raise ValueError(msg)
 
         if self.usecols:
@@ -2719,6 +2768,7 @@ def _clean_na_values(na_values, keep_default_na=True):
             na_values = []
         na_fvalues = set()
     elif isinstance(na_values, dict):
+        na_values = na_values.copy()  # Prevent aliasing.
         if keep_default_na:
             for k, v in compat.iteritems(na_values):
                 if not is_list_like(v):
@@ -2776,19 +2826,27 @@ def _clean_index_names(columns, index_col):
 def _get_empty_meta(columns, index_col, index_names, dtype=None):
     columns = list(columns)
 
-    if dtype is None:
-        dtype = {}
+    # Convert `dtype` to a defaultdict of some kind.
+    # This will enable us to write `dtype[col_name]`
+    # without worrying about KeyError issues later on.
+    if not isinstance(dtype, dict):
+        # if dtype == None, default will be np.object.
+        default_dtype = dtype or np.object
+        dtype = defaultdict(lambda: default_dtype)
     else:
-        if not isinstance(dtype, dict):
-            dtype = defaultdict(lambda: dtype)
+        # Save a copy of the dictionary.
+        _dtype = dtype.copy()
+        dtype = defaultdict(lambda: np.object)
+
         # Convert column indexes to column names.
-        dtype = dict((columns[k] if is_integer(k) else k, v)
-                     for k, v in compat.iteritems(dtype))
+        for k, v in compat.iteritems(_dtype):
+            col = columns[k] if is_integer(k) else k
+            dtype[col] = v
 
     if index_col is None or index_col is False:
         index = Index([])
     else:
-        index = [np.empty(0, dtype=dtype.get(index_name, np.object))
+        index = [Series([], dtype=dtype[index_name])
                  for index_name in index_names]
         index = MultiIndex.from_arrays(index, names=index_names)
         index_col.sort()
@@ -2796,7 +2854,7 @@ def _get_empty_meta(columns, index_col, index_names, dtype=None):
             columns.pop(n - i)
 
     col_dict = dict((col_name,
-                     np.empty(0, dtype=dtype.get(col_name, np.object)))
+                     Series([], dtype=dtype[col_name]))
                     for col_name in columns)
 
     return index, columns, col_dict

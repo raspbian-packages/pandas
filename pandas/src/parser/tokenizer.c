@@ -478,9 +478,10 @@ static int end_line(parser_t *self) {
         }
     }
 
-    if (self->state == SKIP_LINE || \
-        self->state == QUOTE_IN_SKIP_LINE || \
-        self->state == QUOTE_IN_QUOTE_IN_SKIP_LINE
+    if (self->state == START_FIELD_IN_SKIP_LINE || \
+        self->state == IN_FIELD_IN_SKIP_LINE || \
+        self->state == IN_QUOTED_FIELD_IN_SKIP_LINE || \
+        self->state == QUOTE_IN_QUOTED_FIELD_IN_SKIP_LINE
     ) {
         TRACE(("end_line: Skipping row %d\n", self->file_lines));
         // increment file line count
@@ -725,15 +726,13 @@ int skip_this_line(parser_t *self, int64_t rownum) {
     }
 }
 
-int tokenize_bytes(parser_t *self, size_t line_limit)
+int tokenize_bytes(parser_t *self, size_t line_limit, int start_lines)
 {
-    int i, slen, start_lines;
+    int i, slen;
     long maxstreamsize;
     char c;
     char *stream;
     char *buf = self->data + self->datapos;
-
-    start_lines = self->lines;
 
     if (make_stream_space(self, self->datalen - self->datapos) < 0) {
         self->error_msg = "out of memory";
@@ -761,38 +760,54 @@ int tokenize_bytes(parser_t *self, size_t line_limit)
 
         switch(self->state) {
 
-        case SKIP_LINE:
-            TRACE(("tokenize_bytes SKIP_LINE 0x%x, state %d\n", c, self->state));
+        case START_FIELD_IN_SKIP_LINE:
             if (IS_TERMINATOR(c)) {
                 END_LINE();
             } else if (IS_CARRIAGE(c)) {
                 self->file_lines++;
                 self->state = EAT_CRNL_NOP;
             } else if (IS_QUOTE(c)) {
-                self->state = QUOTE_IN_SKIP_LINE;
+                self->state = IN_QUOTED_FIELD_IN_SKIP_LINE;
+            } else if (IS_DELIMITER(c)) {
+                // Do nothing, we're starting a new field again.
+            } else {
+                self->state = IN_FIELD_IN_SKIP_LINE;
             }
             break;
 
-        case QUOTE_IN_SKIP_LINE:
+        case IN_FIELD_IN_SKIP_LINE:
+            if (IS_TERMINATOR(c)) {
+                END_LINE();
+            } else if (IS_CARRIAGE(c)) {
+                self->file_lines++;
+                self->state = EAT_CRNL_NOP;
+            } else if (IS_DELIMITER(c)) {
+                self->state = START_FIELD_IN_SKIP_LINE;
+            }
+            break;
+
+        case IN_QUOTED_FIELD_IN_SKIP_LINE:
             if (IS_QUOTE(c)) {
                 if (self->doublequote) {
-                    self->state = QUOTE_IN_QUOTE_IN_SKIP_LINE;
+                    self->state = QUOTE_IN_QUOTED_FIELD_IN_SKIP_LINE;
                 } else {
-                    self->state = SKIP_LINE;
+                    self->state = IN_FIELD_IN_SKIP_LINE;
                 }
             }
             break;
 
-        case QUOTE_IN_QUOTE_IN_SKIP_LINE:
+        case QUOTE_IN_QUOTED_FIELD_IN_SKIP_LINE:
             if (IS_QUOTE(c)) {
-                self->state = QUOTE_IN_SKIP_LINE;
+                self->state = IN_QUOTED_FIELD_IN_SKIP_LINE;
             } else if (IS_TERMINATOR(c)) {
                 END_LINE();
             } else if (IS_CARRIAGE(c)) {
                 self->file_lines++;
                 self->state = EAT_CRNL_NOP;
+            } else if (IS_DELIMITER(c)) {
+                self->state = START_FIELD_IN_SKIP_LINE;
             } else {
-                self->state = SKIP_LINE;
+                self->state = IN_FIELD_IN_SKIP_LINE;
             }
             break;
 
@@ -846,9 +861,9 @@ int tokenize_bytes(parser_t *self, size_t line_limit)
             // start of record
             if (skip_this_line(self, self->file_lines)) {
                 if (IS_QUOTE(c)) {
-                    self->state = QUOTE_IN_SKIP_LINE;
+                    self->state = IN_QUOTED_FIELD_IN_SKIP_LINE;
                 } else {
-                    self->state = SKIP_LINE;
+                    self->state = IN_FIELD_IN_SKIP_LINE;
 
                     if (IS_TERMINATOR(c)) {
                         END_LINE();
@@ -1367,7 +1382,7 @@ int _tokenize_helper(parser_t *self, size_t nrows, int all) {
         TRACE(("_tokenize_helper: Trying to process %d bytes, datalen=%d, datapos= %d\n",
                self->datalen - self->datapos, self->datalen, self->datapos));
 
-        status = tokenize_bytes(self, nrows);
+        status = tokenize_bytes(self, nrows, start_lines);
 
         if (status < 0) {
             // XXX
