@@ -40,7 +40,7 @@ _mixed2 = DataFrame({'A': _frame2['A'].copy(),
                      'C': _frame2['C'].astype('int64'),
                      'D': _frame2['D'].astype('int32')})
 _integer = DataFrame(
-    np.random.randint(1, 100,
+    np.random.randint(1, 10,
                       size=(10001, 4)), columns=list('ABCD'), dtype='int64')
 _integer2 = DataFrame(np.random.randint(1, 100, size=(101, 4)),
                       columns=list('ABCD'), dtype='int64')
