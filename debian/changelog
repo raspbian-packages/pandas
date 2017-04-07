@@ -1,9 +1,17 @@
-pandas (0.19.2-5+rpi1) stretch-staging; urgency=medium
+pandas (0.19.2-5.1+rpi1) stretch-staging; urgency=medium
 
   [changes brought forward from 0.19.0+git14-ga40e185-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sat, 15 Oct 2016 11:18:39 +0000]
   * Disable testsuite.
 
- -- Peter Michael Green <plugwash@raspbian.org>  Thu, 02 Feb 2017 15:32:48 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Fri, 07 Apr 2017 01:09:31 +0000
+
+pandas (0.19.2-5.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Apply patch by Rebecca N. Palmer
+    Closes: #858260
+
+ -- Andreas Tille <tille@debian.org>  Sun, 02 Apr 2017 07:06:36 +0200
 
 pandas (0.19.2-5) unstable; urgency=medium
 
