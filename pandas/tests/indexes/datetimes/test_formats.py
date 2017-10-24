@@ -2,10 +2,11 @@ from pandas import DatetimeIndex
 
 import numpy as np
 
+import pytest
 import pandas.util.testing as tm
 import pandas as pd
 
-
+@pytest.mark.intel
 def test_to_native_types():
     index = DatetimeIndex(freq='1D', periods=3, start='2017-01-01')
 

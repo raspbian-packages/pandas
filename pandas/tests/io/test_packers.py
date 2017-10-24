@@ -59,6 +59,7 @@ def all_packers_data():
     return create_data()
 
 
+@pytest.mark.intel
 def check_arbitrary(a, b):
 
     if isinstance(a, (list, tuple)) and isinstance(b, (list, tuple)):
@@ -901,6 +902,7 @@ TestPackers
         else:
             tm.assert_frame_equal(result, expected)
 
+    @pytest.mark.intel
     @pytest.mark.parametrize('version', legacy_packers_versions())
     def test_msgpacks_legacy(self, current_packers_data, all_packers_data,
                              version):
