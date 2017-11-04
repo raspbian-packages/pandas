@@ -2,10 +2,11 @@ from pandas import PeriodIndex
 
 import numpy as np
 
+import pytest
 import pandas.util.testing as tm
 import pandas as pd
 
-
+@pytest.mark.intel
 def test_to_native_types():
     index = PeriodIndex(['2017-01-01', '2017-01-02',
                          '2017-01-03'], freq='D')
