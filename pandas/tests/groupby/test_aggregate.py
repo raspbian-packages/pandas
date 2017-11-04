@@ -131,6 +131,7 @@ class TestGroupByAggregate(object):
         grouped = df.groupby(df.index.month)
         list(grouped)
 
+    @pytest.mark.intel
     def test_agg_dict_parameter_cast_result_dtypes(self):
         # GH 12821
 

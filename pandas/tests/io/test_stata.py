@@ -24,6 +24,7 @@ from pandas.core.dtypes.common import is_categorical_dtype
 
 from pandas.compat import is_platform_little_endian
 if not is_platform_little_endian():
+    import nose
     raise nose.SkipTest("known failure of test_stata on non-little endian")
 
 
