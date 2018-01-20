@@ -1378,6 +1378,7 @@ class TestSeriesIndexing(TestData):
         expected = Series([5, 11, 2, 5, 11, 2], index=[0, 1, 2, 0, 1, 2])
         assert_series_equal(comb, expected)
 
+    @pytest.mark.intel
     def test_where_datetime(self):
         s = Series(date_range('20130102', periods=2))
         expected = Series([10, 10], dtype='datetime64[ns]')
@@ -1407,6 +1408,7 @@ class TestSeriesIndexing(TestData):
         expected = Series([pd.NaT, s[1]])
         assert_series_equal(rs, expected)
 
+    @pytest.mark.intel
     def test_where_timedelta(self):
         s = Series([1, 2], dtype='timedelta64[ns]')
         expected = Series([10, 10], dtype='timedelta64[ns]')

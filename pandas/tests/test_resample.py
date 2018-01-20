@@ -2152,6 +2152,7 @@ class TestDatetimeIndex(Base):
 
         assert_frame_equal(frame.resample('60s').mean(), frame_3s)
 
+    @pytest.mark.intel
     def test_resample_timedelta_values(self):
         # GH 13119
         # check that timedelta dtype is preserved when NaT values are
@@ -2169,6 +2170,7 @@ class TestDatetimeIndex(Base):
         res = df['time'].resample('2D').first()
         tm.assert_series_equal(res, exp)
 
+    @pytest.mark.intel
     def test_resample_datetime_values(self):
         # GH 13119
         # check that datetime dtype is preserved when NaT values are

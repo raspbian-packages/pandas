@@ -828,6 +828,7 @@ class TestSeriesConstructors(TestData):
         series[2] = val
         assert isnull(series[2])
 
+    @pytest.mark.intel
     def test_NaT_cast(self):
         # GH10747
         result = Series([np.nan]).astype('M8[ns]')
