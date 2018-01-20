@@ -1184,6 +1184,7 @@ class TestHDFStore(Base):
                 reloaded_panel = read_hdf(path, 'panel_with_missing')
                 tm.assert_panel_equal(panel_with_missing, reloaded_panel)
 
+    @pytest.mark.intel
     def test_append_frame_column_oriented(self):
 
         with ensure_clean_store(self.path) as store:
