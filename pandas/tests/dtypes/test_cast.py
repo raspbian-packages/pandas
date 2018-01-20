@@ -137,6 +137,7 @@ class TestInferDtype(object):
             dtype, val = infer_dtype_from_scalar(data)
             assert dtype == np.object_
 
+    @pytest.mark.intel
     @pytest.mark.parametrize(
         "arr, expected",
         [('foo', np.object_),

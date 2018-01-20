@@ -175,6 +175,7 @@ class TestDataFrameConvertTo(TestData):
         expected = np.rec.array([('x', 'y')], dtype=[('a', 'O'), ('b', 'O')])
         tm.assert_almost_equal(result, expected)
 
+    @pytest.mark.intel
     def test_to_records_with_unicode_column_names(self):
         # xref issue: https://github.com/numpy/numpy/issues/2407
         # Issue #11879. to_records used to raise an exception when used
