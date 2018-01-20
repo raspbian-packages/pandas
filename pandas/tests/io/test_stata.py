@@ -22,6 +22,10 @@ from pandas.io.stata import (read_stata, StataReader, InvalidColumnName,
 from pandas._libs.tslib import NaT
 from pandas.core.dtypes.common import is_categorical_dtype
 
+from pandas.compat import is_platform_little_endian
+if not is_platform_little_endian():
+    raise nose.SkipTest("known failure of test_stata on non-little endian")
+
 
 class TestStata(object):
 
