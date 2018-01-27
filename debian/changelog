@@ -4,8 +4,10 @@ pandas (0.20.3-11+rpi1) buster-staging; urgency=medium
   * Disable testsuite.
   * Add build-depends on python-ipykernel and python3-ipykernel
   * Fix clean target.
+  [changes introduced in 0.20.3-11+rpi1 by Peter Michael Green]
+  * Add build-depends on python-lzma
 
- -- Raspbian forward porter <root@raspbian.org>  Sat, 27 Jan 2018 05:07:35 +0000
+ -- Peter Michael Green <plugwash@raspbian.org>  Sat, 27 Jan 2018 05:07:35 +0000
 
 pandas (0.20.3-11) unstable; urgency=medium
 
