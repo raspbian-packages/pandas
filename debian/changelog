@@ -1,10 +1,25 @@
-pandas (0.20.3-10+rpi1) buster-staging; urgency=medium
+pandas (0.20.3-11+rpi1) buster-staging; urgency=medium
 
+  [changes brought forward from 0.20.3-10+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sat, 04 Nov 2017 00:02:42 +0000]
   * Disable testsuite.
   * Add build-depends on python-ipykernel and python3-ipykernel
   * Fix clean target.
 
- -- Peter Michael Green <plugwash@raspbian.org>  Sat, 04 Nov 2017 00:02:42 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sat, 27 Jan 2018 05:07:35 +0000
+
+pandas (0.20.3-11) unstable; urgency=medium
+
+  * Team upload.
+  * Cherry-pick upstream commit 5f2b96bb637f6ddeec169c5ef8ad20013a03c853
+    to workaround a numpy bug. (Closes: #884294)
+    + patches/up_tst_dont_assert_that_a_bug_exists_in_numpy
+  * Cherry-pick upstream commits to fix test failure caused by test_argsort().
+    + patches/up_tst_np_argsort_comparison2
+  * Workaround test failure of test_basic_indexing() in file
+    pandas/tests/series/test_indexing.py .
+    + patches/deb_fix_test_failure_test_basic_indexing
+
+ -- Mo Zhou <cdluminate@gmail.com>  Sat, 20 Jan 2018 09:00:31 +0000
 
 pandas (0.20.3-10) unstable; urgency=medium
 

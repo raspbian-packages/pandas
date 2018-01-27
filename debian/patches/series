@@ -3,12 +3,15 @@ deb_doc_donotoverride_PYTHONPATH
 deb_skip_stata_on_bigendians
 deb_disable_googleanalytics
 deb_skip_sequencelike_on_armel
+deb_fix_test_failure_test_basic_indexing
 # Try to skip -- migth have been addressed upstream
 # deb_skip_test_pytables_failure
 # up_buggy_overflows
 # 858260.patch
 up_print_versions
 up_network_seaborn
+up_tst_dont_assert_that_a_bug_exists_in_numpy
+up_tst_np_argsort_comparison2
 dateutil-2.6.1-fixed-ambiguous-tz-dst-be.patch
 mark_tests_working_on_intel.patch
 mark_tests_working_on_intel_s390x.patch
