@@ -135,7 +135,7 @@ endif
 
 override_dh_installdocs:
 	: # Build Documentation using installed pandas
-ifeq (,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
+ifeq (docdisabled,$(filter nodoc,$(DEB_BUILD_OPTIONS)))
 ifneq (,$(findstring -a,$(DH_INTERNAL_OPTIONS)))
 	: # not building documentation in -a
 else

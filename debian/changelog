@@ -6,6 +6,7 @@ pandas (0.20.3-11+rpi1) buster-staging; urgency=medium
   * Fix clean target.
   [changes introduced in 0.20.3-11+rpi1 by Peter Michael Green]
   * Add build-depends on python-lzma
+  * Disable documentation build.
 
  -- Peter Michael Green <plugwash@raspbian.org>  Sat, 27 Jan 2018 05:07:35 +0000
 
