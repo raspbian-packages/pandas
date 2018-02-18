@@ -52,6 +52,7 @@ def test_xarray(df):
     assert df.to_xarray() is not None
 
 
+@tm.network
 def test_statsmodels():
 
     statsmodels = import_module('statsmodels')  # noqa
@@ -72,6 +73,7 @@ def test_scikit_learn(df):
     clf.predict(digits.data[-1:])
 
 
+@tm.network
 def test_seaborn():
 
     seaborn = import_module('seaborn')
