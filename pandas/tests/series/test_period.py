@@ -94,6 +94,7 @@ class TestSeriesPeriod(object):
         series[2] = val
         assert isna(series[2])
 
+    @pytest.mark.intel
     def test_NaT_cast(self):
         result = Series([np.nan]).astype('period[D]')
         expected = Series([NaT])
