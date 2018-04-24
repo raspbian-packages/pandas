@@ -1,0 +1,27 @@
+Description: Fix FTBFS with Sphinx 1.7
+Forwarded: not-needed
+Author: Graham Inggs <ginggs@debian.org>
+Last-Update: 2018-04-24
+
+--- a/doc/sphinxext/numpydoc/numpydoc.py
++++ b/doc/sphinxext/numpydoc/numpydoc.py
+@@ -26,7 +26,7 @@
+     raise RuntimeError("Sphinx 1.0.1 or newer is required")
+ 
+ from .docscrape_sphinx import get_doc_object, SphinxDocString
+-from sphinx.util.compat import Directive
++from docutils.parsers.rst import Directive
+ 
+ if sys.version_info[0] >= 3:
+     sixu = lambda s: s
+--- a/doc/sphinxext/ipython_sphinxext/ipython_directive.py
++++ b/doc/sphinxext/ipython_sphinxext/ipython_directive.py
+@@ -124,7 +124,7 @@
+ import sphinx
+ from docutils.parsers.rst import directives
+ from docutils import nodes
+-from sphinx.util.compat import Directive
++from docutils.parsers.rst import Directive
+ 
+ # Our own
+ try:

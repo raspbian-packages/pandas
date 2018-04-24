@@ -1,0 +1,15 @@
+Author: Andreas Tille <tille@debian.org>
+Last-Update: Mon, 23 Oct 2017 14:18:56 +0200
+Description: Use Debian packaged mathjax
+
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -67,6 +67,8 @@ extensions = ['sphinx.ext.autodoc',
+               'nbsphinx',
+               ]
+ 
++mathjax_path='MathJax.js'
++
+ exclude_patterns = ['**.ipynb_checkpoints']
+ 
+ with open("index.rst") as f:
