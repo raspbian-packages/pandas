@@ -5009,6 +5009,7 @@ class TestHDFStore(Base):
             df_loaded = read_hdf(path, 'df', columns=cols2load)  # noqa
             assert cols2load_original == cols2load
 
+    @pytest.mark.skipif(True, reason="see https://github.com/pandas-dev/pandas/issues/19774")
     def test_to_hdf_with_object_column_names(self):
         # GH9057
         # Writing HDF5 table format should only work for string-like
