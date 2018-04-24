@@ -12,7 +12,10 @@ from warnings import catch_warnings
 import numpy as np
 import pytest
 from numpy import nan
-import moto
+try:
+    import moto
+except ImportError:
+    moto = None
 
 import pandas as pd
 import pandas.util.testing as tm
@@ -615,6 +618,7 @@ class XlrdTests(ReadingTestsBase):
         local_table = self.get_exceldf('test1')
         tm.assert_frame_equal(url_table, local_table)
 
+    @pytest.mark.skipif(not moto, reason="requires moto")
     def test_read_from_s3_url(self):
         boto3 = pytest.importorskip('boto3')
         pytest.importorskip('s3fs')
