@@ -46,6 +46,11 @@ EXCLUDE_TESTS3.3 :=
 EXCLUDE_TESTS3.4 := $(EXCLUDE_TESTS3.3)
 EXCLUDE_TESTS3.5 := $(EXCLUDE_TESTS3.3)
 
+PYTESTVER := $(shell pytest --version 2>&1 | awk '/This is pytest version/{print $$5;}' | sed "sX[ ,]XXg")
+
+ADDPATCHES :=
+ADDPATCHES += $(shell dpkg --compare-versions $(PYTESTVER) ge 3.1.0 || echo "0001-TST-pytest-deprecation-warnings-GH17197-17253-reversed.patch" )
+
 # MPLVER := $(shell dpkg -l python-matplotlib | awk '/^ii/{print $$3;}' || echo 0)
 # $(shell dpkg --compare-versions $(MPLVER) lt 1.0 && echo '|test_hist|test_plot|test_boxplot|test_corr_rank' || echo '')
 
@@ -108,11 +113,19 @@ version_py:
 	[ -e pandas/__version.py ] || \
       echo -e "version = '$(UVER_PY)'\nshort_version = '$(UVER_PYSHORT)'" > pandas/__version.py
 
-override_dh_auto_build: version_py
+override_dh_auto_build: version_py debian/patch-stamp
 	# Override default build operation which --force's re-cythonization
 	# on elderly ubuntus
 	# Just build the version.py file
 	:
+
+debian/patch-stamp:
+	if echo "${ADDPATCHES}" | sed -e 's,\s,,g' | grep  '.' ; then \
+       echo ${ADDPATCHES} >> debian/patches/series; \
+	   quilt push -a; \
+    fi
+	touch $@
+
 
 override_dh_auto_install: ${PYVERS:%=python-install%} ${PY3VERS:%=python-install%} ${PYVERS:%=python-test%} ${PY3VERS:%=python-test%}
 # Per Python version logic -- install, test, remomove .so (installed into -lib)
@@ -142,7 +155,7 @@ else
 	: # not building documentation ATM since requires ipython 0.11
 	export PYTHONPATH=`/bin/ls -d $$PWD/$(PACKAGE2_ROOT_DIR)/usr/lib/python$(PYVER)/*`; \
 	export MPLCONFIGDIR=$(CURDIR)/build HOME=$(CURDIR)/build; \
-	 cd doc; python make.py html
+	 cd doc; LC_ALL=C python make.py html
 endif
 endif
 	: # Use jquery from Debian package, so prune shipped one

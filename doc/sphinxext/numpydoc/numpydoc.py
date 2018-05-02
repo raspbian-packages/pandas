@@ -26,7 +26,7 @@ if sphinx.__version__ < '1.0.1':
     raise RuntimeError("Sphinx 1.0.1 or newer is required")
 
 from .docscrape_sphinx import get_doc_object, SphinxDocString
-from sphinx.util.compat import Directive
+from docutils.parsers.rst import Directive
 
 if sys.version_info[0] >= 3:
     sixu = lambda s: s
@@ -43,9 +43,10 @@ def mangle_docstrings(app, what, name, obj, options, lines,
               )
 
     # PANDAS HACK (to remove the list of methods/attributes for Categorical)
-    if what == "class" and (name.endswith(".Categorical") or
-                            name.endswith("CategoricalIndex") or
-                            name.endswith("IntervalIndex")):
+    no_autosummary = [".Categorical", "CategoricalIndex", "IntervalIndex",
+                      "RangeIndex", "Int64Index", "UInt64Index",
+                      "Float64Index", "PeriodIndex", "CategoricalDtype"]
+    if what == "class" and any(name.endswith(n) for n in no_autosummary):
         cfg['class_members_list'] = False
 
     if what == 'module':

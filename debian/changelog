@@ -1,4 +1,4 @@
-pandas (0.20.3-11+rpi1) buster-staging; urgency=medium
+pandas (0.22.0-6+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 0.20.3-10+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sat, 04 Nov 2017 00:02:42 +0000]
   * Disable testsuite.
@@ -8,7 +8,75 @@ pandas (0.20.3-11+rpi1) buster-staging; urgency=medium
   * Add build-depends on python-lzma
   * Disable documentation build.
 
- -- Peter Michael Green <plugwash@raspbian.org>  Sat, 27 Jan 2018 05:07:35 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Wed, 02 May 2018 06:55:21 +0000
+
+pandas (0.22.0-6) unstable; urgency=medium
+
+  * Team upload
+  * Fix FTBFS with Sphinx 1.7, thanks Dmitry Shachnev!
+
+ -- Graham Inggs <ginggs@debian.org>  Tue, 24 Apr 2018 19:09:20 +0000
+
+pandas (0.22.0-5) unstable; urgency=medium
+
+  * Team upload
+  * Add compatibility with Matplotlib 2.2 (Closes: #896673)
+
+ -- Graham Inggs <ginggs@debian.org>  Mon, 23 Apr 2018 13:56:12 +0000
+
+pandas (0.22.0-4) unstable; urgency=medium
+
+  * Team upload
+  * Fix more tests expecting little-endian results
+  * Fix heap corruption in read_csv on 32-bit, big-endian architectures
+    (Closes: #895890)
+
+ -- Graham Inggs <ginggs@debian.org>  Sun, 22 Apr 2018 21:48:27 +0000
+
+pandas (0.22.0-3) unstable; urgency=medium
+
+  * Team upload
+  * Refresh and re-enable mark_tests_working_on_intel.patch
+  * Fix test__get_dtype tests expecting little-endian results
+
+ -- Graham Inggs <ginggs@debian.org>  Thu, 12 Apr 2018 11:04:21 +0000
+
+pandas (0.22.0-2) unstable; urgency=medium
+
+  * debian/patches 
+    - as upstream moved over to pytest from nose, no more nose imports were
+      in the code. Just adjusted patches to import nose where needed
+  * debian/rules
+    - specify LC_ALL=C locale to avoid crash while building docs
+    - add the 0001-TST-pytest-deprecation-warnings-GH17197-17253-reversed.patch
+      to the series if building on a system with an old pytest
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Wed, 21 Feb 2018 23:44:58 -0500
+
+pandas (0.22.0-1) unstable; urgency=medium
+
+  * Upstream release
+  * debian/patches
+    - refreshed many
+    - updated some
+    - added
+      - up_moto_optional  to skip tests requiring moto (#777089)
+      - deb_skip_difffailingtests to skip  two failing tests
+        (see https://github.com/pandas-dev/pandas/issues/19774)
+      - up_xlwt_optional to skip a test requiring xlwt
+      - deb_ndsphinx_optional to make nbsphinx optional.
+        Make nbsphinx not required in build-depends on systems with
+        older python-sphinx
+      - mark_tests_failing_on_386.patch
+        see https://github.com/pandas-dev/pandas/issues/19814
+    - removed adopted upstream:
+  	  - dateutil-2.6.1-fixed-ambiguous-tz-dst-be.patch
+      - up_tst_np_argsort_comparison2
+    - disabled for now:
+      - mark_tests_working_on_intel.patch
+      - up_tst_dont_assert_that_a_bug_exists_in_numpy
+
+ -- Yaroslav Halchenko <debian@onerussian.com>  Wed, 21 Feb 2018 10:30:06 -0500
 
 pandas (0.20.3-11) unstable; urgency=medium
 

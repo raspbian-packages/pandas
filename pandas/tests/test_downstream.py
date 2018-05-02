@@ -72,6 +72,7 @@ def test_scikit_learn(df):
     clf.fit(digits.data[:-1], digits.target[:-1])
     clf.predict(digits.data[-1:])
 
+
 @tm.network
 def test_seaborn():
 
