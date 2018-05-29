@@ -1,5 +1,8 @@
 import pytest
-import moto
+try:
+    import moto
+except ImportError:
+    moto = None
 
 import pandas as pd
 from pandas import compat
@@ -69,6 +72,7 @@ def test_read_zipped_json():
     assert_frame_equal(uncompressed_df, compressed_df)
 
 
+@pytest.mark.skipif(not moto, reason="requires moto")
 @pytest.mark.parametrize('compression', COMPRESSION_TYPES)
 def test_with_s3_url(compression):
     boto3 = pytest.importorskip('boto3')
