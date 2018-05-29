@@ -5,9 +5,11 @@ import numpy as np
 import pandas as pd
 from pandas.util import testing as tm
 
+import pytest
 
 class TestToCSV(object):
 
+    @pytest.mark.skipif(True, reason="see https://github.com/pandas-dev/pandas/issues/19774")
     def test_to_csv_defualt_encoding(self):
         # GH17097
         df = DataFrame({'col': [u"AAAAA", u"ÄÄÄÄÄ", u"ßßßßß", u"聞聞聞聞聞"]})
