@@ -717,6 +717,8 @@ class TestSeriesPlots(TestPlotBase):
             with pytest.raises(TypeError):
                 s.plot(kind=kind, ax=ax)
 
+    @pytest.mark.skipif(tm.is_platform_32bit,
+        reason="https://github.com/pandas-dev/pandas/issues/19814")
     @pytest.mark.slow
     def test_valid_object_plot(self):
         s = Series(lrange(10), dtype=object)
