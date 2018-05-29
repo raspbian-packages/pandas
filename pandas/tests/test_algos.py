@@ -688,6 +688,7 @@ class TestValueCounts(object):
             expected = Series([2, 1, 1], index=[5., 10.3, np.nan])
             tm.assert_series_equal(result, expected)
 
+    @pytest.mark.intel
     def test_value_counts_normalized(self):
         # GH12558
         s = Series([1, 2, np.nan, np.nan, np.nan])
