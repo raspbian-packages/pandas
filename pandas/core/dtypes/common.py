@@ -1192,10 +1192,7 @@ def _is_unorderable_exception(e):
     """
 
     if PY36:
-        # Temporary fix for Debian, reference:
-        # https://github.com/pandas-dev/pandas/pull/17724
-        return any("'{}' not supported between instances of".format(op) in
-                   str(e) for op in ('>', '<'))
+        return "'>' not supported between instances of" in str(e)
 
     elif PY3:
         return 'unorderable' in str(e)

@@ -1,4 +1,4 @@
-pandas (0.22.0-6+rpi1) buster-staging; urgency=medium
+pandas (0.22.0-7+rpi1) buster-staging; urgency=medium
 
   [changes brought forward from 0.20.3-10+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sat, 04 Nov 2017 00:02:42 +0000]
   * Disable testsuite.
@@ -8,7 +8,21 @@ pandas (0.22.0-6+rpi1) buster-staging; urgency=medium
   * Add build-depends on python-lzma
   * Disable documentation build.
 
- -- Raspbian forward porter <root@raspbian.org>  Wed, 02 May 2018 06:55:21 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Tue, 05 Jun 2018 04:55:32 +0000
+
+pandas (0.22.0-7) unstable; urgency=medium
+
+  * Team Upload.
+
+  [ Mo Zhou ]
+  * Remove patch: deb_fix_test_failure_test_basic_indexing, which is
+    unneeded for pandas >= 0.21 . (Closes: #900061)
+
+  [ Graham Inggs ]
+  * Add riscv64 to the list of "not intel" architectures
+  * Update mark_tests_working_on_intel_armhf.patch
+
+ -- Graham Inggs <ginggs@debian.org>  Tue, 29 May 2018 13:50:59 +0000
 
 pandas (0.22.0-6) unstable; urgency=medium
 
