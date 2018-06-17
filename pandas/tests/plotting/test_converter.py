@@ -1,6 +1,7 @@
 import subprocess
 import pytest
 from datetime import datetime, date
+import sys
 
 import numpy as np
 from pandas import Timestamp, Period, Index, date_range, Series
@@ -27,7 +28,7 @@ class TestRegistration(object):
                 "import pandas as pd; "
                 "units = dict(matplotlib.units.registry); "
                 "assert pd.Timestamp in units)'")
-        call = ['python', '-c', code]
+        call = ['python' if sys.version_info[0] == 2 else 'python3', '-c', code]
         assert subprocess.check_call(call) == 0
 
     def test_warns(self):
