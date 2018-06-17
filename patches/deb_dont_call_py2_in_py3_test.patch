@@ -1,0 +1,28 @@
+Purpose: During python3 tests, command 'python' is called.
+         When there is no python2 installation, tests such as
+         autopkgtest would fail.
+Forward: no need.
+Author: Mo Zhou <cdluminate@gmail.com>
+Last-Update: 20180613
+
+diff --git a/pandas/tests/plotting/test_converter.py b/pandas/tests/plotting/test_converter.py
+index 3818c0464..ec678fda0 100644
+--- a/pandas/tests/plotting/test_converter.py
++++ b/pandas/tests/plotting/test_converter.py
+@@ -1,6 +1,7 @@
+ import subprocess
+ import pytest
+ from datetime import datetime, date
++import sys
+ 
+ import numpy as np
+ from pandas import Timestamp, Period, Index, date_range, Series
+@@ -27,7 +28,7 @@ class TestRegistration(object):
+                 "import pandas as pd; "
+                 "units = dict(matplotlib.units.registry); "
+                 "assert pd.Timestamp in units)'")
+-        call = ['python', '-c', code]
++        call = ['python' if sys.version_info[0] == 2 else 'python3', '-c', code]
+         assert subprocess.check_call(call) == 0
+ 
+     def test_warns(self):
