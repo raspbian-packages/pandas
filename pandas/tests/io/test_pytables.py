@@ -1042,6 +1042,7 @@ class TestHDFStore(Base):
                 with catch_warnings(record=True):
                     check('fixed', index)
 
+    @pytest.mark.intel
     @pytest.mark.skipif(not is_platform_little_endian(),
                         reason="reason platform is not little endian")
     def test_encoding(self):
@@ -1058,6 +1059,7 @@ class TestHDFStore(Base):
             result = store.select('df', Term('columns=A', encoding='ascii'))
             tm.assert_frame_equal(result, expected)
 
+    @pytest.mark.intel
     def test_latin_encoding(self):
 
         if compat.PY2:
@@ -1248,6 +1250,7 @@ class TestHDFStore(Base):
                 reloaded_panel = read_hdf(path, 'panel_with_missing')
                 tm.assert_panel_equal(panel_with_missing, reloaded_panel)
 
+    @pytest.mark.intel
     def test_append_frame_column_oriented(self):
 
         with ensure_clean_store(self.path) as store:
@@ -4371,6 +4374,7 @@ class TestHDFStore(Base):
             with pytest.raises(NotImplementedError):
                 store.select('dfs', start=0, stop=5)
 
+    @pytest.mark.intel
     def test_select_filter_corner(self):
 
         df = DataFrame(np.random.randn(50, 100))

@@ -444,6 +444,7 @@ class TestStata(object):
             tm.assert_frame_equal(written_and_read_again.set_index('index'),
                                   formatted)
 
+    @pytest.mark.intel
     @pytest.mark.parametrize(
         'file', ['dta14_113', 'dta14_114', 'dta14_115', 'dta14_117'])
     def test_read_write_reread_dta14(self, file, parsed_114):
@@ -1127,6 +1128,7 @@ class TestStata(object):
                 tm.assert_frame_equal(from_frame, chunk, check_dtype=False)
                 pos += chunksize
 
+    @pytest.mark.intel
     def test_write_variable_labels(self):
         # GH 13631, add support for writing variable labels
         original = pd.DataFrame({'a': [1, 2, 3, 4],
@@ -1179,6 +1181,7 @@ class TestStata(object):
             with tm.ensure_clean() as path:
                 original.to_stata(path, variable_labels=variable_labels_long)
 
+    @pytest.mark.intel
     def test_default_date_conversion(self):
         # GH 12259
         dates = [dt.datetime(1999, 12, 31, 12, 12, 12, 12000),
