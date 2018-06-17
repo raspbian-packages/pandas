@@ -2649,6 +2649,7 @@ class TestDataFrameIndexing(TestData):
         result = a.where(do_not_replace, b)
         assert_frame_equal(result, expected)
 
+    @pytest.mark.intel
     def test_where_datetime(self):
 
         # GH 3311

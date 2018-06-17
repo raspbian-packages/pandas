@@ -1104,6 +1104,7 @@ class TestTimedeltas(object):
             result = base - offset
             assert result == expected_sub
 
+    @pytest.mark.intel
     def test_timedelta_ops_with_missing_values(self):
         # setup
         s1 = pd.to_timedelta(Series(['00:00:01']))
