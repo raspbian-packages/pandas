@@ -1,6 +1,10 @@
 import os
 
-import moto
+try:
+    import moto
+except ImportError:
+    from unittest import SkipTest
+    moto = None
 import pytest
 from pandas.io.parsers import read_table
 
@@ -42,6 +46,8 @@ def s3_resource(tips_file, jsonl_file):
     is yielded by the fixture.
     """
     pytest.importorskip('s3fs')
+    if not moto:
+        raise SkipTest("requires moto")
     moto.mock_s3().start()
 
     test_s3_files = [
