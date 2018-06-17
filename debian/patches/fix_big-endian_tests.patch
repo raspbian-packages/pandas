@@ -1,0 +1,75 @@
+Description: Fix tests expecting little-endian results
+ These will always fail on big-endian architectures
+Forwarded: https://github.com/pandas-dev/pandas/pull/20662
+Applied-Upstream: 0.23.0, https://github.com/pandas-dev/pandas/commit/b20fe1537bc5e1f433fefd326e248b52d312a149
+Forwarded: https://github.com/pandas-dev/pandas/pull/20738
+Applied-Upstream: 0.23.0, https://github.com/pandas-dev/pandas/commit/07739aadda4a9afda31fe9ab5d7b01d19f3f1199
+Author: Graham Inggs <ginggs@debian.org>
+Last-Update: 2018-04-19
+
+--- a/pandas/tests/dtypes/test_common.py
++++ b/pandas/tests/dtypes/test_common.py
+@@ -551,8 +551,8 @@
+     (pd.CategoricalIndex(['a', 'b']), CategoricalDtype(['a', 'b'])),
+     (CategoricalDtype(), CategoricalDtype()),
+     (CategoricalDtype(['a', 'b']), CategoricalDtype()),
+-    (pd.DatetimeIndex([1, 2]), np.dtype('<M8[ns]')),
+-    (pd.DatetimeIndex([1, 2]).dtype, np.dtype('<M8[ns]')),
++    (pd.DatetimeIndex([1, 2]), np.dtype('=M8[ns]')),
++    (pd.DatetimeIndex([1, 2]).dtype, np.dtype('=M8[ns]')),
+     ('<M8[ns]', np.dtype('<M8[ns]')),
+     ('datetime64[ns, Europe/London]', DatetimeTZDtype('ns', 'Europe/London')),
+     (pd.SparseSeries([1, 2], dtype='int32'), np.dtype('int32')),
+--- a/pandas/tests/dtypes/test_cast.py
++++ b/pandas/tests/dtypes/test_cast.py
+@@ -189,9 +189,9 @@
+          (pd.Categorical(list('aabc')), 'category', True),
+          (pd.Categorical([1, 2, 3]), 'category', True),
+          (Timestamp('20160101'), np.object_, False),
+-         (np.datetime64('2016-01-01'), np.dtype('<M8[D]'), False),
++         (np.datetime64('2016-01-01'), np.dtype('=M8[D]'), False),
+          (pd.date_range('20160101', periods=3),
+-          np.dtype('<M8[ns]'), False),
++          np.dtype('=M8[ns]'), False),
+          (pd.date_range('20160101', periods=3, tz='US/Eastern'),
+           'datetime64[ns, US/Eastern]', True),
+          (pd.Series([1., 2, 3]), np.float64, False),
+--- a/pandas/tests/frame/test_convert_to.py
++++ b/pandas/tests/frame/test_convert_to.py
+@@ -147,7 +147,7 @@
+         expected = np.rec.array(
+             [(0, 1.0)],
+             dtype={"names": ["index", u"accented_name_é"],
+-                   "formats": ['<i8', '<f8']}
++                   "formats": ['=i8', '=f8']}
+         )
+         tm.assert_almost_equal(result, expected)
+ 
+--- a/pandas/tests/indexes/period/test_formats.py
++++ b/pandas/tests/indexes/period/test_formats.py
+@@ -12,7 +12,7 @@
+ 
+     # First, with no arguments.
+     expected = np.array(['2017-01-01', '2017-01-02',
+-                         '2017-01-03'], dtype='<U10')
++                         '2017-01-03'], dtype='=U10')
+ 
+     result = index.to_native_types()
+     tm.assert_numpy_array_equal(result, expected)
+@@ -22,14 +22,14 @@
+     tm.assert_numpy_array_equal(result, expected)
+ 
+     # Make sure slicing works
+-    expected = np.array(['2017-01-01', '2017-01-03'], dtype='<U10')
++    expected = np.array(['2017-01-01', '2017-01-03'], dtype='=U10')
+ 
+     result = index.to_native_types([0, 2])
+     tm.assert_numpy_array_equal(result, expected)
+ 
+     # Make sure date formatting works
+     expected = np.array(['01-2017-01', '01-2017-02',
+-                         '01-2017-03'], dtype='<U10')
++                         '01-2017-03'], dtype='=U10')
+ 
+     result = index.to_native_types(date_format='%m-%Y-%d')
+     tm.assert_numpy_array_equal(result, expected)
