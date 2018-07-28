@@ -87,6 +87,7 @@ def test_agg_period_index():
     list(grouped)
 
 
+@pytest.mark.intel
 def test_agg_dict_parameter_cast_result_dtypes():
     # GH 12821
 

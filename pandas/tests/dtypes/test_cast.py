@@ -81,6 +81,7 @@ class TestMaybeDowncast(object):
             tm.assert_almost_equal(result, np.array([], dtype=np.int64))
             assert result.dtype == np.int64
 
+    @pytest.mark.intel
     def test_datetimelikes_nan(self):
         arr = np.array([1, 2, np.nan])
         exp = np.array([1, 2, np.datetime64('NaT')], dtype='datetime64[ns]')
