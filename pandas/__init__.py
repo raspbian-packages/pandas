@@ -79,11 +79,7 @@ tslib = _DeprecatedModule(deprmod='pandas.tslib',
                                  'NaTType': 'type(pandas.NaT)',
                                  'OutOfBoundsDatetime': 'pandas.errors.OutOfBoundsDatetime'})
 
-# use the closest tagged version if possible
-from ._version import get_versions
-v = get_versions()
-__version__ = v.get('closest-tag', v['version'])
-del get_versions, v
+from .__version import version as __version__
 
 # module level doc-string
 __doc__ = """
