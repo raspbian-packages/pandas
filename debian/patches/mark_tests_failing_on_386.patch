@@ -1,0 +1,20 @@
+--- a/pandas/tests/plotting/test_series.py
++++ b/pandas/tests/plotting/test_series.py
+@@ -10,7 +10,7 @@ from datetime import datetime
+ 
+ import pandas as pd
+ from pandas import Series, DataFrame, date_range
+-from pandas.compat import range, lrange
++from pandas.compat import range, lrange, is_platform_32bit
+ import pandas.util.testing as tm
+ import pandas.util._test_decorators as td
+ 
+@@ -718,6 +718,8 @@ class TestSeriesPlots(TestPlotBase):
+             with pytest.raises(TypeError):
+                 s.plot(kind=kind, ax=ax)
+ 
++    @pytest.mark.skipif(is_platform_32bit,
++        reason="https://github.com/pandas-dev/pandas/issues/19814")
+     @pytest.mark.slow
+     def test_valid_object_plot(self):
+         s = Series(lrange(10), dtype=object)
