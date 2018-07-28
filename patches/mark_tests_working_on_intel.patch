@@ -1,0 +1,115 @@
+Description: Mark those tests @pytest.mark.intel that pass only on Intel architectures
+Author: Andreas Tille <tille@debian.org>
+Last-Update Sat, 14 Oct 2017 19:42:59 +0200
+Bug-Debian: https://bugs.debian.org/877419
+Author: Graham Inggs <ginggs@debian.org>
+Last-Update: 2018-04-11
+
+--- a/pandas/tests/test_algos.py
++++ b/pandas/tests/test_algos.py
+@@ -759,6 +759,7 @@ class TestValueCounts(object):
+             expected = Series([2, 1, 1], index=[5., 10.3, np.nan])
+             tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.intel
+     def test_value_counts_normalized(self):
+         # GH12558
+         s = Series([1, 2, np.nan, np.nan, np.nan])
+--- a/pandas/tests/test_resample.py
++++ b/pandas/tests/test_resample.py
+@@ -2110,6 +2110,7 @@ class TestDatetimeIndex(Base):
+ 
+         assert_frame_equal(frame.resample('60s').mean(), frame_3s)
+ 
++    @pytest.mark.intel
+     def test_resample_timedelta_values(self):
+         # GH 13119
+         # check that timedelta dtype is preserved when NaT values are
+@@ -2127,6 +2128,7 @@ class TestDatetimeIndex(Base):
+         res = df['time'].resample('2D').first()
+         tm.assert_series_equal(res, exp)
+ 
++    @pytest.mark.intel
+     def test_resample_datetime_values(self):
+         # GH 13119
+         # check that datetime dtype is preserved when NaT values are
+--- a/pandas/tests/dtypes/test_cast.py
++++ b/pandas/tests/dtypes/test_cast.py
+@@ -81,6 +81,7 @@ class TestMaybeDowncast(object):
+             tm.assert_almost_equal(result, np.array([], dtype=np.int64))
+             assert result.dtype == np.int64
+ 
++    @pytest.mark.intel
+     def test_datetimelikes_nan(self):
+         arr = np.array([1, 2, np.nan])
+         exp = np.array([1, 2, np.datetime64('NaT')], dtype='datetime64[ns]')
+--- a/pandas/tests/frame/test_indexing.py
++++ b/pandas/tests/frame/test_indexing.py
+@@ -2709,6 +2709,7 @@ class TestDataFrameIndexing(TestData):
+         result = a.where(do_not_replace, b)
+         assert_frame_equal(result, expected)
+ 
++    @pytest.mark.intel
+     def test_where_datetime(self):
+ 
+         # GH 3311
+--- a/pandas/tests/frame/test_operators.py
++++ b/pandas/tests/frame/test_operators.py
+@@ -178,6 +178,7 @@ class TestDataFrameOperators(TestData):
+             df)), 'b': date_range('20100101', periods=len(df))})
+         check(df, df2)
+ 
++    @pytest.mark.intel
+     def test_timestamp_compare(self):
+         # make sure we can compare Timestamps on the right AND left hand side
+         # GH4982
+--- a/pandas/tests/series/test_constructors.py
++++ b/pandas/tests/series/test_constructors.py
+@@ -1050,6 +1050,7 @@ class TestSeriesConstructors(TestData):
+         series[2] = val
+         assert isna(series[2])
+ 
++    @pytest.mark.intel
+     def test_NaT_cast(self):
+         # GH10747
+         result = Series([np.nan]).astype('M8[ns]')
+--- a/pandas/tests/series/test_period.py
++++ b/pandas/tests/series/test_period.py
+@@ -83,6 +83,7 @@ class TestSeriesPeriod(object):
+         series[2] = val
+         assert isna(series[2])
+ 
++    @pytest.mark.intel
+     def test_NaT_cast(self):
+         result = Series([np.nan]).astype('period[D]')
+         expected = Series([NaT])
+--- a/pandas/tests/frame/test_analytics.py
++++ b/pandas/tests/frame/test_analytics.py
+@@ -1013,6 +1013,7 @@ class TestDataFrameAnalytics(TestData):
+         expected = pd.Series(result, index=['A', 'B'])
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.intel
+     def test_sum_nanops_timedelta(self):
+         # prod isn't defined on timedeltas
+         idx = ['a', 'b', 'c']
+--- a/pandas/tests/indexes/timedeltas/test_arithmetic.py
++++ b/pandas/tests/indexes/timedeltas/test_arithmetic.py
+@@ -908,6 +908,7 @@ class TestTimedeltaIndexArithmetic(objec
+         tm.assert_series_equal(s + pd.Timedelta('00:30:00'), exp)
+         tm.assert_series_equal(pd.Timedelta('00:30:00') + s, exp)
+ 
++    @pytest.mark.intel
+     def test_timedelta_ops_with_missing_values(self):
+         # setup
+         s1 = pd.to_timedelta(Series(['00:00:01']))
+--- a/pandas/tests/groupby/aggregate/test_other.py
++++ b/pandas/tests/groupby/aggregate/test_other.py
+@@ -87,6 +87,7 @@ def test_agg_period_index():
+     list(grouped)
+ 
+ 
++@pytest.mark.intel
+ def test_agg_dict_parameter_cast_result_dtypes():
+     # GH 12821
+ 

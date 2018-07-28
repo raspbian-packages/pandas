@@ -1,0 +1,27 @@
+up_skip_testrepr
+deb_nonversioneer_version
+deb_doc_donotoverride_PYTHONPATH
+deb_skip_stata_on_bigendians
+deb_disable_googleanalytics
+deb_skip_sequencelike_on_armel
+deb_no_strict_data
+# Try to skip -- migth have been addressed upstream
+# deb_skip_test_pytables_failure
+# up_buggy_overflows
+# 858260.patch
+up_print_versions
+# does not apply to 0.22 but kept around since next one might have it
+# up_tst_dont_assert_that_a_bug_exists_in_numpy
+mark_tests_working_on_intel.patch
+mark_tests_working_on_intel_s390x.patch
+mark_tests_working_on_intel_mips.patch
+mark_tests_working_on_intel_armhf.patch
+mark_tests_failing_on_386.patch
+mathjax-path.patch
+deb_ndsphinx_optional
+deb_skip_difffailingtests
+
+# lintian: patch-file-present-but-not-mentioned-in-series
+# Don't remove this comment, so that we can avoid a lintian warning.
+# This patch is conditionally applied via d/rules.
+# 0001-TST-pytest-deprecation-warnings-GH17197-17253-reversed.patch
