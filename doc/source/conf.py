@@ -75,6 +75,8 @@ extensions = ['sphinx.ext.autodoc',
               'nbsphinx',
               ]
 
+mathjax_path='MathJax.js'
+
 exclude_patterns = ['**.ipynb_checkpoints']
 
 with open("index.rst") as f:
