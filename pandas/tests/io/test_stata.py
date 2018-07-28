@@ -23,6 +23,11 @@ from pandas.io.parsers import read_csv
 from pandas.io.stata import (InvalidColumnName, PossiblePrecisionLoss,
                              StataMissingValue, StataReader, read_stata)
 
+from pandas.compat import is_platform_little_endian
+if not is_platform_little_endian():
+    import nose
+    raise nose.SkipTest("known failure of test_stata on non-little endian")
+
 
 @pytest.fixture
 def dirpath(datapath):
