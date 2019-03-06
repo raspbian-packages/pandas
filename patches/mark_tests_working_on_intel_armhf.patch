@@ -1,0 +1,68 @@
+Description: Mark those tests @pytest.mark.intel that pass only on Intel architectures
+  There was another test failing for armhf
+Author: Andreas Tille <tille@debian.org>
+Last-Update: Tue, 24 Oct 2017 21:19:06 +0200
+Bug-Debian: https://bugs.debian.org/877419
+Author: Graham Inggs <ginggs@debian.org>
+Last-Update: 2018-05-29
+
+--- a/pandas/tests/io/test_pytables.py
++++ b/pandas/tests/io/test_pytables.py
+@@ -1026,6 +1026,7 @@ class TestHDFStore(Base):
+                 with catch_warnings(record=True):
+                     check('fixed', index)
+ 
++    @pytest.mark.intel
+     @pytest.mark.skipif(not is_platform_little_endian(),
+                         reason="reason platform is not little endian")
+     def test_encoding(self):
+@@ -1042,6 +1043,7 @@ class TestHDFStore(Base):
+             result = store.select('df', Term('columns=A', encoding='ascii'))
+             tm.assert_frame_equal(result, expected)
+ 
++    @pytest.mark.intel
+     def test_latin_encoding(self):
+ 
+         if compat.PY2:
+@@ -1232,6 +1234,7 @@ class TestHDFStore(Base):
+                 reloaded_panel = read_hdf(path, 'panel_with_missing')
+                 tm.assert_panel_equal(panel_with_missing, reloaded_panel)
+ 
++    @pytest.mark.intel
+     def test_append_frame_column_oriented(self):
+ 
+         with ensure_clean_store(self.path) as store:
+@@ -4245,6 +4248,7 @@ class TestHDFStore(Base):
+             with pytest.raises(NotImplementedError):
+                 store.select('dfs', start=0, stop=5)
+ 
++    @pytest.mark.intel
+     def test_select_filter_corner(self):
+ 
+         df = DataFrame(np.random.randn(50, 100))
+--- a/pandas/tests/io/test_stata.py
++++ b/pandas/tests/io/test_stata.py
+@@ -474,6 +474,7 @@ class TestStata(object):
+             tm.assert_frame_equal(
+                 written_and_read_again.set_index('index'), parsed_114)
+ 
++    @pytest.mark.intel
+     @pytest.mark.parametrize(
+         'file', ['dta15_113', 'dta15_114', 'dta15_115', 'dta15_117'])
+     def test_read_write_reread_dta15(self, file):
+@@ -1160,6 +1161,7 @@ class TestStata(object):
+                 tm.assert_frame_equal(from_frame, chunk, check_dtype=False)
+                 pos += chunksize
+ 
++    @pytest.mark.intel
+     @pytest.mark.parametrize('version', [114, 117])
+     def test_write_variable_labels(self, version):
+         # GH 13631, add support for writing variable labels
+@@ -1240,6 +1242,7 @@ class TestStata(object):
+             with tm.ensure_clean() as path:
+                 original.to_stata(path, variable_labels=variable_labels_long)
+ 
++    @pytest.mark.intel
+     def test_default_date_conversion(self):
+         # GH 12259
+         dates = [dt.datetime(1999, 12, 31, 12, 12, 12, 12000),
