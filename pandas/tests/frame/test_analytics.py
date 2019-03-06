@@ -1013,6 +1013,7 @@ class TestDataFrameAnalytics(TestData):
         expected = pd.Series(result, index=['A', 'B'])
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.intel
     def test_sum_nanops_timedelta(self):
         # prod isn't defined on timedeltas
         idx = ['a', 'b', 'c']

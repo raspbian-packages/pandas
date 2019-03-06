@@ -908,6 +908,7 @@ class TestTimedeltaIndexArithmetic(object):
         tm.assert_series_equal(s + pd.Timedelta('00:30:00'), exp)
         tm.assert_series_equal(pd.Timedelta('00:30:00') + s, exp)
 
+    @pytest.mark.intel
     def test_timedelta_ops_with_missing_values(self):
         # setup
         s1 = pd.to_timedelta(Series(['00:00:01']))
