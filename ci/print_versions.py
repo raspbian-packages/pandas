@@ -9,7 +9,7 @@ def show_versions(as_json=False):
     pandas_dir = os.path.abspath(os.path.join(this_dir, ".."))
     sv_path = os.path.join(pandas_dir, 'pandas', 'util')
     mod = imp.load_module(
-        'pvmod', *imp.find_module('print_versions', [sv_path]))
+        'pvmod', *imp.find_module('_print_versions', [sv_path]))
     return mod.show_versions(as_json)
 
 
