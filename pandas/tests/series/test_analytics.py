@@ -1850,8 +1850,35 @@ class TestSeriesAnalytics(TestData):
         tm.assert_series_equal(idx.value_counts(normalize=True), exp)
 
 
+main_dtypes = [
+    'datetime',
+    'datetimetz',
+    'timedelta',
+    'int8',
+    'int16',
+    'int32',
+    'int64',
+    'float32',
+    'float64',
+    'uint8',
+    'uint16',
+    'uint32',
+    'uint64'
+]
+
+
 @pytest.fixture
 def s_main_dtypes():
+    """A DataFrame with many dtypes
+
+    * datetime
+    * datetimetz
+    * timedelta
+    * [u]int{8,16,32,64}
+    * float{32,64}
+
+    The columns are the name of the dtype.
+    """
     df = pd.DataFrame(
         {'datetime': pd.to_datetime(['2003', '2002',
                                      '2001', '2002',
@@ -1869,6 +1896,12 @@ def s_main_dtypes():
         df[dtype] = Series([3, 2, 1, 2, 5], dtype=dtype)
 
     return df
+
+
+@pytest.fixture(params=main_dtypes)
+def s_main_dtypes_split(request, s_main_dtypes):
+    """Each series in s_main_dtypes."""
+    return s_main_dtypes[request.param]
 
 
 def assert_check_nselect_boundary(vals, dtype, method):
@@ -1900,12 +1933,10 @@ class TestNLargestNSmallest(object):
             with tm.assert_raises_regex(TypeError, msg):
                 method(arg)
 
-    @pytest.mark.parametrize(
-        "s",
-        [v for k, v in s_main_dtypes().iteritems()])
-    def test_nsmallest_nlargest(self, s):
+    def test_nsmallest_nlargest(self, s_main_dtypes_split):
         # float, int, datetime64 (use i8), timedelts64 (same),
         # object that are numbers, object that are strings
+        s = s_main_dtypes_split
 
         assert_series_equal(s.nsmallest(2), s.iloc[[2, 1]])
         assert_series_equal(s.nsmallest(2, keep='last'), s.iloc[[2, 3]])
