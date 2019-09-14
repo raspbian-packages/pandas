@@ -1,0 +1,12 @@
+--- a/setup.cfg
++++ b/setup.cfg
+@@ -32,5 +32,6 @@ markers =
+     slow: mark a test as slow
+     network: mark a test as network
+     high_memory: mark a test as a high-memory only
+-addopts = --strict-data-files
+-doctest_optionflags= NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL
+\ No newline at end of file
++# Disabled for Debian build
++# addopts = --strict-data-files
++doctest_optionflags= NORMALIZE_WHITESPACE IGNORE_EXCEPTION_DETAIL
