@@ -1,0 +1,16 @@
+Description: Xfail test broken by statsmodels 0.9
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug: https://github.com/pandas-dev/pandas/issues/24088
+Forwarded: not-needed
+
+--- pandas-0.23.3+dfsg.orig/pandas/tests/plotting/test_datetimelike.py
++++ pandas-0.23.3+dfsg/pandas/tests/plotting/test_datetimelike.py
+@@ -24,6 +24,7 @@ from pandas.tests.plotting.common import
+ 
+ 
+ @td.skip_if_no_mpl
++@pytest.mark.xfail(reason="https://github.com/statsmodels/statsmodels/issues/4772")
+ class TestTSPlot(TestPlotBase):
+ 
+     def setup_method(self, method):
