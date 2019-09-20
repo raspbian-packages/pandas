@@ -1607,6 +1607,8 @@ class NDFrame(PandasObject, SelectionMixin):
 
     def __array_wrap__(self, result, context=None):
         d = self._construct_axes_dict(self._AXIS_ORDERS, copy=False)
+        if context is not None and context[0]==np.matmul and not hasattr(context[1][0],'index'):
+            d.pop('index',None)
         return self._constructor(result, **d).__finalize__(self)
 
     # ideally we would define this to avoid the getattr checks, but
