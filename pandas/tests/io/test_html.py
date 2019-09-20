@@ -365,6 +365,7 @@ class TestReadHtml(object):
         assert sorted(zz) == sorted(['Repo', 'What'])
 
     @pytest.mark.slow
+    @pytest.mark.skip(reason='test data removed for copyright reasons')
     def test_thousands_macau_stats(self, datapath):
         all_non_nan_table_index = -2
         macau_data = datapath("io", "data", "macau.html")
@@ -375,6 +376,7 @@ class TestReadHtml(object):
         assert not any(s.isna().any() for _, s in df.iteritems())
 
     @pytest.mark.slow
+    @pytest.mark.skip(reason='test data removed for copyright reasons')
     def test_thousands_macau_index_col(self, datapath):
         all_non_nan_table_index = -2
         macau_data = datapath('io', 'data', 'macau.html')
@@ -531,6 +533,7 @@ class TestReadHtml(object):
         res2 = self.read_html(data2, header=0)
         assert_framelist_equal(res1, res2)
 
+    @pytest.mark.skip(reason='test data removed for copyright reasons')
     def test_nyse_wsj_commas_table(self, datapath):
         data = datapath('io', 'data', 'nyse_wsj.html')
         df = self.read_html(data, index_col=0, header=0,
@@ -671,6 +674,7 @@ class TestReadHtml(object):
         newdf = DataFrame({'datetime': raw_dates})
         tm.assert_frame_equal(newdf, res[0])
 
+    @pytest.mark.skip(reason='test data removed for copyright reasons')
     def test_computer_sales_page(self, datapath):
         data = datapath('io', 'data', 'computer_sales_page.html')
         with tm.assert_raises_regex(ParserError,
