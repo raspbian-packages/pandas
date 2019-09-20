@@ -24,6 +24,7 @@ from pandas.tests.plotting.common import (TestPlotBase,
 
 
 @td.skip_if_no_mpl
+@pytest.mark.xfail(reason="https://github.com/statsmodels/statsmodels/issues/4772")
 class TestTSPlot(TestPlotBase):
 
     def setup_method(self, method):
