@@ -178,6 +178,7 @@ class TestDataFrameOperators(TestData):
             df)), 'b': date_range('20100101', periods=len(df))})
         check(df, df2)
 
+    @pytest.mark.intel
     def test_timestamp_compare(self):
         # make sure we can compare Timestamps on the right AND left hand side
         # GH4982
