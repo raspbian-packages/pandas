@@ -357,13 +357,13 @@ latex_documents = [
 
 
 intersphinx_mapping = {
-    'statsmodels': ('http://www.statsmodels.org/devel/', None),
-    'matplotlib': ('http://matplotlib.org/', None),
-    'pandas-gbq': ('https://pandas-gbq.readthedocs.io/en/latest/', None),
-    'python': ('https://docs.python.org/3/', None),
-    'numpy': ('https://docs.scipy.org/doc/numpy/', None),
-    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', None),
-    'py': ('https://pylib.readthedocs.io/en/latest/', None)
+    'statsmodels': ('https://www.statsmodels.org/devel/', '/usr/share/doc/python-statsmodels-doc/html/objects.inv'),
+    'matplotlib': ('https://matplotlib.org/', '/usr/share/doc/python-matplotlib-doc/html/objects.inv'),
+    'pandas-gbq': ('https://pandas-gbq.readthedocs.io/en/latest/', None), # not in Debian
+    'python': ('https://docs.python.org/3/', '/usr/share/doc/python3-doc/html/objects.inv'),
+    'numpy': ('https://docs.scipy.org/doc/numpy/', '/usr/share/doc/python-numpy-doc/html/objects.inv'),
+    'scipy': ('https://docs.scipy.org/doc/scipy/reference/', ('/usr/share/doc/python-scipy-doc/html/objects.inv','/usr/share/doc/python-scipy/html/objects.inv')),
+    'py': ('https://pylib.readthedocs.io/en/latest/', None) # no -doc in Debian
 }
 import glob
 autosummary_generate = glob.glob("*.rst")
