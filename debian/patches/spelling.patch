@@ -1,0 +1,28 @@
+Description: Fix typos
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Origin: lintian
+Forwarded: no
+
+--- pandas-0.23.3+dfsg.orig/doc/source/whatsnew/v0.18.1.txt
++++ pandas-0.23.3+dfsg/doc/source/whatsnew/v0.18.1.txt
+@@ -605,7 +605,7 @@ Bug Fixes
+ - Bug in ``.astype()`` of a ``Float64Inde/Int64Index`` to an ``Int64Index`` (:issue:`12881`)
+ - Bug in roundtripping an integer based index in ``.to_json()/.read_json()`` when ``orient='index'`` (the default) (:issue:`12866`)
+ - Bug in plotting ``Categorical`` dtypes cause error when attempting stacked bar plot (:issue:`13019`)
+-- Compat with >= ``numpy`` 1.11 for ``NaT`` comparions (:issue:`12969`)
++- Compat with >= ``numpy`` 1.11 for ``NaT`` comparisons (:issue:`12969`)
+ - Bug in ``.drop()`` with a non-unique ``MultiIndex``. (:issue:`12701`)
+ - Bug in ``.concat`` of datetime tz-aware and naive DataFrames (:issue:`12467`)
+ - Bug in correctly raising a ``ValueError`` in ``.resample(..).fillna(..)`` when passing a non-string (:issue:`12952`)
+--- pandas-0.23.3+dfsg.orig/pandas/_libs/lib.pyx
++++ pandas-0.23.3+dfsg/pandas/_libs/lib.pyx
+@@ -417,7 +417,7 @@ def maybe_booleans_to_slice(ndarray[uint
+ @cython.wraparound(False)
+ @cython.boundscheck(False)
+ cpdef bint array_equivalent_object(object[:] left, object[:] right):
+-    """ perform an element by element comparion on 1-d object arrays
++    """ perform an element by element comparison on 1-d object arrays
+         taking into account nan positions """
+     cdef:
+         Py_ssize_t i, n = left.shape[0]

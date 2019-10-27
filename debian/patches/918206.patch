@@ -1,0 +1,38 @@
+Description: Fix np.array @ DataFrame matrix multiplication
+
+Using this and not upstream's __array_priority__ fix
+https://github.com/pandas-dev/pandas/commit/ad2a14f4bec8a004b2972c12f12ed3e4ce37ff52
+to allow np.array += DataFrame to remain in-place (same object ID /
+other views also affected) and an array (not a DataFrame).
+
+Author: jbrockmendel, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Origin: upstream 
+Bug-Debian: https://bugs.debian.org/918206 https://bugs.debian.org/923707
+Forwarded: not-needed
+
+--- a/pandas/core/generic.py
++++ b/pandas/core/generic.py
+@@ -1607,6 +1607,8 @@ class NDFrame(PandasObject, SelectionMixin):
+ 
+     def __array_wrap__(self, result, context=None):
+         d = self._construct_axes_dict(self._AXIS_ORDERS, copy=False)
++        if context is not None and context[0]==np.matmul and not hasattr(context[1][0],'index'):
++            d.pop('index',None)
+         return self._constructor(result, **d).__finalize__(self)
+ 
+     # ideally we would define this to avoid the getattr checks, but
+--- a/pandas/tests/frame/test_analytics.py
++++ b/pandas/tests/frame/test_analytics.py
+@@ -2283,8 +2283,11 @@ class TestDataFrameAnalytics(TestData):
+ 
+         # np.array @ DataFrame
+         result = operator.matmul(a.values, b)
++        assert isinstance(result, DataFrame)
++        assert result.columns.equals(b.columns)
++        assert result.index.equals(pd.Index(range(3)))
+         expected = np.dot(a.values, b.values)
+-        tm.assert_almost_equal(result, expected)
++        tm.assert_almost_equal(result.values, expected)
+ 
+         # nested list @ DataFrame (__rmatmul__)
+         result = operator.matmul(a.values.tolist(), b)

@@ -1,0 +1,96 @@
+#!/bin/sh
+set -efu
+set -x
+
+arch=$(dpkg --print-architecture)
+
+# Let's filter some tests based on observations
+kw2='test_spam_url'
+kw3='test_spam_url'
+if [ "amd64" = $arch ]; then
+	kw2="$kw2
+	test_register_by_default
+	test_locale
+	"
+	kw3="$kw3
+	test_memory_leak
+	"
+elif [ "arm64" = $arch ]; then
+	kw2="$kw2
+	test_value_counts_normalized
+	test_resample_timedelta_values
+	test_datetimelikes_nan
+	test_sum_nanops_timedelta
+	test_agg_dict_parameter_cast_result_dtypes
+	test_timedelta_ops_with_missing_values
+	test_register_by_default
+	test_NaT_cast
+	test_locale
+	"
+	kw3="$kw3
+	test_value_counts_normalized
+	test_resample_timedelta_values
+	test_resample_datetime_values
+	test_datetimelikes_nan
+	test_sum_nanops_timedelta
+	test_agg_dict_parameter_cast_result_dtypes
+	test_timedelta_ops_with_missing_values
+	test_memory_leak
+	test_NaT_cast
+	test_memory_leak
+	"
+elif [ "armhf" = $arch ]; then
+	kw2="$kw2"
+	kw3="$kw3"
+elif [ "i386" = $arch ]; then
+	kw2="$kw2"
+	kw3="$kw3
+	test_memory_leak
+	"
+elif [ "ppc64el" = $arch ]; then
+	kw2="$kw2
+	test_register_by_default
+	test_locale
+	"
+	kw3="$kw3
+	test_memory_leak
+	"
+elif [ "s390x" = $arch ]; then
+	kw2="$kw2
+	test_msgpacks_legacy
+	test_locale
+	"
+	kw3="$kw3
+	test_msgpacks_legacy
+	"
+else
+	kw2="$kw2"
+	kw3="$kw3"
+fi
+
+if (basename $0 | grep "3" >/dev/null); then
+	keyword=$(python3 -c "print(' and '.join('not ' + x for x in '''$kw3'''.split()))")
+	pys="$(py3versions -r 2>/dev/null)"
+else
+	keyword=$(python -c "print(' and '.join('not ' + x for x in '''$kw2'''.split()))")
+	pys="$(pyversions -r 2>/dev/null)"
+fi
+
+# Debian: Enable "slow" tests on x86 to keep the code coverage.
+# Ubuntu: Disable "slow" tests on ALL architectures.
+if (echo amd64 i386 | grep $arch >/dev/null) && [ "Debian" = $(dpkg-vendor --query vendor) ]; then
+	marker='not single and not network and not disabled'
+elif (echo amd64 i386 | grep $arch >/dev/null) && [ "Ubuntu" = $(dpkg-vendor --query vendor) ]; then
+	marker='not single and not network and not disabled and not slow'
+else
+	marker='not single and not network and not disabled and not intel and not slow'
+fi
+
+cd "$ADTTMP"
+
+for py in $pys; do
+	echo "=== $py ==="
+	modpath=$($py -c 'import pandas as pd; print(pd.__path__[0])')
+	LC_ALL=C.UTF-8 xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" \
+		$py -m pytest --tb=long -s -v -m "$marker" -k "$keyword" $modpath 2>&1
+done

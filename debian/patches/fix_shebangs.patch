@@ -1,0 +1,95 @@
+Description: Use Python 3 shebangs, and fix shebang bug
+
+The bug was in pandas/tests/io/generate_legacy_storage_files.py
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- pandas-0.23.3+dfsg.orig/ci/print_skipped.py
++++ pandas-0.23.3+dfsg/ci/print_skipped.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ import sys
+ import math
+--- pandas-0.23.3+dfsg.orig/ci/print_versions.py
++++ pandas-0.23.3+dfsg/ci/print_versions.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ 
+ def show_versions(as_json=False):
+--- pandas-0.23.3+dfsg.orig/doc/make.py
++++ pandas-0.23.3+dfsg/doc/make.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """
+ Python script for building documentation.
+ 
+--- pandas-0.23.3+dfsg.orig/pandas/core/computation/eval.py
++++ pandas-0.23.3+dfsg/pandas/core/computation/eval.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ """Top level ``eval`` module.
+ """
+--- pandas-0.23.3+dfsg.orig/pandas/tests/io/generate_legacy_storage_files.py
++++ pandas-0.23.3+dfsg/pandas/tests/io/generate_legacy_storage_files.py
+@@ -1,4 +1,4 @@
+-#!/usr/env/bin python
++#!/usr/bin/env python3
+ 
+ """
+ self-contained to write legacy storage (pickle/msgpack) files
+--- pandas-0.23.3+dfsg.orig/pandas/tests/plotting/common.py
++++ pandas-0.23.3+dfsg/pandas/tests/plotting/common.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # coding: utf-8
+ 
+ import pytest
+--- pandas-0.23.3+dfsg.orig/scripts/announce.py
++++ pandas-0.23.3+dfsg/scripts/announce.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # -*- encoding:utf-8 -*-
+ """
+ Script to generate contributor and pull request lists
+--- pandas-0.23.3+dfsg.orig/scripts/download_wheels.py
++++ pandas-0.23.3+dfsg/scripts/download_wheels.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """Fetch wheels from wheels.scipy.org for a pandas version."""
+ import argparse
+ import pathlib
+--- pandas-0.23.3+dfsg.orig/scripts/find_undoc_args.py
++++ pandas-0.23.3+dfsg/scripts/find_undoc_args.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # -*- coding: utf-8 -*-
+ """
+ Script that compares the signature arguments with the ones in the docsting
+--- pandas-0.23.3+dfsg.orig/scripts/validate_docstrings.py
++++ pandas-0.23.3+dfsg/scripts/validate_docstrings.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """
+ Analyze docstrings to detect errors.
+ 
+--- pandas-0.23.3+dfsg.orig/setup.py
++++ pandas-0.23.3+dfsg/setup.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ """
+ Parts of this file were taken from the pyzmq project
