@@ -474,6 +474,7 @@ class TestStata(object):
             tm.assert_frame_equal(
                 written_and_read_again.set_index('index'), parsed_114)
 
+    @pytest.mark.intel
     @pytest.mark.parametrize(
         'file', ['dta15_113', 'dta15_114', 'dta15_115', 'dta15_117'])
     def test_read_write_reread_dta15(self, file):
@@ -1160,6 +1161,7 @@ class TestStata(object):
                 tm.assert_frame_equal(from_frame, chunk, check_dtype=False)
                 pos += chunksize
 
+    @pytest.mark.intel
     @pytest.mark.parametrize('version', [114, 117])
     def test_write_variable_labels(self, version):
         # GH 13631, add support for writing variable labels
@@ -1240,6 +1242,7 @@ class TestStata(object):
             with tm.ensure_clean() as path:
                 original.to_stata(path, variable_labels=variable_labels_long)
 
+    @pytest.mark.intel
     def test_default_date_conversion(self):
         # GH 12259
         dates = [dt.datetime(1999, 12, 31, 12, 12, 12, 12000),
