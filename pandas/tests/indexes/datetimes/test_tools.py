@@ -1491,12 +1491,25 @@ def units_from_epochs():
     return list(range(5))
 
 
-@pytest.fixture(params=[epoch_1960(),
-                        epoch_1960().to_pydatetime(),
-                        epoch_1960().to_datetime64(),
-                        str(epoch_1960())])
-def epochs(request):
-    return request.param
+@pytest.fixture(params=['timestamp', 'pydatetime', 'datetime64', 'str_1960'])
+def epochs(epoch_1960, request):
+    """Timestamp at 1960-01-01 in various forms.
+
+    * pd.Timestamp
+    * datetime.datetime
+    * numpy.datetime64
+    * str
+    """
+    assert request.param in {'timestamp', 'pydatetime', 'datetime64',
+                             "str_1960"}
+    if request.param == 'timestamp':
+        return epoch_1960
+    elif request.param == 'pydatetime':
+        return epoch_1960.to_pydatetime()
+    elif request.param == "datetime64":
+        return epoch_1960.to_datetime64()
+    else:
+        return str(epoch_1960)
 
 
 @pytest.fixture
