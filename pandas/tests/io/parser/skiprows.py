@@ -9,6 +9,8 @@ from datetime import datetime
 
 import numpy as np
 
+import pytest
+
 import pandas.util.testing as tm
 
 from pandas import DataFrame
@@ -200,6 +202,7 @@ line 22",2
         df = self.read_csv(StringIO(data), skiprows=2)
         tm.assert_frame_equal(df, expected)
 
+    @pytest.mark.intel
     def test_skiprows_callable(self):
         data = 'a\n1\n2\n3\n4\n5'
 
