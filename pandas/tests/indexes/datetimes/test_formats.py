@@ -10,6 +10,7 @@ from pandas import DatetimeIndex, Series
 import pandas.util.testing as tm
 
 
+@pytest.mark.intel
 def test_to_native_types():
     index = pd.date_range(freq="1D", periods=3, start="2017-01-01")
 
