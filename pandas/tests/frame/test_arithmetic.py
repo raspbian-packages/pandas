@@ -65,6 +65,7 @@ class TestFrameComparisons:
         )
         check(df, df2)
 
+    @pytest.mark.intel
     def test_timestamp_compare(self):
         # make sure we can compare Timestamps on the right AND left hand side
         # GH#4982

@@ -569,6 +569,7 @@ class TestTimedeltaArraylikeAddSubOps:
 
     # TODO: moved from tests.indexes.timedeltas.test_arithmetic; needs
     #  parametrization+de-duplication
+    @pytest.mark.intel
     def test_timedelta_ops_with_missing_values(self):
         # setup
         s1 = pd.to_timedelta(Series(["00:00:01"]))
