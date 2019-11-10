@@ -219,6 +219,7 @@ def test_skiprows_infield_quote(all_parsers):
     tm.assert_frame_equal(result, expected)
 
 
+@pytest.mark.intel
 @pytest.mark.parametrize(
     "kwargs,expected",
     [
