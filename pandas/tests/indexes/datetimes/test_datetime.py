@@ -64,6 +64,7 @@ class TestDatetimeIndex:
         idx2 = pd.date_range(end="2000", periods=periods, freq="S")
         assert len(idx2) == periods
 
+    @pytest.mark.intel
     def test_nat(self):
         assert DatetimeIndex([np.nan])[0] is pd.NaT
 

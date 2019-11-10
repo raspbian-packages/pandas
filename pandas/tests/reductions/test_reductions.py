@@ -1145,6 +1145,7 @@ class TestSeriesMode:
         expected = Series(expected2, dtype=object)
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.intel
     @pytest.mark.parametrize(
         "dropna, expected1, expected2",
         [

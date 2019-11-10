@@ -963,6 +963,7 @@ class TestSeriesConstructors:
 
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.intel
     @pytest.mark.parametrize("arg", ["2013-01-01 00:00:00", pd.NaT, np.nan, None])
     def test_constructor_with_naive_string_and_datetimetz_dtype(self, arg):
         # GH 17415: With naive string

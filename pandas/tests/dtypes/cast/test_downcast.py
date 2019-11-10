@@ -68,6 +68,7 @@ def test_downcast_conversion_empty(any_real_dtype):
     tm.assert_numpy_array_equal(result, np.array([], dtype=np.int64))
 
 
+@pytest.mark.intel
 @pytest.mark.parametrize("klass", [np.datetime64, np.timedelta64])
 def test_datetime_likes_nan(klass):
     dtype = klass.__name__ + "[ns]"

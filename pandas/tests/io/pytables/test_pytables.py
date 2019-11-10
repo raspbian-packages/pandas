@@ -1097,6 +1097,7 @@ class TestHDFStore(Base):
             check("table", index)
             check("fixed", index)
 
+    @pytest.mark.intel
     @pytest.mark.skipif(
         not is_platform_little_endian(), reason="reason platform is not little endian"
     )
@@ -1129,6 +1130,7 @@ class TestHDFStore(Base):
         ],
     )
     @pytest.mark.parametrize("dtype", ["category", object])
+    @pytest.mark.intel
     def test_latin_encoding(self, dtype, val):
         enc = "latin-1"
         nan_rep = ""
@@ -1308,6 +1310,7 @@ class TestHDFStore(Base):
             # read with KeyError before another write
             df.to_hdf(path, "k2")
 
+    @pytest.mark.intel
     def test_append_frame_column_oriented(self):
 
         with ensure_clean_store(self.path) as store:
@@ -3935,6 +3938,7 @@ class TestHDFStore(Base):
             with pytest.raises(NotImplementedError):
                 store.select("dfs", start=0, stop=5)
 
+    @pytest.mark.intel
     def test_select_filter_corner(self):
 
         df = DataFrame(np.random.randn(50, 100))
