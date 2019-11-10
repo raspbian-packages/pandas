@@ -42,6 +42,7 @@ class TestToCSV:
             with open(path, "r") as f:
                 assert f.read() == expected2
 
+    @pytest.mark.skipif(True, reason="see https://github.com/pandas-dev/pandas/issues/19774")
     def test_to_csv_defualt_encoding(self):
         # GH17097
         df = DataFrame({"col": ["AAAAA", "ÄÄÄÄÄ", "ßßßßß", "聞聞聞聞聞"]})

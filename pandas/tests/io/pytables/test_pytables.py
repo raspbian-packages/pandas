@@ -4629,6 +4629,7 @@ class TestHDFStore(Base):
             df_loaded = read_hdf(path, "df", columns=cols2load)  # noqa
             assert cols2load_original == cols2load
 
+    @pytest.mark.xfail(reason="see https://github.com/pandas-dev/pandas/issues/19774")
     @ignore_natural_naming_warning
     def test_to_hdf_with_object_column_names(self):
         # GH9057
