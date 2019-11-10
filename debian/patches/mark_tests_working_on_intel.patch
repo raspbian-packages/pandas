@@ -1,0 +1,77 @@
+Description: Mark those tests @pytest.mark.intel that pass only on Intel architectures
+Author: Andreas Tille <tille@debian.org>
+Last-Update Sat, 14 Oct 2017 19:42:59 +0200
+Bug-Debian: https://bugs.debian.org/877419
+Author: Graham Inggs <ginggs@debian.org>
+Last-Update: 2018-04-11
+
+--- a/pandas/tests/test_algos.py
++++ b/pandas/tests/test_algos.py
+@@ -1035,6 +1035,7 @@ class TestValueCounts:
+             expected = Series([2, 1, 1], index=[5.0, 10.3, np.nan])
+             tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.intel
+     def test_value_counts_normalized(self):
+         # GH12558
+         s = Series([1, 2, np.nan, np.nan, np.nan])
+--- a/pandas/tests/frame/test_indexing.py
++++ b/pandas/tests/frame/test_indexing.py
+@@ -3049,6 +3049,7 @@ class TestDataFrameIndexing(TestData):
+         result = a.where(do_not_replace, b)
+         assert_frame_equal(result, expected)
+ 
++    @pytest.mark.intel
+     def test_where_datetime(self):
+ 
+         # GH 3311
+--- a/pandas/tests/series/test_constructors.py
++++ b/pandas/tests/series/test_constructors.py
+@@ -1246,6 +1246,7 @@ class TestSeriesConstructors:
+         series[2] = val
+         assert isna(series[2])
+ 
++    @pytest.mark.intel
+     def test_NaT_cast(self):
+         # GH10747
+         result = Series([np.nan]).astype("M8[ns]")
+--- a/pandas/tests/frame/test_analytics.py
++++ b/pandas/tests/frame/test_analytics.py
+@@ -1368,6 +1368,7 @@ class TestDataFrameAnalytics:
+         expected = pd.Series(result, index=["A", "B"])
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.intel
+     def test_sum_nanops_timedelta(self):
+         # prod isn't defined on timedeltas
+         idx = ["a", "b", "c"]
+--- a/pandas/tests/groupby/aggregate/test_other.py
++++ b/pandas/tests/groupby/aggregate/test_other.py
+@@ -102,6 +102,7 @@ def test_agg_period_index():
+     list(grouped)
+ 
+ 
++@pytest.mark.intel
+ def test_agg_dict_parameter_cast_result_dtypes():
+     # GH 12821
+ 
+--- a/pandas/tests/arithmetic/test_timedelta64.py
++++ b/pandas/tests/arithmetic/test_timedelta64.py
+@@ -569,6 +569,7 @@ class TestTimedeltaArraylikeAddSubOps:
+ 
+     # TODO: moved from tests.indexes.timedeltas.test_arithmetic; needs
+     #  parametrization+de-duplication
++    @pytest.mark.intel
+     def test_timedelta_ops_with_missing_values(self):
+         # setup
+         s1 = pd.to_timedelta(Series(["00:00:01"]))
+--- a/pandas/tests/frame/test_arithmetic.py
++++ b/pandas/tests/frame/test_arithmetic.py
+@@ -65,6 +65,7 @@ class TestFrameComparisons:
+         )
+         check(df, df2)
+ 
++    @pytest.mark.intel
+     def test_timestamp_compare(self):
+         # make sure we can compare Timestamps on the right AND left hand side
+         # GH#4982
