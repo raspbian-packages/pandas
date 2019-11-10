@@ -1,0 +1,16 @@
+Description: Mark those tests @pytest.mark.intel that pass only on Intel architectures
+  There was another test failing for mips and powerpc
+Author: Andreas Tille <tille@debian.org>
+Last-Update: Tue, 24 Oct 2017 21:19:06 +0200
+Bug-Debian: https://bugs.debian.org/877419
+
+--- a/pandas/tests/io/parser/test_skiprows.py
++++ b/pandas/tests/io/parser/test_skiprows.py
+@@ -219,6 +219,7 @@ def test_skiprows_infield_quote(all_pars
+     tm.assert_frame_equal(result, expected)
+ 
+ 
++@pytest.mark.intel
+ @pytest.mark.parametrize(
+     "kwargs,expected",
+     [

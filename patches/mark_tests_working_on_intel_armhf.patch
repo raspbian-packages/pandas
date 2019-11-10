@@ -1,0 +1,111 @@
+Description: Mark those tests @pytest.mark.intel that fail on arm*
+
+At least some of these are pd.Timestamp(np.nan) = pd.NaT on x86
+but 1970-01-01 on arm* because float NaN -> int is undefined:
+https://github.com/numpy/numpy/issues/8325
+https://github.com/pandas-dev/pandas/issues/17792
+https://github.com/pandas-dev/pandas/issues/26964
+
+Author: Andreas Tille <tille@debian.org>, Graham Inggs <ginggs@debian.org>, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/877419 https://bugs.debian.org/877754
+
+--- a/pandas/tests/io/pytables/test_pytables.py
++++ b/pandas/tests/io/pytables/test_pytables.py
+@@ -1097,6 +1097,7 @@ class TestHDFStore(Base):
+             check("table", index)
+             check("fixed", index)
+ 
++    @pytest.mark.intel
+     @pytest.mark.skipif(
+         not is_platform_little_endian(), reason="reason platform is not little endian"
+     )
+@@ -1129,6 +1130,7 @@ class TestHDFStore(Base):
+         ],
+     )
+     @pytest.mark.parametrize("dtype", ["category", object])
++    @pytest.mark.intel
+     def test_latin_encoding(self, dtype, val):
+         enc = "latin-1"
+         nan_rep = ""
+@@ -1308,6 +1310,7 @@ class TestHDFStore(Base):
+             # read with KeyError before another write
+             df.to_hdf(path, "k2")
+ 
++    @pytest.mark.intel
+     def test_append_frame_column_oriented(self):
+ 
+         with ensure_clean_store(self.path) as store:
+@@ -3935,6 +3938,7 @@ class TestHDFStore(Base):
+             with pytest.raises(NotImplementedError):
+                 store.select("dfs", start=0, stop=5)
+ 
++    @pytest.mark.intel
+     def test_select_filter_corner(self):
+ 
+         df = DataFrame(np.random.randn(50, 100))
+--- a/pandas/tests/io/test_stata.py
++++ b/pandas/tests/io/test_stata.py
+@@ -501,6 +501,7 @@ class TestStata:
+             written_and_read_again = self.read_dta(path)
+             tm.assert_frame_equal(written_and_read_again.set_index("index"), parsed_114)
+ 
++    @pytest.mark.intel
+     @pytest.mark.parametrize(
+         "file", ["dta15_113", "dta15_114", "dta15_115", "dta15_117"]
+     )
+@@ -1238,6 +1239,7 @@ class TestStata:
+                 tm.assert_frame_equal(from_frame, chunk, check_dtype=False)
+                 pos += chunksize
+ 
++    @pytest.mark.intel
+     @pytest.mark.parametrize("version", [114, 117])
+     def test_write_variable_labels(self, version):
+         # GH 13631, add support for writing variable labels
+@@ -1335,6 +1337,7 @@ class TestStata:
+             with tm.ensure_clean() as path:
+                 original.to_stata(path, variable_labels=variable_labels_long)
+ 
++    @pytest.mark.intel
+     def test_default_date_conversion(self):
+         # GH 12259
+         dates = [
+--- pandas-0.25.2+dfsg.orig/pandas/tests/dtypes/cast/test_downcast.py
++++ pandas-0.25.2+dfsg/pandas/tests/dtypes/cast/test_downcast.py
+@@ -68,6 +68,7 @@ def test_downcast_conversion_empty(any_r
+     tm.assert_numpy_array_equal(result, np.array([], dtype=np.int64))
+ 
+ 
++@pytest.mark.intel
+ @pytest.mark.parametrize("klass", [np.datetime64, np.timedelta64])
+ def test_datetime_likes_nan(klass):
+     dtype = klass.__name__ + "[ns]"
+--- pandas-0.25.2+dfsg.orig/pandas/tests/indexes/datetimes/test_datetime.py
++++ pandas-0.25.2+dfsg/pandas/tests/indexes/datetimes/test_datetime.py
+@@ -64,6 +64,7 @@ class TestDatetimeIndex:
+         idx2 = pd.date_range(end="2000", periods=periods, freq="S")
+         assert len(idx2) == periods
+ 
++    @pytest.mark.intel
+     def test_nat(self):
+         assert DatetimeIndex([np.nan])[0] is pd.NaT
+ 
+--- pandas-0.25.2+dfsg.orig/pandas/tests/reductions/test_reductions.py
++++ pandas-0.25.2+dfsg/pandas/tests/reductions/test_reductions.py
+@@ -1145,6 +1145,7 @@ class TestSeriesMode:
+         expected = Series(expected2, dtype=object)
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.intel
+     @pytest.mark.parametrize(
+         "dropna, expected1, expected2",
+         [
+--- pandas-0.25.2+dfsg.orig/pandas/tests/series/test_constructors.py
++++ pandas-0.25.2+dfsg/pandas/tests/series/test_constructors.py
+@@ -963,6 +963,7 @@ class TestSeriesConstructors:
+ 
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.intel
+     @pytest.mark.parametrize("arg", ["2013-01-01 00:00:00", pd.NaT, np.nan, None])
+     def test_constructor_with_naive_string_and_datetimetz_dtype(self, arg):
+         # GH 17415: With naive string
