@@ -2692,6 +2692,8 @@ def assert_produces_warning(
                     )
                     assert actual_warning.filename == caller.filename, msg
             else:
+                if actual_warning.category==DeprecationWarning and "PY_SSIZE_T_CLEAN will be required for '#' formats" in str(actual_warning.message) and 'matplotlib' in actual_warning.filename:
+                    continue
                 extra_warnings.append(
                     (
                         actual_warning.category.__name__,
