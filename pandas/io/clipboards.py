@@ -1,6 +1,8 @@
 """ io on the clipboard """
 from io import StringIO
 import warnings
+from pandas.compat import is_platform_little_endian
+warn_clipboard_platform="Non-x86 system detected, clipboard I/O may give wrong results - https://bugs.debian.org/877419" if not is_platform_little_endian() else False
 
 from pandas.core.dtypes.generic import ABCDataFrame
 
@@ -22,6 +24,8 @@ def read_clipboard(sep=r"\s+", **kwargs):  # pragma: no cover
     -------
     parsed : DataFrame
     """
+    if warn_clipboard_platform:
+        warnings.warn(warn_clipboard_platform)
     encoding = kwargs.pop("encoding", "utf-8")
 
     # only utf-8 is valid for passed value because that's what clipboard
@@ -96,6 +100,8 @@ def to_clipboard(obj, excel=True, sep=None, **kwargs):  # pragma: no cover
       - Windows:
       - OS X:
     """
+    if warn_clipboard_platform:
+        warnings.warn(warn_clipboard_platform)
     encoding = kwargs.pop("encoding", "utf-8")
 
     # testing if an invalid encoding is passed to clipboard

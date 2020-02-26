@@ -47,6 +47,11 @@ from pandas.io.pytables import (
     read_hdf,
 )
 from pandas.io.pytables import TableIterator  # noqa:E402
+import platform
+import re
+is_intel=bool(re.match('i.?86|x86',platform.uname()[4]))
+from pandas.compat import is_platform_little_endian
+pytestmark = [pytest.mark.xfail(condition=not is_intel,reason="known failure of hdf on some non-x86",strict=False),pytest.mark.forked]
 
 tables = pytest.importorskip("tables")
 
@@ -1097,6 +1102,7 @@ class TestHDFStore(Base):
             check("table", index)
             check("fixed", index)
 
+    @pytest.mark.skipif(condition=not is_intel,reason="crashes on armhf, https://bugs.debian.org/877419")
     @pytest.mark.skipif(
         not is_platform_little_endian(), reason="reason platform is not little endian"
     )
@@ -1129,6 +1135,7 @@ class TestHDFStore(Base):
         ],
     )
     @pytest.mark.parametrize("dtype", ["category", object])
+    @pytest.mark.skipif(condition=not is_intel,reason="similar to tests crashing on armhf, https://bugs.debian.org/877419")
     def test_latin_encoding(self, dtype, val):
         enc = "latin-1"
         nan_rep = ""
@@ -1308,6 +1315,7 @@ class TestHDFStore(Base):
             # read with KeyError before another write
             df.to_hdf(path, "k2")
 
+    @pytest.mark.skipif(condition=not is_intel,reason="crashes on armhf, https://bugs.debian.org/877419")
     def test_append_frame_column_oriented(self):
 
         with ensure_clean_store(self.path) as store:
@@ -3935,6 +3943,7 @@ class TestHDFStore(Base):
             with pytest.raises(NotImplementedError):
                 store.select("dfs", start=0, stop=5)
 
+    @pytest.mark.skipif(condition=not is_intel,reason="crashes on armhf, https://bugs.debian.org/877419")
     def test_select_filter_corner(self):
 
         df = DataFrame(np.random.randn(50, 100))
