@@ -5,6 +5,9 @@ import warnings
 
 import numpy as np
 import pytest
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
 
 import pandas.util._test_decorators as td
 
@@ -1368,6 +1371,7 @@ class TestDataFrameAnalytics:
         expected = pd.Series(result, index=["A", "B"])
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     def test_sum_nanops_timedelta(self):
         # prod isn't defined on timedeltas
         idx = ["a", "b", "c"]
