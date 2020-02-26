@@ -63,11 +63,16 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
     "sphinx.ext.linkcode",
-    "nbsphinx",
+    # "nbsphinx",
     "contributors",  # custom pandas extension
 ]
 
 mathjax_path="MathJax.js"
+try:
+    import nbsphinx
+    extensions += ["nbsphinx"]
+except:
+    pass  # survive without
 
 exclude_patterns = ["**.ipynb_checkpoints"]
 try:
