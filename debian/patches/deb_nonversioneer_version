@@ -1,0 +1,39 @@
+--- a/pandas/__init__.py
++++ b/pandas/__init__.py
+@@ -182,13 +182,7 @@ from pandas.util._tester import test
+ import pandas.testing
+ import pandas.arrays
+ 
+-# use the closest tagged version if possible
+-from ._version import get_versions
+-
+-v = get_versions()
+-__version__ = v.get("closest-tag", v["version"])
+-__git_version__ = v.get("full-revisionid")
+-del get_versions, v
++from .__version import version as __version__
+ 
+ 
+ # GH 27101
+--- a/pandas/tests/api/test_api.py
++++ b/pandas/tests/api/test_api.py
+@@ -189,7 +189,7 @@ class TestPDApi(Base):
+         "_np_version_under1p17",
+         "_tslib",
+         "_typing",
+-        "_version",
++# not in Debian        "_version",
+     ]
+ 
+     def test_api(self):
+--- a/pandas/tests/test_common.py
++++ b/pandas/tests/test_common.py
+@@ -111,7 +111,7 @@ def test_standardize_mapping():
+     dd = collections.defaultdict(list)
+     assert isinstance(com.standardize_mapping(dd), partial)
+ 
+-
++@pytest.mark.xfail(reason="deb_nonversioneer_version patch")
+ def test_git_version():
+     # GH 21295
+     git_version = pd.__git_version__
