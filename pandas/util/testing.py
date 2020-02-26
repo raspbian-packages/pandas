@@ -2695,6 +2695,8 @@ def assert_produces_warning(
             else:
                 if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
                     continue
+                if actual_warning.category==DeprecationWarning and "PY_SSIZE_T_CLEAN will be required for '#' formats" in str(actual_warning.message) and 'matplotlib' in actual_warning.filename:
+                    continue
                 extra_warnings.append(
                     (
                         actual_warning.category.__name__,
