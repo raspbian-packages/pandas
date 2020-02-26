@@ -10,9 +10,6 @@ individually.
 """
 from docutils import nodes
 from docutils.parsers.rst import Directive
-import git
-
-from announce import build_components
 
 
 class ContributorsDirective(Directive):
@@ -20,6 +17,7 @@ class ContributorsDirective(Directive):
     name = "contributors"
 
     def run(self):
+        return [nodes.paragraph(), nodes.Text("For contributors, please see /usr/share/doc/contributors_list.txt or https://github.com/pandas-dev/pandas/graphs/contributors")]
         range_ = self.arguments[0]
         if range_.endswith("x..HEAD"):
             return [nodes.paragraph(), nodes.bullet_list()]
