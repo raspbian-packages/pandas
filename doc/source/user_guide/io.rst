@@ -4299,13 +4299,13 @@ control compression: ``complevel`` and ``complib``.
              - `zlib <https://zlib.net/>`_: The default compression library. A classic in terms of compression, achieves good compression rates but is somewhat slow.
              - `lzo <https://www.oberhumer.com/opensource/lzo/>`_: Fast compression and decompression.
              - `bzip2 <http://bzip.org/>`_: Good compression rates.
-             - `blosc <http://www.blosc.org/>`_: Fast compression and decompression.
+             - `blosc <https://www.blosc.org/>`_: Fast compression and decompression.
 
              .. versionadded:: 0.20.2
 
                 Support for alternative blosc compressors:
 
-                - `blosc:blosclz <http://www.blosc.org/>`_ This is the
+                - `blosc:blosclz <https://www.blosc.org/>`_ This is the
                   default compressor for ``blosc``
                 - `blosc:lz4
                   <https://fastcompression.blogspot.dk/p/lz4.html>`_:
