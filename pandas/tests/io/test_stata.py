@@ -24,7 +24,12 @@ from pandas.io.stata import (
     StataReader,
     read_stata,
 )
+import platform
+import re
+is_intel=bool(re.match('i.?86|x86',platform.uname()[4]))
 
+from pandas.compat import is_platform_little_endian
+pytestmark = pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of test_stata on non-little endian",strict=False)
 
 @pytest.fixture
 def dirpath(datapath):
@@ -196,7 +201,7 @@ class TestStata:
             # parsed_113 = self.read_dta(self.dta2_113)
 
             # Remove resource warnings
-            w = [x for x in w if x.category is UserWarning]
+            w = [x for x in w if x.category is UserWarning and not "Non-x86 system detected" in str(x.message)]
 
             # should get warning for each call to read_dta
             assert len(w) == 3
@@ -453,7 +458,7 @@ class TestStata:
                 warnings.simplefilter("always", InvalidColumnName)
                 original.to_stata(path, None, version=version)
                 # should get a warning for that format.
-                assert len(w) == 1
+                assert len([x for x in w if not "Non-x86 system detected" in str(x.message)]) == 1
 
             written_and_read_again = self.read_dta(path)
             tm.assert_frame_equal(written_and_read_again.set_index("index"), formatted)
@@ -496,6 +501,7 @@ class TestStata:
             written_and_read_again = self.read_dta(path)
             tm.assert_frame_equal(written_and_read_again.set_index("index"), parsed_114)
 
+    @pytest.mark.xfail(condition=not is_intel,reason="https://bugs.debian.org/877419",strict=False)
     @pytest.mark.parametrize(
         "file", ["dta15_113", "dta15_114", "dta15_115", "dta15_117"]
     )
@@ -1264,6 +1270,7 @@ class TestStata:
                 read_labels = sr.variable_labels()
             assert read_labels == variable_labels
 
+    @pytest.mark.xfail(condition=not is_intel,reason="https://bugs.debian.org/877419",strict=False)
     @pytest.mark.parametrize("version", [114, 117])
     def test_invalid_variable_labels(self, version):
         original = pd.DataFrame(
@@ -1330,6 +1337,7 @@ class TestStata:
             with tm.ensure_clean() as path:
                 original.to_stata(path, variable_labels=variable_labels_long)
 
+    @pytest.mark.xfail(condition=not is_intel,reason="https://bugs.debian.org/877419",strict=False)
     def test_default_date_conversion(self):
         # GH 12259
         dates = [
@@ -1775,8 +1783,9 @@ has been incorrectly encoded by Stata or some other software. You should verify
 the string values returned are correct."""
         with tm.assert_produces_warning(UnicodeWarning) as w:
             encoded = read_stata(self.dta_encoding_118)
-            assert len(w) == 151
-            assert w[0].message.args[0] == msg
+            w2 = [x for x in w if not "Non-x86 system detected" in str(x.message)]
+            assert len(w2) == 151
+            assert w2[0].message.args[0] == msg
 
         expected = pd.DataFrame([["Düsseldorf"]] * 151, columns=["kreis1849"])
         tm.assert_frame_equal(encoded, expected)
