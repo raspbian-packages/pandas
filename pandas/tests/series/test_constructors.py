@@ -12,6 +12,9 @@ from pandas.compat import PY36
 
 from pandas.core.dtypes.common import is_categorical_dtype, is_datetime64tz_dtype
 from pandas.core.dtypes.dtypes import CategoricalDtype, ordered_sentinel
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
 
 import pandas as pd
 from pandas import (
@@ -963,6 +966,7 @@ class TestSeriesConstructors:
 
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     @pytest.mark.parametrize("arg", ["2013-01-01 00:00:00", pd.NaT, np.nan, None])
     def test_constructor_with_naive_string_and_datetimetz_dtype(self, arg):
         # GH 17415: With naive string
@@ -1246,6 +1250,7 @@ class TestSeriesConstructors:
         series[2] = val
         assert isna(series[2])
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     def test_NaT_cast(self):
         # GH10747
         result = Series([np.nan]).astype("M8[ns]")
