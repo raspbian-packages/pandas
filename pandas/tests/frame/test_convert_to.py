@@ -15,6 +15,7 @@ from pandas import (
 )
 from pandas.tests.frame.common import TestData
 import pandas.util.testing as tm
+from pandas.compat import is_platform_little_endian
 
 
 class TestDataFrameConvertTo(TestData):
@@ -323,6 +324,7 @@ class TestDataFrameConvertTo(TestData):
             ),
         ],
     )
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
     def test_to_records_dtype(self, kwargs, expected):
         # see gh-18146
         df = DataFrame({"A": [1, 2], "B": [0.2, 1.5], "C": ["a", "bc"]})
@@ -396,11 +398,13 @@ class TestDataFrameConvertTo(TestData):
             ),
         ],
     )
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
     def test_to_records_dtype_mi(self, df, kwargs, expected):
         # see gh-18146
         result = df.to_records(**kwargs)
         tm.assert_almost_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
     def test_to_records_dict_like(self):
         # see gh-18146
         class DictLike:
