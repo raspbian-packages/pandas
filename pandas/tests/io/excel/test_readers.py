@@ -499,6 +499,7 @@ class TestReaders:
             pd.read_excel("", engine=bad_engine)
 
     @tm.network
+    @pytest.mark.xfail(condition=True,reason="404 URL",strict=False)
     def test_read_from_http_url(self, read_ext):
         if read_ext == ".ods":  # TODO: remove once on master
             pytest.skip()

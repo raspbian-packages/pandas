@@ -132,6 +132,7 @@ class TestReadHtml:
         assert_framelist_equal(df1, df2)
 
     @network
+    @pytest.mark.xfail(condition=True,reason="404 URL",strict=False)
     def test_spam_url(self):
         url = (
             "https://raw.githubusercontent.com/pandas-dev/pandas/master/"
