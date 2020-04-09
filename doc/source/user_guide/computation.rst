@@ -58,7 +58,7 @@ series in the DataFrame, also excluding NA/null values.
     is not guaranteed to be positive semi-definite. This could lead to
     estimated correlations having absolute values which are greater than one,
     and/or a non-invertible covariance matrix. See `Estimation of covariance
-    matrices <http://en.wikipedia.org/w/index.php?title=Estimation_of_covariance_matrices>`_
+    matrices <https://en.wikipedia.org/w/index.php?title=Estimation_of_covariance_matrices>`_
     for more details.
 
 .. ipython:: python
@@ -963,5 +963,5 @@ are scaled by debiasing factors
 
 (For :math:`w_i = 1`, this reduces to the usual :math:`N / (N - 1)` factor,
 with :math:`N = t + 1`.)
-See `Weighted Sample Variance <http://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance>`__
+See `Weighted Sample Variance <https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance>`__
 on Wikipedia for further details.
