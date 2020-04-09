@@ -189,7 +189,7 @@ class TestPDApi(Base):
         "_np_version_under1p17",
         "_tslib",
         "_typing",
-        "_version",
+# not in Debian        "_version",
     ]
 
     def test_api(self):
