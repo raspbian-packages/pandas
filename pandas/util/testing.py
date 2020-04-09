@@ -15,7 +15,10 @@ import traceback
 from typing import Union, cast
 import warnings
 import zipfile
-
+try:
+    from matplotlib.cbook import MatplotlibDeprecationWarning
+except ImportError:
+    MatplotlibDeprecationWarning = None
 import numpy as np
 from numpy.random import rand, randn
 
@@ -2694,6 +2697,12 @@ def assert_produces_warning(
                     assert actual_warning.filename == caller.filename, msg
             else:
                 if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
+                    continue
+                if actual_warning.category==DeprecationWarning and "PY_SSIZE_T_CLEAN will be required for '#' formats" in str(actual_warning.message) and 'matplotlib' in actual_warning.filename:
+                    continue
+                if actual_warning.category==MatplotlibDeprecationWarning and "deprecated in Matplotlib 3.2" in str(actual_warning.message) and 'matplotlib' in actual_warning.filename:
+                    continue
+                if actual_warning.category==DeprecationWarning and "Deprecated since version 0.16.0." in str(actual_warning.message) and 'jedi' in actual_warning.filename:
                     continue
                 extra_warnings.append(
                     (
