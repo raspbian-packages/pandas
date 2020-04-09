@@ -1,0 +1,28 @@
+Description: Fix typos
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Origin: lintian
+Forwarded: no
+
+--- a/pandas/_libs/lib.pyx
++++ b/pandas/_libs/lib.pyx
+@@ -510,7 +510,7 @@ def maybe_booleans_to_slice(ndarray[uint
+ @cython.wraparound(False)
+ @cython.boundscheck(False)
+ def array_equivalent_object(left: object[:], right: object[:]) -> bool:
+-    """ perform an element by element comparion on 1-d object arrays
++    """ perform an element by element comparison on 1-d object arrays
+         taking into account nan positions """
+     cdef:
+         Py_ssize_t i, n = left.shape[0]
+--- a/pandas/_libs/tslibs/timestamps.pyx
++++ b/pandas/_libs/tslibs/timestamps.pyx
+@@ -595,7 +595,7 @@ default 'raise'
+     @property
+     def dayofweek(self):
+         """
+-        Return day of whe week.
++        Return day of the week.
+         """
+         return self.weekday()
+ 

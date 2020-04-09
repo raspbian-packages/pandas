@@ -1,0 +1,62 @@
+Description: Fix or skip tests that assume the wrong endianness
+
+This is a bug in the tests not pandas itself -
+the expected values explicitly specify little-endian
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/frame/test_convert_to.py
++++ b/pandas/tests/frame/test_convert_to.py
+@@ -15,6 +15,7 @@ from pandas import (
+ )
+ from pandas.tests.frame.common import TestData
+ import pandas.util.testing as tm
++from pandas.compat import is_platform_little_endian
+ 
+ 
+ class TestDataFrameConvertTo(TestData):
+@@ -323,6 +324,7 @@ class TestDataFrameConvertTo(TestData):
+             ),
+         ],
+     )
++    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
+     def test_to_records_dtype(self, kwargs, expected):
+         # see gh-18146
+         df = DataFrame({"A": [1, 2], "B": [0.2, 1.5], "C": ["a", "bc"]})
+@@ -396,11 +398,13 @@ class TestDataFrameConvertTo(TestData):
+             ),
+         ],
+     )
++    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
+     def test_to_records_dtype_mi(self, df, kwargs, expected):
+         # see gh-18146
+         result = df.to_records(**kwargs)
+         tm.assert_almost_equal(result, expected)
+ 
++    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
+     def test_to_records_dict_like(self):
+         # see gh-18146
+         class DictLike:
+--- a/pandas/tests/indexes/timedeltas/test_arithmetic.py
++++ b/pandas/tests/indexes/timedeltas/test_arithmetic.py
+@@ -234,7 +234,7 @@ class TestTimedeltaIndexArithmetic:
+         tm.assert_numpy_array_equal(np.array([2]) * td, expected)
+         msg = (
+             "ufunc '?multiply'? cannot use operands with types"
+-            r" dtype\('<m8\[ns\]'\) and dtype\('<m8\[ns\]'\)"
++            r" dtype\('[<>]m8\[ns\]'\) and dtype\('[<>]m8\[ns\]'\)"
+         )
+         with pytest.raises(TypeError, match=msg):
+             td * other
+--- a/pandas/tests/io/parser/test_c_parser_only.py
++++ b/pandas/tests/io/parser/test_c_parser_only.py
+@@ -129,7 +129,7 @@ nan 2
+             "the dtype timedelta64 is not supported for parsing",
+             dict(dtype={"A": "timedelta64", "B": "float64"}),
+         ),
+-        ("the dtype <U8 is not supported for parsing", dict(dtype={"A": "U8"})),
++        ("the dtype [<>]U8 is not supported for parsing", dict(dtype={"A": "U8"})),
+     ],
+     ids=["dt64-0", "dt64-1", "td64", "<U8"],
+ )
