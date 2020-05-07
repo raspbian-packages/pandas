@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
 
 import numpy as np
 import pytest
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
 
 import pandas as pd
 from pandas import (
@@ -1145,6 +1148,7 @@ class TestSeriesMode:
         expected = Series(expected2, dtype=object)
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     @pytest.mark.parametrize(
         "dropna, expected1, expected2",
         [

@@ -5,6 +5,9 @@ from pandas.core.dtypes.cast import maybe_downcast_to_dtype
 
 from pandas import DatetimeIndex, Series, Timestamp
 from pandas.util import testing as tm
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
 
 
 @pytest.mark.parametrize(
@@ -68,6 +71,7 @@ def test_downcast_conversion_empty(any_real_dtype):
     tm.assert_numpy_array_equal(result, np.array([], dtype=np.int64))
 
 
+@pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
 @pytest.mark.parametrize("klass", [np.datetime64, np.timedelta64])
 def test_datetime_likes_nan(klass):
     dtype = klass.__name__ + "[ns]"
