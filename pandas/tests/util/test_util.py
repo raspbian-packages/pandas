@@ -86,6 +86,7 @@ def test_datapath_missing(datapath):
         datapath("not_a_file")
 
 
+@pytest.mark.xfail(reason="--deb-data-root-dir intentionally breaks this",strict=False)
 def test_datapath(datapath):
     args = ("data", "iris.csv")
 
