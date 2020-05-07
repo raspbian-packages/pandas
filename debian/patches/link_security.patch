@@ -1,0 +1,1217 @@
+Description: Use https for links where possible
+
+Also fix some (semi-)broken links found while checking https availability.
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
+
+--- a/.github/CODE_OF_CONDUCT.md
++++ b/.github/CODE_OF_CONDUCT.md
+@@ -54,10 +54,10 @@ incident.
+ 
+ This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+ version 1.3.0, available at
+-[http://contributor-covenant.org/version/1/3/0/][version],
++[https://www.contributor-covenant.org/version/1/3/0/][version],
+ and the [Swift Code of Conduct][swift].
+ 
+-[homepage]: http://contributor-covenant.org
+-[version]: http://contributor-covenant.org/version/1/3/0/
++[homepage]: https://www.contributor-covenant.org
++[version]: https://www.contributor-covenant.org/version/1/3/0/
+ [swift]: https://swift.org/community/#code-of-conduct
+ 
+--- a/.github/CONTRIBUTING.md
++++ b/.github/CONTRIBUTING.md
+@@ -16,7 +16,7 @@ If you notice a bug in the code or docum
+ 
+ ## Contributing to the Codebase
+ 
+-The code is hosted on [GitHub](https://www.github.com/pandas-dev/pandas), so you will need to use [Git](http://git-scm.com/) to clone the project and make changes to the codebase. Once you have obtained a copy of the code, you should create a development environment that is separate from your existing Python environment so that you can make and test changes without compromising your own work environment. For more information, please refer to the "[Working with the code](https://github.com/pandas-dev/pandas/blob/master/doc/source/development/contributing.rst#working-with-the-code)" section.
++The code is hosted on [GitHub](https://www.github.com/pandas-dev/pandas), so you will need to use [Git](https://git-scm.com/) to clone the project and make changes to the codebase. Once you have obtained a copy of the code, you should create a development environment that is separate from your existing Python environment so that you can make and test changes without compromising your own work environment. For more information, please refer to the "[Working with the code](https://github.com/pandas-dev/pandas/blob/master/doc/source/development/contributing.rst#working-with-the-code)" section.
+ 
+ Before submitting your changes for review, make sure to check that your changes do not break any tests. You can find more information about our test suites in the "[Test-driven development/code writing](https://github.com/pandas-dev/pandas/blob/master/doc/source/development/contributing.rst#test-driven-development-code-writing)" section. We also have guidelines regarding coding style that will be enforced during testing, which can be found in the "[Code standards](https://github.com/pandas-dev/pandas/blob/master/doc/source/development/contributing.rst#code-standards)" section.
+ 
+--- a/AUTHORS.md
++++ b/AUTHORS.md
+@@ -14,7 +14,7 @@ About the Copyright Holders
+     The PyData Development Team is the collection of developers of the PyData
+     project. This includes all of the PyData sub-projects, including pandas. The
+     core team that coordinates development on GitHub can be found here:
+-    http://github.com/pydata.
++    https://github.com/pydata.
+ 
+ Full credits for pandas contributors can be found in the documentation.
+ 
+--- a/RELEASE.md
++++ b/RELEASE.md
+@@ -2,5 +2,5 @@ Release Notes
+ =============
+ 
+ The list of changes to Pandas between each release can be found
+-[here](http://pandas.pydata.org/pandas-docs/stable/whatsnew.html). For full
+-details, see the commit logs at http://github.com/pandas-dev/pandas.
++[here](https://pandas.pydata.org/pandas-docs/stable/whatsnew/index.html). For full
++details, see the commit logs at https://github.com/pandas-dev/pandas.
+--- a/asv_bench/benchmarks/pandas_vb_common.py
++++ b/asv_bench/benchmarks/pandas_vb_common.py
+@@ -48,7 +48,7 @@ except AttributeError:
+ def setup(*args, **kwargs):
+     # This function just needs to be imported into each benchmark file to
+     # set up the random seed before each function.
+-    # http://asv.readthedocs.io/en/latest/writing_benchmarks.html
++    # https://asv.readthedocs.io/en/latest/writing_benchmarks.html
+     np.random.seed(1234)
+ 
+ 
+--- a/doc/cheatsheet/README.txt
++++ b/doc/cheatsheet/README.txt
+@@ -5,4 +5,4 @@ and pick "PDF" as the format.
+ This cheat sheet was inspired by the RStudio Data Wrangling Cheatsheet[1], written by Irv Lustig, Princeton Consultants[2].
+ 
+ [1]: https://www.rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+-[2]: http://www.princetonoptimization.com/
++[2]: https://www.princetonoptimization.com/
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -632,11 +632,11 @@ def linkcode_resolve(domain, info):
+     fn = os.path.relpath(fn, start=os.path.dirname(pandas.__file__))
+ 
+     if "+" in pandas.__version__:
+-        return "http://github.com/pandas-dev/pandas/blob/master/pandas/" "{}{}".format(
++        return "https://github.com/pandas-dev/pandas/blob/master/pandas/" "{}{}".format(
+             fn, linespec
+         )
+     else:
+-        return "http://github.com/pandas-dev/pandas/blob/" "v{}/pandas/{}{}".format(
++        return "https://github.com/pandas-dev/pandas/blob/" "v{}/pandas/{}{}".format(
+             pandas.__version__, fn, linespec
+         )
+ 
+@@ -703,7 +703,7 @@ def rstjinja(app, docname, source):
+     """
+     Render our pages as a jinja template for fancy templating goodness.
+     """
+-    # http://ericholscher.com/blog/2016/jul/25/integrating-jinja-rst-sphinx/
++    # https://www.ericholscher.com/blog/2016/jul/25/integrating-jinja-rst-sphinx/
+     # Make sure we're outputting HTML
+     if app.builder.format != "html":
+         return
+--- a/doc/source/development/contributing.rst
++++ b/doc/source/development/contributing.rst
+@@ -35,7 +35,7 @@ Bug reports and enhancement requests
+ Bug reports are an important part of making *pandas* more stable. Having a complete bug report
+ will allow others to reproduce the bug and provide insight into fixing. See
+ `this stackoverflow article <https://stackoverflow.com/help/mcve>`_ and
+-`this blogpost <http://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports>`_
++`this blogpost <https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports>`_
+ for tips on writing a good bug report.
+ 
+ Trying the bug-producing code out on the *master* branch is often a worthwhile exercise
+@@ -46,7 +46,7 @@ Bug reports must:
+ 
+ #. Include a short, self-contained Python snippet reproducing the problem.
+    You can format the code nicely by using `GitHub Flavored Markdown
+-   <http://github.github.com/github-flavored-markdown/>`_::
++   <https://github.github.com/github-flavored-markdown/>`_::
+ 
+       ```python
+       >>> from pandas import DataFrame
+@@ -83,19 +83,19 @@ feel free to ask for help.
+ 
+ The code is hosted on `GitHub <https://www.github.com/pandas-dev/pandas>`_. To
+ contribute you will need to sign up for a `free GitHub account
+-<https://github.com/signup/free>`_. We use `Git <http://git-scm.com/>`_ for
++<https://github.com/signup/free>`_. We use `Git <https://git-scm.com/>`_ for
+ version control to allow many people to work together on the project.
+ 
+ Some great resources for learning Git:
+ 
+-* the `GitHub help pages <http://help.github.com/>`_.
+-* the `NumPy's documentation <http://docs.scipy.org/doc/numpy/dev/index.html>`_.
+-* Matthew Brett's `Pydagogue <http://matthew-brett.github.com/pydagogue/>`_.
++* the `GitHub help pages <https://help.github.com/>`_.
++* the `NumPy's documentation <https://docs.scipy.org/doc/numpy/dev/index.html>`_.
++* Matthew Brett's `Pydagogue <https://matthew-brett.github.com/pydagogue/>`_.
+ 
+ Getting started with Git
+ ------------------------
+ 
+-`GitHub has instructions <http://help.github.com/set-up-git-redirect>`__ for installing git,
++`GitHub has instructions <https://help.github.com/set-up-git-redirect>`__ for installing git,
+ setting up your SSH key, and configuring git.  All these steps need to be completed before
+ you can work seamlessly between your local repository and GitHub.
+ 
+@@ -204,7 +204,7 @@ To return to your root environment::
+ 
+       conda deactivate
+ 
+-See the full conda docs `here <http://conda.pydata.org/docs>`__.
++See the full conda docs `here <https://conda.pydata.org/docs>`__.
+ 
+ .. _contributing.pip:
+ 
+@@ -280,9 +280,9 @@ About the *pandas* documentation
+ --------------------------------
+ 
+ The documentation is written in **reStructuredText**, which is almost like writing
+-in plain English, and built using `Sphinx <http://sphinx.pocoo.org/>`__. The
++in plain English, and built using `Sphinx <https://www.sphinx-doc.org/en/master/>`__. The
+ Sphinx Documentation has an excellent `introduction to reST
+-<http://sphinx.pocoo.org/rest.html>`__. Review the Sphinx docs to perform more
++<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`__. Review the Sphinx docs to perform more
+ complex changes to the documentation as well.
+ 
+ Some other important things to know about the docs:
+@@ -305,7 +305,7 @@ Some other important things to know abou
+      contributing_docstring.rst
+ 
+ * The tutorials make heavy use of the `ipython directive
+-  <http://matplotlib.org/sampledoc/ipython_directive.html>`_ sphinx extension.
++  <https://matplotlib.org/sampledoc/ipython_directive.html>`_ sphinx extension.
+   This directive lets you put code in the documentation which will be run
+   during the doc build. For example::
+ 
+@@ -351,7 +351,7 @@ Some other important things to know abou
+     The ``.rst`` files are used to automatically generate Markdown and HTML versions
+     of the docs. For this reason, please do not edit ``CONTRIBUTING.md`` directly,
+     but instead make any changes to ``doc/source/development/contributing.rst``. Then, to
+-    generate ``CONTRIBUTING.md``, use `pandoc <http://johnmacfarlane.net/pandoc/>`_
++    generate ``CONTRIBUTING.md``, use `pandoc <https://johnmacfarlane.net/pandoc/>`_
+     with the following command::
+ 
+       pandoc doc/source/development/contributing.rst -t markdown_github > CONTRIBUTING.md
+@@ -536,8 +536,8 @@ You can also run this command on an enti
+    cpplint --extensions=c,h --headers=h --filter=-readability/casting,-runtime/int,-build/include_subdir --recursive modified-c-directory
+ 
+ To make your commits compliant with this standard, you can install the
+-`ClangFormat <http://clang.llvm.org/docs/ClangFormat.html>`_ tool, which can be
+-downloaded `here <http://llvm.org/builds/>`__. To configure, in your home directory,
++`ClangFormat <https://clang.llvm.org/docs/ClangFormat.html>`_ tool, which can be
++downloaded `here <https://llvm.org/builds/>`__. To configure, in your home directory,
+ run the following command::
+ 
+     clang-format style=google -dump-config  > .clang-format
+@@ -565,7 +565,7 @@ fixes manually.
+ Python (PEP8 / black)
+ ~~~~~~~~~~~~~~~~~~~~~
+ 
+-*pandas* follows the `PEP8 <http://www.python.org/dev/peps/pep-0008/>`_ standard
++*pandas* follows the `PEP8 <https://www.python.org/dev/peps/pep-0008/>`_ standard
+ and uses `Black <https://black.readthedocs.io/en/stable/>`_ and
+ `Flake8 <http://flake8.pycqa.org/en/latest/>`_ to ensure a consistent code
+ format throughout the project.
+@@ -755,9 +755,9 @@ Adding tests is one of the most common r
+ it is worth getting in the habit of writing tests ahead of time so this is never an issue.
+ 
+ Like many packages, *pandas* uses `pytest
+-<http://docs.pytest.org/en/latest/>`_ and the convenient
++<https://docs.pytest.org/en/latest/>`_ and the convenient
+ extensions in `numpy.testing
+-<http://docs.scipy.org/doc/numpy/reference/routines.testing.html>`_.
++<https://docs.scipy.org/doc/numpy/reference/routines.testing.html>`_.
+ 
+ .. note::
+ 
+@@ -805,7 +805,7 @@ Transitioning to ``pytest``
+     class TestReallyCoolFeature:
+         pass
+ 
+-Going forward, we are moving to a more *functional* style using the `pytest <http://docs.pytest.org/en/latest/>`__ framework, which offers a richer testing
++Going forward, we are moving to a more *functional* style using the `pytest <https://docs.pytest.org/en/latest/>`__ framework, which offers a richer testing
+ framework that will facilitate testing and developing. Thus, instead of writing test classes, we will write test functions like this:
+ 
+ .. code-block:: python
+@@ -1038,7 +1038,7 @@ On Windows, one can type::
+ This can significantly reduce the time it takes to locally run tests before
+ submitting a pull request.
+ 
+-For more, see the `pytest <http://docs.pytest.org/en/latest/>`_ documentation.
++For more, see the `pytest <https://docs.pytest.org/en/latest/>`_ documentation.
+ 
+     .. versionadded:: 0.20.0
+ 
+--- a/doc/source/development/contributing_docstring.rst
++++ b/doc/source/development/contributing_docstring.rst
+@@ -77,8 +77,8 @@ language that allows encoding styles in
+ about reStructuredText can be found in:
+ 
+ * `Sphinx reStructuredText primer <https://www.sphinx-doc.org/en/stable/rest.html>`_
+-* `Quick reStructuredText reference <http://docutils.sourceforge.net/docs/user/rst/quickref.html>`_
+-* `Full reStructuredText specification <http://docutils.sourceforge.net/docs/ref/rst/restructuredtext.html>`_
++* `Quick reStructuredText reference <https://docutils.sourceforge.io/docs/user/rst/quickref.html>`_
++* `Full reStructuredText specification <https://docutils.sourceforge.io/docs/ref/rst/restructuredtext.html>`_
+ 
+ Pandas has some helpers for sharing docstrings between related classes, see
+ :ref:`docstring.sharing`.
+--- a/doc/source/development/extending.rst
++++ b/doc/source/development/extending.rst
+@@ -264,7 +264,7 @@ Subclassing pandas data structures
+ 
+   1. Extensible method chains with :ref:`pipe <basics.pipe>`
+ 
+-  2. Use *composition*. See `here <http://en.wikipedia.org/wiki/Composition_over_inheritance>`_.
++  2. Use *composition*. See `here <https://en.wikipedia.org/wiki/Composition_over_inheritance>`_.
+ 
+   3. Extending by :ref:`registering an accessor <extending.register-accessors>`
+ 
+--- a/doc/source/ecosystem.rst
++++ b/doc/source/ecosystem.rst
+@@ -267,8 +267,8 @@ dimensional arrays, rather than the tabu
+ Out-of-core
+ -------------
+ 
+-`Blaze <http://blaze.pydata.org/>`__
+-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
++`Blaze <https://blaze.pydata.org/>`__
++~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ Blaze provides a standard API for doing computations with various
+ in-memory and on-disk backends: NumPy, Pandas, SQLAlchemy, MongoDB, PyTables,
+--- a/doc/source/getting_started/comparison/comparison_with_r.rst
++++ b/doc/source/getting_started/comparison/comparison_with_r.rst
+@@ -6,9 +6,9 @@ Comparison with R / R libraries
+ *******************************
+ 
+ Since ``pandas`` aims to provide a lot of the data manipulation and analysis
+-functionality that people use `R <http://www.r-project.org/>`__ for, this page
++functionality that people use `R <https://www.r-project.org/>`__ for, this page
+ was started to provide a more detailed look at the `R language
+-<http://en.wikipedia.org/wiki/R_(programming_language)>`__ and its many third
++<https://en.wikipedia.org/wiki/R_(programming_language)>`__ and its many third
+ party libraries as they relate to ``pandas``. In comparisons with R and CRAN
+ libraries, we care about the following things:
+ 
+@@ -518,37 +518,37 @@ For more details and examples see :ref:`
+ 
+ 
+ .. |c| replace:: ``c``
+-.. _c: http://stat.ethz.ch/R-manual/R-patched/library/base/html/c.html
++.. _c: https://stat.ethz.ch/R-manual/R-patched/library/base/html/c.html
+ 
+ .. |aggregate| replace:: ``aggregate``
+-.. _aggregate: http://finzi.psych.upenn.edu/R/library/stats/html/aggregate.html
++.. _aggregate: https://stat.ethz.ch/R-manual/R-patched/library/stats/html/aggregate.html
+ 
+ .. |match| replace:: ``match`` / ``%in%``
+-.. _match: http://finzi.psych.upenn.edu/R/library/base/html/match.html
++.. _match: https://stat.ethz.ch/R-manual/R-patched/library/base/html/match.html
+ 
+ .. |tapply| replace:: ``tapply``
+-.. _tapply: http://finzi.psych.upenn.edu/R/library/base/html/tapply.html
++.. _tapply: https://stat.ethz.ch/R-manual/R-patched/library/base/html/tapply.html
+ 
+ .. |with| replace:: ``with``
+-.. _with: http://finzi.psych.upenn.edu/R/library/base/html/with.html
++.. _with: https://stat.ethz.ch/R-manual/R-patched/library/base/html/with.html
+ 
+ .. |subset| replace:: ``subset``
+-.. _subset: http://finzi.psych.upenn.edu/R/library/base/html/subset.html
++.. _subset: https://stat.ethz.ch/R-manual/R-patched/library/base/html/subset.html
+ 
+ .. |ddply| replace:: ``ddply``
+-.. _ddply: http://www.inside-r.org/packages/cran/plyr/docs/ddply
++.. _ddply: https://cran.r-project.org/web/packages/plyr/plyr.pdf#Rfn.ddply.1
+ 
+ .. |meltarray| replace:: ``melt.array``
+-.. _meltarray: http://www.inside-r.org/packages/cran/reshape2/docs/melt.array
++.. _meltarray: https://cran.r-project.org/web/packages/reshape2/reshape2.pdf#Rfn.melt.array.1
+ 
+ .. |meltlist| replace:: ``melt.list``
+-.. meltlist: http://www.inside-r.org/packages/cran/reshape2/docs/melt.list
++.. meltlist: https://cran.r-project.org/web/packages/reshape2/reshape2.pdf#Rfn.melt.list.1
+ 
+ .. |meltdf| replace:: ``melt.data.frame``
+-.. meltdf: http://www.inside-r.org/packages/cran/reshape2/docs/melt.data.frame
++.. meltdf: https://cran.r-project.org/web/packages/reshape2/reshape2.pdf#Rfn.melt.data.frame.1
+ 
+ .. |cast| replace:: ``cast``
+-.. cast: http://www.inside-r.org/packages/cran/reshape2/docs/cast
++.. cast: https://cran.r-project.org/web/packages/reshape2/reshape2.pdf#Rfn.cast.1
+ 
+ .. |factor| replace:: ``factor``
+ .. _factor: https://stat.ethz.ch/R-manual/R-devel/library/base/html/factor.html
+--- a/doc/source/getting_started/comparison/comparison_with_stata.rst
++++ b/doc/source/getting_started/comparison/comparison_with_stata.rst
+@@ -673,6 +673,6 @@ Disk vs memory
+ Pandas and Stata both operate exclusively in memory. This means that the size of
+ data able to be loaded in pandas is limited by your machine's memory.
+ If out of core processing is needed, one possibility is the
+-`dask.dataframe <http://dask.pydata.org/en/latest/dataframe.html>`_
++`dask.dataframe <https://dask.pydata.org/en/latest/dataframe.html>`_
+ library, which provides a subset of pandas functionality for an
+ on-disk ``DataFrame``.
+--- a/doc/source/getting_started/dsintro.rst
++++ b/doc/source/getting_started/dsintro.rst
+@@ -658,7 +658,7 @@ union of the column and row labels.
+ 
+ When doing an operation between DataFrame and Series, the default behavior is
+ to align the Series **index** on the DataFrame **columns**, thus `broadcasting
+-<http://docs.scipy.org/doc/numpy/user/basics.broadcasting.html>`__
++<https://docs.scipy.org/doc/numpy/user/basics.broadcasting.html>`__
+ row-wise. For example:
+ 
+ .. ipython:: python
+--- a/doc/source/install.rst
++++ b/doc/source/install.rst
+@@ -7,13 +7,13 @@ Installation
+ ============
+ 
+ The easiest way to install pandas is to install it
+-as part of the `Anaconda <http://docs.continuum.io/anaconda/>`__ distribution, a
++as part of the `Anaconda <https://docs.continuum.io/anaconda/>`__ distribution, a
+ cross platform distribution for data analysis and scientific computing.
+ This is the recommended installation method for most users.
+ 
+ Instructions for installing from source,
+ `PyPI <https://pypi.org/project/pandas>`__, `ActivePython <https://www.activestate.com/activepython/downloads>`__, various Linux distributions, or a
+-`development version <http://github.com/pandas-dev/pandas>`__ are also provided.
++`development version <https://github.com/pandas-dev/pandas>`__ are also provided.
+ 
+ Python version support
+ ----------------------
+@@ -28,28 +28,28 @@ Installing pandas
+ Installing with Anaconda
+ ~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+-Installing pandas and the rest of the `NumPy <http://www.numpy.org/>`__ and
+-`SciPy <http://www.scipy.org/>`__ stack can be a little
++Installing pandas and the rest of the `NumPy <https://www.numpy.org/>`__ and
++`SciPy <https://www.scipy.org/>`__ stack can be a little
+ difficult for inexperienced users.
+ 
+ The simplest way to install not only pandas, but Python and the most popular
+-packages that make up the `SciPy <http://www.scipy.org/>`__ stack
+-(`IPython <http://ipython.org/>`__, `NumPy <http://www.numpy.org/>`__,
+-`Matplotlib <http://matplotlib.org/>`__, ...) is with
+-`Anaconda <http://docs.continuum.io/anaconda/>`__, a cross-platform
++packages that make up the `SciPy <https://www.scipy.org/>`__ stack
++(`IPython <https://ipython.org/>`__, `NumPy <https://www.numpy.org/>`__,
++`Matplotlib <https://matplotlib.org/>`__, ...) is with
++`Anaconda <https://docs.continuum.io/anaconda/>`__, a cross-platform
+ (Linux, Mac OS X, Windows) Python distribution for data analytics and
+ scientific computing.
+ 
+ After running the installer, the user will have access to pandas and the
+-rest of the `SciPy <http://www.scipy.org/>`__ stack without needing to install
++rest of the `SciPy <https://www.scipy.org/>`__ stack without needing to install
+ anything else, and without needing to wait for any software to be compiled.
+ 
+-Installation instructions for `Anaconda <http://docs.continuum.io/anaconda/>`__
+-`can be found here <http://docs.continuum.io/anaconda/install.html>`__.
++Installation instructions for `Anaconda <https://docs.continuum.io/anaconda/>`__
++`can be found here <https://docs.continuum.io/anaconda/install.html>`__.
+ 
+ A full list of the packages available as part of the
+-`Anaconda <http://docs.continuum.io/anaconda/>`__ distribution
+-`can be found here <http://docs.continuum.io/anaconda/pkg-docs.html>`__.
++`Anaconda <https://docs.continuum.io/anaconda/>`__ distribution
++`can be found here <https://docs.continuum.io/anaconda/packages/pkg-docs/>`__.
+ 
+ Another advantage to installing Anaconda is that you don't need
+ admin rights to install it. Anaconda can install in the user's home directory,
+@@ -62,28 +62,28 @@ Installing with Miniconda
+ ~~~~~~~~~~~~~~~~~~~~~~~~~
+ 
+ The previous section outlined how to get pandas installed as part of the
+-`Anaconda <http://docs.continuum.io/anaconda/>`__ distribution.
++`Anaconda <https://docs.continuum.io/anaconda/>`__ distribution.
+ However this approach means you will install well over one hundred packages
+ and involves downloading the installer which is a few hundred megabytes in size.
+ 
+ If you want to have more control on which packages, or have a limited internet
+ bandwidth, then installing pandas with
+-`Miniconda <http://conda.pydata.org/miniconda.html>`__ may be a better solution.
++`Miniconda <https://conda.pydata.org/miniconda.html>`__ may be a better solution.
+ 
+-`Conda <http://conda.pydata.org/docs/>`__ is the package manager that the
+-`Anaconda <http://docs.continuum.io/anaconda/>`__ distribution is built upon.
++`Conda <https://conda.pydata.org/docs/>`__ is the package manager that the
++`Anaconda <https://docs.continuum.io/anaconda/>`__ distribution is built upon.
+ It is a package manager that is both cross-platform and language agnostic
+ (it can play a similar role to a pip and virtualenv combination).
+ 
+-`Miniconda <http://conda.pydata.org/miniconda.html>`__ allows you to create a
++`Miniconda <https://conda.pydata.org/miniconda.html>`__ allows you to create a
+ minimal self contained Python installation, and then use the
+-`Conda <http://conda.pydata.org/docs/>`__ command to install additional packages.
++`Conda <https://conda.pydata.org/docs/>`__ command to install additional packages.
+ 
+-First you will need `Conda <http://conda.pydata.org/docs/>`__ to be installed and
++First you will need `Conda <https://conda.pydata.org/docs/>`__ to be installed and
+ downloading and running the `Miniconda
+-<http://conda.pydata.org/miniconda.html>`__
++<https://conda.pydata.org/miniconda.html>`__
+ will do this for you. The installer
+-`can be found here <http://conda.pydata.org/miniconda.html>`__
++`can be found here <https://conda.pydata.org/miniconda.html>`__
+ 
+ The next step is to create a new conda environment. A conda environment is like a
+ virtualenv that allows you to specify a specific version of Python and set of libraries.
+@@ -113,7 +113,7 @@ To install other packages, IPython for e
+ 
+     conda install ipython
+ 
+-To install the full `Anaconda <http://docs.continuum.io/anaconda/>`__
++To install the full `Anaconda <https://docs.continuum.io/anaconda/>`__
+ distribution::
+ 
+     conda install anaconda
+@@ -153,10 +153,10 @@ To install pandas for Python 2, you may
+     :widths: 10, 10, 20, 50
+ 
+ 
+-    Debian, stable, `official Debian repository <http://packages.debian.org/search?keywords=pandas&searchon=names&suite=all&section=all>`__ , ``sudo apt-get install python3-pandas``
++    Debian, stable, `official Debian repository <https://packages.debian.org/search?keywords=pandas&searchon=names&suite=all&section=all>`__ , ``sudo apt-get install python3-pandas``
+     Debian & Ubuntu, unstable (latest packages), `NeuroDebian <http://neuro.debian.net/index.html#how-to-use-this-repository>`__ , ``sudo apt-get install python3-pandas``
+-    Ubuntu, stable, `official Ubuntu repository <http://packages.ubuntu.com/search?keywords=pandas&searchon=names&suite=all&section=all>`__ , ``sudo apt-get install python3-pandas``
+-    OpenSuse, stable, `OpenSuse Repository  <http://software.opensuse.org/package/python-pandas?search_term=pandas>`__ , ``zypper in python3-pandas``
++    Ubuntu, stable, `official Ubuntu repository <https://packages.ubuntu.com/search?keywords=pandas&searchon=names&suite=all&section=all>`__ , ``sudo apt-get install python3-pandas``
++    OpenSuse, stable, `OpenSuse Repository  <https://software.opensuse.org/package/python-pandas?search_term=pandas>`__ , ``zypper in python3-pandas``
+     Fedora, stable, `official Fedora repository  <https://admin.fedoraproject.org/pkgdb/package/rpms/python-pandas/>`__ , ``dnf install python3-pandas``
+     Centos/RHEL, stable, `EPEL repository <https://admin.fedoraproject.org/pkgdb/package/rpms/python-pandas/>`__ , ``yum install python3-pandas``
+ 
+@@ -177,7 +177,7 @@ pandas is equipped with an exhaustive se
+ the code base as of this writing. To run it on your machine to verify that
+ everything is working (and that you have all of the dependencies, soft and hard,
+ installed), make sure you have `pytest
+-<http://docs.pytest.org/en/latest/>`__ >= 4.0.2 and `Hypothesis
++<https://docs.pytest.org/en/latest/>`__ >= 4.0.2 and `Hypothesis
+ <https://hypothesis.readthedocs.io/>`__ >= 3.58, then run:
+ 
+ ::
+@@ -204,9 +204,9 @@ Dependencies
+ Package                                                          Minimum supported version
+ ================================================================ ==========================
+ `setuptools <https://setuptools.readthedocs.io/en/latest/>`__    24.2.0
+-`NumPy <http://www.numpy.org>`__                                 1.13.3
++`NumPy <https://www.numpy.org>`__                                1.13.3
+ `python-dateutil <https://dateutil.readthedocs.io/en/stable/>`__ 2.6.1
+-`pytz <http://pytz.sourceforge.net/>`__                          2017.2
++`pytz <https://pypi.org/project/pytz/>`__                        2017.2
+ ================================================================ ==========================
+ 
+ .. _install.recommended_dependencies:
+@@ -299,5 +299,5 @@ top-level :func:`~pandas.read_html` func
+       usage of the above three libraries.
+ 
+ .. _html5lib: https://github.com/html5lib/html5lib-python
+-.. _BeautifulSoup4: http://www.crummy.com/software/BeautifulSoup
+-.. _lxml: http://lxml.de
++.. _BeautifulSoup4: https://www.crummy.com/software/BeautifulSoup
++.. _lxml: https://lxml.de
+--- a/doc/source/getting_started/tutorials.rst
++++ b/doc/source/getting_started/tutorials.rst
+@@ -23,12 +23,12 @@ Community guides
+ pandas Cookbook by Julia Evans
+ ------------------------------
+ 
+-The goal of this 2015 cookbook (by `Julia Evans <http://jvns.ca>`_) is to
++The goal of this 2015 cookbook (by `Julia Evans <https://jvns.ca>`_) is to
+ give you some concrete examples for getting started with pandas. These
+ are examples with real-world data, and all the bugs and weirdness that
+ entails.
+ For the table of contents, see the `pandas-cookbook GitHub
+-repository <http://github.com/jvns/pandas-cookbook>`_.
++repository <https://github.com/jvns/pandas-cookbook>`_.
+ 
+ Learn Pandas by Hernan Rojas
+ ----------------------------
+@@ -38,10 +38,10 @@ A set of lesson for new pandas users: ht
+ Practical data analysis with Python
+ -----------------------------------
+ 
+-This `guide <http://wavedatalab.github.io/datawithpython>`_ is an introduction to the data analysis process using the Python data ecosystem and an interesting open dataset.
+-There are four sections covering selected topics as `munging data <http://wavedatalab.github.io/datawithpython/munge.html>`__,
+-`aggregating data <http://wavedatalab.github.io/datawithpython/aggregate.html>`_, `visualizing data <http://wavedatalab.github.io/datawithpython/visualize.html>`_
+-and `time series <http://wavedatalab.github.io/datawithpython/timeseries.html>`_.
++This `guide <https://wavedatalab.github.io/datawithpython>`_ is an introduction to the data analysis process using the Python data ecosystem and an interesting open dataset.
++There are four sections covering selected topics as `munging data <https://wavedatalab.github.io/datawithpython/munge.html>`__,
++`aggregating data <https://wavedatalab.github.io/datawithpython/aggregate.html>`_, `visualizing data <https://wavedatalab.github.io/datawithpython/visualize.html>`_
++and `time series <https://wavedatalab.github.io/datawithpython/timeseries.html>`_.
+ 
+ .. _tutorial-exercises-new-users:
+ 
+@@ -61,13 +61,13 @@ Tutorial series written in 2016 by
+ The source may be found in the GitHub repository
+ `TomAugspurger/effective-pandas <https://github.com/TomAugspurger/effective-pandas>`_.
+ 
+-* `Modern Pandas <http://tomaugspurger.github.io/modern-1-intro.html>`_
+-* `Method Chaining <http://tomaugspurger.github.io/method-chaining.html>`_
+-* `Indexes <http://tomaugspurger.github.io/modern-3-indexes.html>`_
+-* `Performance <http://tomaugspurger.github.io/modern-4-performance.html>`_
+-* `Tidy Data <http://tomaugspurger.github.io/modern-5-tidy.html>`_
+-* `Visualization <http://tomaugspurger.github.io/modern-6-visualization.html>`_
+-* `Timeseries <http://tomaugspurger.github.io/modern-7-timeseries.html>`_
++* `Modern Pandas <https://tomaugspurger.github.io/modern-1-intro.html>`_
++* `Method Chaining <https://tomaugspurger.github.io/method-chaining.html>`_
++* `Indexes <https://tomaugspurger.github.io/modern-3-indexes.html>`_
++* `Performance <https://tomaugspurger.github.io/modern-4-performance.html>`_
++* `Tidy Data <https://tomaugspurger.github.io/modern-5-tidy.html>`_
++* `Visualization <https://tomaugspurger.github.io/modern-6-visualization.html>`_
++* `Timeseries <https://tomaugspurger.github.io/modern-7-timeseries.html>`_
+ 
+ Excel charts with pandas, vincent and xlsxwriter
+ ------------------------------------------------
+@@ -89,21 +89,21 @@ Video tutorials
+ * `Data analysis in Python with pandas <https://www.youtube.com/playlist?list=PL5-da3qGB5ICCsgW1MxlZ0Hq8LL5U3u9y>`_
+   (2016-2018)
+   `GitHub repo <https://github.com/justmarkham/pandas-videos>`__ and
+-  `Jupyter Notebook <http://nbviewer.jupyter.org/github/justmarkham/pandas-videos/blob/master/pandas.ipynb>`__
++  `Jupyter Notebook <https://nbviewer.jupyter.org/github/justmarkham/pandas-videos/blob/master/pandas.ipynb>`__
+ * `Best practices with pandas <https://www.youtube.com/playlist?list=PL5-da3qGB5IBITZj_dYSFqnd_15JgqwA6>`_
+   (2018)
+   `GitHub repo <https://github.com/justmarkham/pycon-2018-tutorial>`__ and
+-  `Jupyter Notebook <http://nbviewer.jupyter.org/github/justmarkham/pycon-2018-tutorial/blob/master/tutorial.ipynb>`__
++  `Jupyter Notebook <https://nbviewer.jupyter.org/github/justmarkham/pycon-2018-tutorial/blob/master/tutorial.ipynb>`__
+ 
+ 
+ Various tutorials
+ -----------------
+ 
+-* `Wes McKinney's (pandas BDFL) blog <http://blog.wesmckinney.com/>`_
++* `Wes McKinney's (pandas BDFL) blog <https://wesmckinney.com/archives.html>`_
+ * `Statistical analysis made easy in Python with SciPy and pandas DataFrames, by Randal Olson <http://www.randalolson.com/2012/08/06/statistical-analysis-made-easy-in-python/>`_
+-* `Statistical Data Analysis in Python, tutorial videos, by Christopher Fonnesbeck from SciPy 2013 <http://conference.scipy.org/scipy2013/tutorial_detail.php?id=109>`_
+-* `Financial analysis in Python, by Thomas Wiecki <http://nbviewer.ipython.org/github/twiecki/financial-analysis-python-tutorial/blob/master/1.%20Pandas%20Basics.ipynb>`_
++* `Statistical Data Analysis in Python, tutorial videos, by Christopher Fonnesbeck from SciPy 2013 <https://conference.scipy.org/scipy2013/tutorial_detail.php?id=109>`_
++* `Financial analysis in Python, by Thomas Wiecki <https://nbviewer.ipython.org/github/twiecki/financial-analysis-python-tutorial/blob/master/1.%20Pandas%20Basics.ipynb>`_
+ * `Intro to pandas data structures, by Greg Reda <http://www.gregreda.com/2013/10/26/intro-to-pandas-data-structures/>`_
+-* `Pandas and Python: Top 10, by Manish Amde <http://manishamde.github.io/blog/2013/03/07/pandas-and-python-top-10/>`_
+-* `Pandas DataFrames Tutorial, by Karlijn Willems <http://www.datacamp.com/community/tutorials/pandas-tutorial-dataframe-python>`_
++* `Pandas and Python: Top 10, by Manish Amde <https://manishamde.github.io/blog/2013/03/07/pandas-and-python-top-10/>`_
++* `Pandas DataFrames Tutorial, by Karlijn Willems <https://www.datacamp.com/community/tutorials/pandas-tutorial-dataframe-python>`_
+ * `A concise tutorial with real life examples <https://tutswiki.com/pandas-cookbook/chapter1>`_
+--- a/doc/source/user_guide/computation.rst
++++ b/doc/source/user_guide/computation.rst
+@@ -58,7 +58,7 @@ series in the DataFrame, also excluding
+     is not guaranteed to be positive semi-definite. This could lead to
+     estimated correlations having absolute values which are greater than one,
+     and/or a non-invertible covariance matrix. See `Estimation of covariance
+-    matrices <http://en.wikipedia.org/w/index.php?title=Estimation_of_covariance_matrices>`_
++    matrices <https://en.wikipedia.org/w/index.php?title=Estimation_of_covariance_matrices>`_
+     for more details.
+ 
+ .. ipython:: python
+@@ -963,5 +963,5 @@ are scaled by debiasing factors
+ 
+ (For :math:`w_i = 1`, this reduces to the usual :math:`N / (N - 1)` factor,
+ with :math:`N = t + 1`.)
+-See `Weighted Sample Variance <http://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance>`__
++See `Weighted Sample Variance <https://en.wikipedia.org/wiki/Weighted_arithmetic_mean#Weighted_sample_variance>`__
+ on Wikipedia for further details.
+--- a/doc/source/user_guide/enhancingperf.rst
++++ b/doc/source/user_guide/enhancingperf.rst
+@@ -20,7 +20,7 @@ Cython (writing C extensions for pandas)
+ 
+ For many use cases writing pandas in pure Python and NumPy is sufficient. In some
+ computationally heavy applications however, it can be possible to achieve sizable
+-speed-ups by offloading work to `cython <http://cython.org/>`__.
++speed-ups by offloading work to `cython <https://cython.org/>`__.
+ 
+ This tutorial assumes you have refactored as much as possible in Python, for example
+ by trying to remove for-loops and making use of NumPy vectorization. It's always worth
+@@ -69,7 +69,7 @@ We achieve our result by using ``apply``
+ 
+ But clearly this isn't fast enough for us. Let's take a look and see where the
+ time is spent during this operation (limited to the most time consuming
+-four calls) using the `prun ipython magic function <http://ipython.org/ipython-doc/stable/api/generated/IPython.core.magics.execution.html#IPython.core.magics.execution.ExecutionMagics.prun>`__:
++four calls) using the `prun ipython magic function <https://ipython.readthedocs.io/en/stable/interactive/magics.html#magic-prun>`__:
+ 
+ .. ipython:: python
+ 
+@@ -298,7 +298,7 @@ advanced Cython techniques:
+ Even faster, with the caveat that a bug in our Cython code (an off-by-one error,
+ for example) might cause a segfault because memory access isn't checked.
+ For more about ``boundscheck`` and ``wraparound``, see the Cython docs on
+-`compiler directives <http://cython.readthedocs.io/en/latest/src/reference/compilation.html?highlight=wraparound#compiler-directives>`__.
++`compiler directives <https://cython.readthedocs.io/en/latest/src/reference/compilation.html?highlight=wraparound#compiler-directives>`__.
+ 
+ .. _enhancingperf.numba:
+ 
+@@ -423,9 +423,9 @@ prefer that Numba throw an error if it c
+ speeds up your code, pass Numba the argument
+ ``nopython=True`` (e.g.  ``@numba.jit(nopython=True)``). For more on
+ troubleshooting Numba modes, see the `Numba troubleshooting page
+-<http://numba.pydata.org/numba-doc/latest/user/troubleshoot.html#the-compiled-code-is-too-slow>`__.
++<https://numba.pydata.org/numba-doc/latest/user/troubleshoot.html#the-compiled-code-is-too-slow>`__.
+ 
+-Read more in the `Numba docs <http://numba.pydata.org/>`__.
++Read more in the `Numba docs <https://numba.pydata.org/>`__.
+ 
+ .. _enhancingperf.eval:
+ 
+--- a/doc/source/user_guide/io.rst
++++ b/doc/source/user_guide/io.rst
+@@ -4299,13 +4299,13 @@ control compression: ``complevel`` and `
+              - `zlib <https://zlib.net/>`_: The default compression library. A classic in terms of compression, achieves good compression rates but is somewhat slow.
+              - `lzo <https://www.oberhumer.com/opensource/lzo/>`_: Fast compression and decompression.
+              - `bzip2 <http://bzip.org/>`_: Good compression rates.
+-             - `blosc <http://www.blosc.org/>`_: Fast compression and decompression.
++             - `blosc <https://www.blosc.org/>`_: Fast compression and decompression.
+ 
+              .. versionadded:: 0.20.2
+ 
+                 Support for alternative blosc compressors:
+ 
+-                - `blosc:blosclz <http://www.blosc.org/>`_ This is the
++                - `blosc:blosclz <https://www.blosc.org/>`_ This is the
+                   default compressor for ``blosc``
+                 - `blosc:lz4
+                   <https://fastcompression.blogspot.dk/p/lz4.html>`_:
+--- a/doc/source/user_guide/missing_data.rst
++++ b/doc/source/user_guide/missing_data.rst
+@@ -466,9 +466,9 @@ at the new values.
+    interp_s = ser.reindex(new_index).interpolate(method='pchip')
+    interp_s[49:51]
+ 
+-.. _scipy: http://www.scipy.org
+-.. _documentation: http://docs.scipy.org/doc/scipy/reference/interpolate.html#univariate-interpolation
+-.. _guide: http://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
++.. _scipy: https://www.scipy.org
++.. _documentation: https://docs.scipy.org/doc/scipy/reference/interpolate.html#univariate-interpolation
++.. _guide: https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html
+ 
+ .. _missing_data.interp_limits:
+ 
+--- a/doc/source/user_guide/style.ipynb
++++ b/doc/source/user_guide/style.ipynb
+@@ -10,7 +10,7 @@
+     "\n",
+     "<span style=\"color: red\">*Provisional: This is a new feature and still under development. We'll be adding features and possibly making breaking changes in future releases. We'd love to hear your feedback.*</span>\n",
+     "\n",
+-    "This document is written as a Jupyter Notebook, and can be viewed or downloaded [here](http://nbviewer.ipython.org/github/pandas-dev/pandas/blob/master/doc/source/style.ipynb).\n",
++    "This document is written as a Jupyter Notebook, and can be viewed or downloaded [here](https://nbviewer.ipython.org/github/pandas-dev/pandas/blob/master/doc/source/user_guide/style.ipynb).\n",
+     "\n",
+     "You can apply **conditional formatting**, the visual styling of a DataFrame\n",
+     "depending on the data within, by using the ``DataFrame.style`` property.\n",
+@@ -433,7 +433,7 @@
+    "cell_type": "markdown",
+    "metadata": {},
+    "source": [
+-    "You can create \"heatmaps\" with the `background_gradient` method. These require matplotlib, and we'll use [Seaborn](http://stanford.edu/~mwaskom/software/seaborn/) to get a nice colormap."
++    "You can create \"heatmaps\" with the `background_gradient` method. These require matplotlib, and we'll use [Seaborn](https://stanford.edu/~mwaskom/software/seaborn/) to get a nice colormap."
+    ]
+   },
+   {
+--- a/doc/source/user_guide/visualization.rst
++++ b/doc/source/user_guide/visualization.rst
+@@ -264,7 +264,7 @@ horizontal and cumulative histograms can
+    plt.close('all')
+ 
+ See the :meth:`hist <matplotlib.axes.Axes.hist>` method and the
+-`matplotlib hist documentation <http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.hist>`__ for more.
++`matplotlib hist documentation <https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.hist>`__ for more.
+ 
+ 
+ The existing interface ``DataFrame.hist`` to plot histogram still can be used.
+@@ -370,7 +370,7 @@ For example, horizontal and custom-posit
+ 
+ 
+ See the :meth:`boxplot <matplotlib.axes.Axes.boxplot>` method and the
+-`matplotlib boxplot documentation <http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.boxplot>`__ for more.
++`matplotlib boxplot documentation <https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.boxplot>`__ for more.
+ 
+ 
+ The existing interface ``DataFrame.boxplot`` to plot boxplot still can be used.
+@@ -595,7 +595,7 @@ bubble chart using a column of the ``Dat
+    plt.close('all')
+ 
+ See the :meth:`scatter <matplotlib.axes.Axes.scatter>` method and the
+-`matplotlib scatter documentation <http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter>`__ for more.
++`matplotlib scatter documentation <https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.scatter>`__ for more.
+ 
+ .. _visualization.hexbin:
+ 
+@@ -655,7 +655,7 @@ given by column ``z``. The bins are aggr
+    plt.close('all')
+ 
+ See the :meth:`hexbin <matplotlib.axes.Axes.hexbin>` method and the
+-`matplotlib hexbin documentation <http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.hexbin>`__ for more.
++`matplotlib hexbin documentation <https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.hexbin>`__ for more.
+ 
+ .. _visualization.pie:
+ 
+@@ -753,7 +753,7 @@ If you pass values whose sum total is le
+    @savefig series_pie_plot_semi.png
+    series.plot.pie(figsize=(6, 6))
+ 
+-See the `matplotlib pie documentation <http://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.pie>`__ for more.
++See the `matplotlib pie documentation <https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.pie>`__ for more.
+ 
+ .. ipython:: python
+     :suppress:
+@@ -1259,7 +1259,7 @@ tick locator methods, it is useful to ca
+ date tick adjustment from matplotlib for figures whose ticklabels overlap.
+ 
+ See the :meth:`autofmt_xdate <matplotlib.figure.autofmt_xdate>` method and the
+-`matplotlib documentation <http://matplotlib.org/users/recipes.html#fixing-common-date-annoyances>`__ for more.
++`matplotlib documentation <https://matplotlib.org/users/recipes.html#fixing-common-date-annoyances>`__ for more.
+ 
+ Subplots
+ ~~~~~~~~
+@@ -1468,7 +1468,7 @@ as seen in the example below.
+ There also exists a helper function ``pandas.plotting.table``, which creates a
+ table from :class:`DataFrame` or :class:`Series`, and adds it to an
+ ``matplotlib.Axes`` instance. This function can accept keywords which the
+-matplotlib `table <http://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes.table>`__ has.
++matplotlib `table <https://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes.table>`__ has.
+ 
+ .. ipython:: python
+ 
+@@ -1486,7 +1486,7 @@ matplotlib `table <http://matplotlib.org
+ 
+    plt.close('all')
+ 
+-**Note**: You can get table instances on the axes using ``axes.tables`` property for further decorations. See the `matplotlib table documentation <http://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes.table>`__ for more.
++**Note**: You can get table instances on the axes using ``axes.tables`` property for further decorations. See the `matplotlib table documentation <https://matplotlib.org/api/axes_api.html#matplotlib.axes.Axes.table>`__ for more.
+ 
+ .. _visualization.colormaps:
+ 
+@@ -1496,7 +1496,7 @@ Colormaps
+ A potential issue when plotting a large number of columns is that it can be
+ difficult to distinguish some series due to repetition in the default colors. To
+ remedy this, ``DataFrame`` plotting supports the use of the ``colormap`` argument,
+-which accepts either a Matplotlib `colormap <http://matplotlib.org/api/cm_api.html>`__
++which accepts either a Matplotlib `colormap <https://matplotlib.org/api/cm_api.html>`__
+ or a string that is a name of a colormap registered with Matplotlib. A
+ visualization of the default matplotlib colormaps is available `here
+ <https://matplotlib.org/examples/color/colormaps_reference.html>`__.
+--- a/doc/source/whatsnew/index.rst
++++ b/doc/source/whatsnew/index.rst
+@@ -7,7 +7,7 @@ Release Notes
+ *************
+ 
+ This is the list of changes to pandas between each release. For full details,
+-see the commit logs at http://github.com/pandas-dev/pandas. For install and
++see the commit logs at https://github.com/pandas-dev/pandas. For install and
+ upgrade instructions, see :ref:`install`.
+ 
+ Version 0.25
+--- a/pandas/_libs/intervaltree.pxi.in
++++ b/pandas/_libs/intervaltree.pxi.in
+@@ -21,7 +21,7 @@ cdef class IntervalTree(IntervalMixin):
+     """A centered interval tree
+ 
+     Based off the algorithm described on Wikipedia:
+-    http://en.wikipedia.org/wiki/Interval_tree
++    https://en.wikipedia.org/wiki/Interval_tree
+ 
+     we are emulating the IndexEngine interface
+     """
+--- a/pandas/_libs/src/klib/khash.h
++++ b/pandas/_libs/src/klib/khash.h
+@@ -53,7 +53,7 @@ int main() {
+ 	  speed for simple keys. Thank Zilong Tan for the suggestion. Reference:
+ 
+ 	   - https://github.com/stefanocasazza/ULib
+-	   - http://nothings.org/computer/judy/
++	   - https://nothings.org/computer/judy/
+ 
+ 	* Allow to optionally use linear probing which usually has better
+ 	  performance for random input. Double hashing is still the default as it
+--- a/pandas/_libs/src/skiplist.h
++++ b/pandas/_libs/src/skiplist.h
+@@ -10,7 +10,7 @@ Flexibly-sized, index-able skiplist data
+ list of values
+ 
+ Port of Wes McKinney's Cython version of Raymond Hettinger's original pure
+-Python recipe (http://rhettinger.wordpress.com/2010/02/06/lost-knowledge/)
++Python recipe (https://rhettinger.wordpress.com/2010/02/06/lost-knowledge/)
+ */
+ 
+ #ifndef PANDAS__LIBS_SRC_SKIPLIST_H_
+--- a/pandas/_libs/src/ujson/lib/ultrajson.h
++++ b/pandas/_libs/src/ujson/lib/ultrajson.h
+@@ -30,7 +30,7 @@ https://github.com/client9/stringencoder
+ Copyright (c) 2007  Nick Galbreath -- nickg [at] modp [dot] com. All rights reserved.
+ 
+ Numeric decoder derived from from TCL library
+-http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
++https://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
+  * Copyright (c) 1988-1993 The Regents of the University of California.
+  * Copyright (c) 1994 Sun Microsystems, Inc.
+ */
+--- a/pandas/_libs/src/ujson/lib/ultrajsondec.c
++++ b/pandas/_libs/src/ujson/lib/ultrajsondec.c
+@@ -33,7 +33,7 @@ Copyright (c) 2007  Nick Galbreath -- ni
+ reserved.
+ 
+ Numeric decoder derived from from TCL library
+-http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
++https://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
+ * Copyright (c) 1988-1993 The Regents of the University of California.
+ * Copyright (c) 1994 Sun Microsystems, Inc.
+ */
+--- a/pandas/_libs/src/ujson/lib/ultrajsonenc.c
++++ b/pandas/_libs/src/ujson/lib/ultrajsonenc.c
+@@ -33,7 +33,7 @@ Copyright (c) 2007  Nick Galbreath -- ni
+ reserved.
+ 
+ Numeric decoder derived from from TCL library
+-http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
++https://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
+  * Copyright (c) 1988-1993 The Regents of the University of California.
+  * Copyright (c) 1994 Sun Microsystems, Inc.
+ */
+--- a/pandas/_libs/src/ujson/python/JSONtoObj.c
++++ b/pandas/_libs/src/ujson/python/JSONtoObj.c
+@@ -30,7 +30,7 @@ https://github.com/client9/stringencoder
+ Copyright (c) 2007  Nick Galbreath -- nickg [at] modp [dot] com. All rights reserved.
+ 
+ Numeric decoder derived from from TCL library
+-http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
++https://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
+  * Copyright (c) 1988-1993 The Regents of the University of California.
+  * Copyright (c) 1994 Sun Microsystems, Inc.
+ */
+--- a/pandas/_libs/src/ujson/python/objToJSON.c
++++ b/pandas/_libs/src/ujson/python/objToJSON.c
+@@ -30,7 +30,7 @@ https://github.com/client9/stringencoder
+ Copyright (c) 2007  Nick Galbreath -- nickg [at] modp [dot] com. All rights reserved.
+ 
+ Numeric decoder derived from from TCL library
+-http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
++https://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
+ * Copyright (c) 1988-1993 The Regents of the University of California.
+ * Copyright (c) 1994 Sun Microsystems, Inc.
+ */
+--- a/pandas/_libs/src/ujson/python/ujson.c
++++ b/pandas/_libs/src/ujson/python/ujson.c
+@@ -30,7 +30,7 @@ https://github.com/client9/stringencoder
+ Copyright (c) 2007  Nick Galbreath -- nickg [at] modp [dot] com. All rights reserved.
+ 
+ Numeric decoder derived from from TCL library
+-http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
++https://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
+ * Copyright (c) 1988-1993 The Regents of the University of California.
+ * Copyright (c) 1994 Sun Microsystems, Inc.
+ */
+--- a/pandas/_libs/src/ujson/python/version.h
++++ b/pandas/_libs/src/ujson/python/version.h
+@@ -30,7 +30,7 @@ https://github.com/client9/stringencoder
+ Copyright (c) 2007  Nick Galbreath -- nickg [at] modp [dot] com. All rights reserved.
+ 
+ Numeric decoder derived from from TCL library
+-http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
++https://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
+  * Copyright (c) 1988-1993 The Regents of the University of California.
+  * Copyright (c) 1994 Sun Microsystems, Inc.
+ */
+--- a/pandas/_libs/tslibs/c_timestamp.pyx
++++ b/pandas/_libs/tslibs/c_timestamp.pyx
+@@ -111,7 +111,7 @@ cdef class _Timestamp(datetime):
+ 
+     def __reduce_ex__(self, protocol):
+         # python 3.6 compat
+-        # http://bugs.python.org/issue28730
++        # https://bugs.python.org/issue28730
+         # now __reduce_ex__ is defined and higher priority than __reduce__
+         return self.__reduce__()
+ 
+--- a/pandas/_libs/tslibs/nattype.pyx
++++ b/pandas/_libs/tslibs/nattype.pyx
+@@ -275,7 +275,7 @@ class NaTType(_NaT):
+ 
+     def __reduce_ex__(self, protocol):
+         # python 3.6 compat
+-        # http://bugs.python.org/issue28730
++        # https://bugs.python.org/issue28730
+         # now __reduce_ex__ is defined and higher priority than __reduce__
+         return self.__reduce__()
+ 
+--- a/pandas/core/accessor.py
++++ b/pandas/core/accessor.py
+@@ -174,7 +174,7 @@ class CachedAccessor:
+             return self._accessor
+         accessor_obj = self._accessor(obj)
+         # Replace the property with the accessor object. Inspired by:
+-        # http://www.pydanny.com/cached-property.html
++        # https://www.pydanny.com/cached-property.html
+         # We need to use object.__setattr__ because we overwrite __setattr__ on
+         # NDFrame
+         object.__setattr__(obj, self._name, accessor_obj)
+--- a/pandas/core/arrays/datetimes.py
++++ b/pandas/core/arrays/datetimes.py
+@@ -1745,7 +1745,7 @@ default 'raise'
+         """
+         Convert Datetime Array to float64 ndarray of Julian Dates.
+         0 Julian date is noon January 1, 4713 BC.
+-        http://en.wikipedia.org/wiki/Julian_day
++        https://en.wikipedia.org/wiki/Julian_day
+         """
+ 
+         # http://mysite.verizon.net/aesir_research/date/jdalg2.htm
+--- a/pandas/core/frame.py
++++ b/pandas/core/frame.py
+@@ -1448,9 +1448,9 @@ class DataFrame(NDFrame):
+             when getting user credentials.
+ 
+             .. _local webserver flow:
+-                http://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_local_server
++                https://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_local_server
+             .. _console flow:
+-                http://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_console
++                https://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_console
+ 
+             *New in version 0.2.0 of pandas-gbq*.
+         table_schema : list of dicts, optional
+@@ -3343,7 +3343,7 @@ class DataFrame(NDFrame):
+         * To select strings you must use the ``object`` dtype, but note that
+           this will return *all* object dtype columns
+         * See the `numpy dtype hierarchy
+-          <http://docs.scipy.org/doc/numpy/reference/arrays.scalars.html>`__
++          <https://docs.scipy.org/doc/numpy/reference/arrays.scalars.html>`__
+         * To select datetimes, use ``np.datetime64``, ``'datetime'`` or
+           ``'datetime64'``
+         * To select timedeltas, use ``np.timedelta64``, ``'timedelta'`` or
+@@ -7601,7 +7601,7 @@ class DataFrame(NDFrame):
+         semi-definite. This could lead to estimate correlations having
+         absolute values which are greater than one, and/or a non-invertible
+         covariance matrix. See `Estimation of covariance matrices
+-        <http://en.wikipedia.org/w/index.php?title=Estimation_of_covariance_
++        <https://en.wikipedia.org/w/index.php?title=Estimation_of_covariance_
+         matrices>`__ for more details.
+ 
+         Examples
+--- a/pandas/core/generic.py
++++ b/pandas/core/generic.py
+@@ -2641,7 +2641,7 @@ class NDFrame(PandasObject, SelectionMix
+ 
+         References
+         ----------
+-        .. [1] http://docs.sqlalchemy.org
++        .. [1] https://docs.sqlalchemy.org
+         .. [2] https://www.python.org/dev/peps/pep-0249/
+ 
+         Examples
+@@ -2845,7 +2845,7 @@ class NDFrame(PandasObject, SelectionMix
+ 
+         Notes
+         -----
+-        See the `xarray docs <http://xarray.pydata.org/en/stable/>`__
++        See the `xarray docs <https://xarray.pydata.org/en/stable/>`__
+ 
+         Examples
+         --------
+@@ -6878,9 +6878,9 @@ class NDFrame(PandasObject, SelectionMix
+         similar names. These use the actual numerical values of the index.
+         For more information on their behavior, see the
+         `SciPy documentation
+-        <http://docs.scipy.org/doc/scipy/reference/interpolate.html#univariate-interpolation>`__
++        <https://docs.scipy.org/doc/scipy/reference/interpolate.html#univariate-interpolation>`__
+         and `SciPy tutorial
+-        <http://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html>`__.
++        <https://docs.scipy.org/doc/scipy/reference/tutorial/interpolate.html>`__.
+ 
+         Examples
+         --------
+--- a/pandas/io/formats/format.py
++++ b/pandas/io/formats/format.py
+@@ -363,7 +363,7 @@ class EastAsianTextAdjustment(TextAdjust
+             self.ambiguous_width = 1
+ 
+         # Definition of East Asian Width
+-        # http://unicode.org/reports/tr11/
++        # https://unicode.org/reports/tr11/
+         # Ambiguous width can be changed by option
+         self._EAW_MAP = {"Na": 1, "N": 1, "W": 2, "F": 2, "H": 1}
+ 
+--- a/pandas/io/gbq.py
++++ b/pandas/io/gbq.py
+@@ -58,9 +58,9 @@ def read_gbq(
+         when getting user credentials.
+ 
+         .. _local webserver flow:
+-            http://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_local_server
++            https://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_local_server
+         .. _console flow:
+-            http://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_console
++            https://google-auth-oauthlib.readthedocs.io/en/latest/reference/google_auth_oauthlib.flow.html#google_auth_oauthlib.flow.InstalledAppFlow.run_console
+ 
+         *New in version 0.2.0 of pandas-gbq*.
+     dialect : str, default 'legacy'
+--- a/pandas/io/html.py
++++ b/pandas/io/html.py
+@@ -983,7 +983,7 @@ def read_html(
+ 
+         is a valid attribute dictionary because the 'id' HTML tag attribute is
+         a valid HTML attribute for *any* HTML tag as per `this document
+-        <http://www.w3.org/TR/html-markup/global-attributes.html>`__. ::
++        <https://html.spec.whatwg.org/multipage/dom.html#global-attributes>`__. ::
+ 
+             attrs = {'asdf': 'table'}
+ 
+@@ -992,7 +992,7 @@ def read_html(
+         table attributes can be found `here
+         <http://www.w3.org/TR/REC-html40/struct/tables.html#h-11.2>`__. A
+         working draft of the HTML 5 spec can be found `here
+-        <http://www.w3.org/TR/html-markup/table.html>`__. It contains the
++        <https://html.spec.whatwg.org/multipage/tables.html>`__. It contains the
+         latest information on table attributes for the modern web.
+ 
+     parse_dates : bool, optional
+--- a/pandas/io/json/_table_schema.py
++++ b/pandas/io/json/_table_schema.py
+@@ -1,7 +1,7 @@
+ """
+ Table Schema builders
+ 
+-http://specs.frictionlessdata.io/json-table-schema/
++https://specs.frictionlessdata.io/json-table-schema/
+ """
+ import warnings
+ 
+--- a/pandas/io/stata.py
++++ b/pandas/io/stata.py
+@@ -7,7 +7,7 @@ project who also developed the StataWrit
+ a once again improved version.
+ 
+ You can find more information on http://presbrey.mit.edu/PyDTA and
+-http://www.statsmodels.org/devel/
++https://www.statsmodels.org/devel/
+ """
+ 
+ from collections import OrderedDict
+@@ -248,7 +248,7 @@ stata_epoch = datetime.datetime(1960, 1,
+ 
+ def _stata_elapsed_date_to_datetime_vec(dates, fmt):
+     """
+-    Convert from SIF to datetime. http://www.stata.com/help.cgi?datetime
++    Convert from SIF to datetime. https://www.stata.com/help.cgi?datetime
+ 
+     Parameters
+     ----------
+@@ -413,7 +413,7 @@ def _stata_elapsed_date_to_datetime_vec(
+ 
+ def _datetime_to_stata_elapsed_vec(dates, fmt):
+     """
+-    Convert from datetime to SIF. http://www.stata.com/help.cgi?datetime
++    Convert from datetime to SIF. https://www.stata.com/help.cgi?datetime
+ 
+     Parameters
+     ----------
+@@ -788,7 +788,7 @@ class StataMissingValue:
+ 
+     Notes
+     -----
+-    More information: <http://www.stata.com/help.cgi?missing>
++    More information: <https://www.stata.com/help.cgi?missing>
+ 
+     Integer missing values make the code '.', '.a', ..., '.z' to the ranges
+     101 ... 127 (for int8), 32741 ... 32767  (for int16) and 2147483621 ...
+--- a/pandas/plotting/_misc.py
++++ b/pandas/plotting/_misc.py
+@@ -154,7 +154,7 @@ def radviz(frame, class_column, ax=None,
+     influence of all dimensions.
+ 
+     More info available at the `original article
+-    <http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.135.889>`_
++    <https://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.135.889>`_
+     describing RadViz.
+ 
+     Parameters
+--- a/pandas/tests/indexes/multi/test_analytics.py
++++ b/pandas/tests/indexes/multi/test_analytics.py
+@@ -326,7 +326,7 @@ def test_map_dictlike(idx, mapper):
+ )
+ def test_numpy_ufuncs(idx, func):
+     # test ufuncs of numpy. see:
+-    # http://docs.scipy.org/doc/numpy/reference/ufuncs.html
++    # https://docs.scipy.org/doc/numpy/reference/ufuncs.html
+ 
+     if _np_version_under1p17:
+         expected_exception = AttributeError
+--- a/pandas/tests/indexes/test_numpy_compat.py
++++ b/pandas/tests/indexes/test_numpy_compat.py
+@@ -44,7 +44,7 @@ from pandas.util import testing as tm
+ )
+ def test_numpy_ufuncs_basic(indices, func):
+     # test ufuncs of numpy, see:
+-    # http://docs.scipy.org/doc/numpy/reference/ufuncs.html
++    # https://docs.scipy.org/doc/numpy/reference/ufuncs.html
+ 
+     idx = indices
+     if isinstance(idx, DatetimeIndexOpsMixin):
+@@ -75,7 +75,7 @@ def test_numpy_ufuncs_basic(indices, fun
+ )
+ def test_numpy_ufuncs_other(indices, func):
+     # test ufuncs of numpy, see:
+-    # http://docs.scipy.org/doc/numpy/reference/ufuncs.html
++    # https://docs.scipy.org/doc/numpy/reference/ufuncs.html
+ 
+     idx = indices
+     if isinstance(idx, (DatetimeIndex, TimedeltaIndex)):
+--- a/pandas/tests/tseries/offsets/test_fiscal.py
++++ b/pandas/tests/tseries/offsets/test_fiscal.py
+@@ -92,7 +92,7 @@ class TestFY5253LastOfMonth(Base):
+ 
+     on_offset_cases = [
+         # From Wikipedia (see:
+-        # http://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar#Last_Saturday_of_the_month_at_fiscal_year_end)
++        # https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar#Last_Saturday_of_the_month_at_fiscal_year_end)
+         (offset_lom_sat_aug, datetime(2006, 8, 26), True),
+         (offset_lom_sat_aug, datetime(2007, 8, 25), True),
+         (offset_lom_sat_aug, datetime(2008, 8, 30), True),
+@@ -205,7 +205,7 @@ class TestFY5253NearestEndMonth(Base):
+ 
+     on_offset_cases = [
+         #    From Wikipedia (see:
+-        #    http://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
++        #    https://en.wikipedia.org/wiki/4%E2%80%934%E2%80%935_calendar
+         #    #Saturday_nearest_the_end_of_month)
+         #    2006-09-02   2006 September 2
+         #    2007-09-01   2007 September 1
+--- a/pandas/tseries/offsets.py
++++ b/pandas/tseries/offsets.py
+@@ -2049,7 +2049,7 @@ class FY5253(DateOffset):
+     such as retail, manufacturing and parking industry.
+ 
+     For more information see:
+-    http://en.wikipedia.org/wiki/4-4-5_calendar
++    https://en.wikipedia.org/wiki/4-4-5_calendar
+ 
+     The year may either:
+     - end on the last X day of the Y month.
+@@ -2252,7 +2252,7 @@ class FY5253Quarter(DateOffset):
+     such as retail, manufacturing and parking industry.
+ 
+     For more information see:
+-    http://en.wikipedia.org/wiki/4-4-5_calendar
++    https://en.wikipedia.org/wiki/4-4-5_calendar
+ 
+     The year may either:
+     - end on the last X day of the Y month.
+--- a/pandas/util/_decorators.py
++++ b/pandas/util/_decorators.py
+@@ -241,7 +241,7 @@ def rewrite_axis_style_signature(
+ 
+ 
+ # Substitution and Appender are derived from matplotlib.docstring (1.1.0)
+-# module http://matplotlib.org/users/license.html
++# module https://matplotlib.org/users/license.html
+ 
+ 
+ class Substitution:
+--- a/setup.py
++++ b/setup.py
+@@ -58,7 +58,7 @@ except ImportError:
+ 
+ # The import of Extension must be after the import of Cython, otherwise
+ # we do not get the appropriately patched class.
+-# See https://cython.readthedocs.io/en/latest/src/reference/compilation.html
++# See https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html
+ from distutils.extension import Extension  # noqa:E402
+ from distutils.command.build import build  # noqa:E402
+ 
+--- a/versioneer.py
++++ b/versioneer.py
+@@ -1678,7 +1678,7 @@ def do_setup():
+     except EnvironmentError:
+         pass
+     # That doesn't cover everything MANIFEST.in can do
+-    # (http://docs.python.org/2/distutils/sourcedist.html#commands), so
++    # (https://docs.python.org/2/distutils/sourcedist.html#commands), so
+     # it might give some false negatives. Appending redundant 'include'
+     # lines is safe, though.
+     if "versioneer.py" not in simple_includes:
