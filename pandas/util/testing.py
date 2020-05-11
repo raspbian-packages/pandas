@@ -2702,7 +2702,7 @@ def assert_produces_warning(
                     continue
                 if actual_warning.category==MatplotlibDeprecationWarning and "deprecated in Matplotlib 3.2" in str(actual_warning.message) and 'matplotlib' in actual_warning.filename:
                     continue
-                if actual_warning.category==DeprecationWarning and "Deprecated since version 0.16.0." in str(actual_warning.message) and 'jedi' in actual_warning.filename:
+                if actual_warning.category==DeprecationWarning and ('jedi' in actual_warning.filename or 'IPython' in actual_warning.filename):
                     continue
                 extra_warnings.append(
                     (

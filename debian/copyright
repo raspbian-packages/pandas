@@ -7,14 +7,15 @@ Files-Excluded: pandas/tests/io/data/computer_sales_page.html
                 pandas/tests/io/data/nyse_wsj.html
                 scripts/find_commits_touching_func.py
                 scripts/merge-pr.py
-Comment: I am not certain whether the above are actually a problem, but this close to freeze it's easiest to just remove them
-
+                doc/source/user_guide/cookbook.rst
+Comment: tests/* fixed upstream in 1.1, cookbook has around 100 Stack Overflow snippets (CC-BY-SA with possibly inadequate attribution)
 
 Files: *
 Copyright: 2008-2011 AQR Capital Management, LLC
            2011 Wes McKinney and pandas developers
            2011-2019 Lambda Foundry, Inc. and PyData Development Team
 License: BSD-3
+Comment: The original source contains some CC-BY-SA snippets by Stack Overflow users (https://stackoverflow.com/users/1114/jeremy-banks, https://stackoverflow.com/users/387251/oliver, https://stackoverflow.com/users/3297752/noah-motion, https://stackoverflow.com/users/925671/bill, https://stackoverflow.com/users/1082349/foobar, https://stackoverflow.com/users/3089209/crantila, https://stackoverflow.com/users/2375855/ojdo, https://stackoverflow.com/users/487339/dsm, https://stackoverflow.com/users/2677943/swenzel, https://stackoverflow.com/users/2262529/midfield), but these may be too small to be copyrightable, and the less trivial ones are patched out in this package
 
 Files: pandas/_libs/tslibs/src/datetime/*
 Copyright: 2005-2013, NumPy Developers

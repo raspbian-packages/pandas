@@ -30,3 +30,6 @@ ignore_matplotlib_warning.patch
 find_test_data.patch
 link_security.patch
 xfail_tests_404.patch
+fix_is_warnings.patch
+remove_ccbysa_snippets.patch
+numpy118_compat.patch

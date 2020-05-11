@@ -1,8 +1,24 @@
-pandas (0.25.3+dfsg-9+rpi1) bullseye-staging; urgency=medium
+pandas (0.25.3+dfsg2-2+rpi1) bullseye-staging; urgency=medium
 
+  [changes brought forward from 0.25.3+dfsg-9+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Thu, 09 Apr 2020 03:11:32 +0000]
   * Disable testsuite.
 
- -- Peter Michael Green <plugwash@raspbian.org>  Thu, 09 Apr 2020 03:11:32 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Mon, 11 May 2020 15:23:20 +0000
+
+pandas (0.25.3+dfsg2-2) unstable; urgency=medium
+
+  * Tests: don't fail on jedi deprecation warnings.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Thu, 07 May 2020 11:57:06 +0100
+
+pandas (0.25.3+dfsg2-1) unstable; urgency=medium
+
+  * Remove inconveniently licensed (CC-BY-SA) snippets.
+  * Fix (harmless) SyntaxWarning on install.  (Closes: #956021)
+  * Fix NaT sort order and test failures with numpy 1.18.
+    (Closes: #958531)
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Wed, 06 May 2020 12:18:23 +0100
 
 pandas (0.25.3+dfsg-9) unstable; urgency=medium
 
