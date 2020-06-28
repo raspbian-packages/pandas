@@ -8,6 +8,7 @@ import pandas as pd
 from pandas import DataFrame, get_option, read_clipboard
 from pandas.util import testing as tm
 from pandas.util.testing import makeCustomDataframe as mkdf
+from pandas.compat import is_platform_little_endian
 
 from pandas.io.clipboard import clipboard_get, clipboard_set
 from pandas.io.clipboard.exceptions import PyperclipException
@@ -258,6 +259,7 @@ class TestClipboard:
 
 @pytest.mark.single
 @pytest.mark.clipboard
+@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="https://bugs.debian.org/877419",strict=False)
 @pytest.mark.skipif(not _DEPS_INSTALLED, reason="clipboard primitives not installed")
 @pytest.mark.parametrize("data", ["\U0001f44d...", "Ωœ∑´...", "abcd..."])
 def test_raw_roundtrip(data):
