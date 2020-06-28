@@ -292,7 +292,7 @@ def prep_ndarray(values, copy=True):
     if values.ndim == 1:
         values = values.reshape((values.shape[0], 1))
     elif values.ndim != 2:
-        raise ValueError("Must pass 2-d input")
+        raise ValueError("Plain DataFrames must be 2-d - for higher dimensions use MultiIndex or the python3-xarray package.  If you are trying to create a nested DataFrame (which is not recommended) see https://github.com/pandas-dev/pandas/issues/32289")
 
     return values
 
