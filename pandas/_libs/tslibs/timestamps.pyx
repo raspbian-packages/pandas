@@ -595,7 +595,7 @@ default 'raise'
     @property
     def dayofweek(self):
         """
-        Return day of whe week.
+        Return day of the week.
         """
         return self.weekday()
 
