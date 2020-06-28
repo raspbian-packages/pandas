@@ -181,19 +181,6 @@ class TestIX:
         result2 = s.loc[0:3]
         tm.assert_series_equal(result1, result2)
 
-    def test_ix_weird_slicing(self):
-        # http://stackoverflow.com/q/17056560/1240268
-        df = DataFrame({"one": [1, 2, 3, np.nan, np.nan], "two": [1, 2, 3, 4, 5]})
-        df.loc[df["one"] > 1, "two"] = -df["two"]
-
-        expected = DataFrame(
-            {
-                "one": {0: 1.0, 1: 2.0, 2: 3.0, 3: np.nan, 4: np.nan},
-                "two": {0: 1, 1: -2, 2: -3, 3: 4, 4: 5},
-            }
-        )
-        tm.assert_frame_equal(df, expected)
-
     def test_ix_assign_column_mixed(self, float_frame):
         # GH #1142
         df = float_frame
