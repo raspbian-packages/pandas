@@ -129,7 +129,7 @@ nan 2
             "the dtype timedelta64 is not supported for parsing",
             dict(dtype={"A": "timedelta64", "B": "float64"}),
         ),
-        ("the dtype <U8 is not supported for parsing", dict(dtype={"A": "U8"})),
+        ("the dtype [<>]U8 is not supported for parsing", dict(dtype={"A": "U8"})),
     ],
     ids=["dt64-0", "dt64-1", "td64", "<U8"],
 )
