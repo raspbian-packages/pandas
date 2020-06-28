@@ -1,0 +1,277 @@
+Description: HDF5 and Stata I/O are broken on some architectures
+
+Fix some issues, warn on use and xfail tests for the remainder
+
+HDF5 known to fail on s390x, Stata on s390x and ppc64el (in 1.0.0),
+but not all architectures have been checked yet
+
+In 0.25.3 HDF5 _crashes_ on armhf, so skip
+(pytest-forked allows continuing past a crash,
+but still seems to fail on xfailed crashes)
+
+Author: Andreas Tille <tille@debian.org>, Graham Inggs <ginggs@debian.org>, Yaroslav Halchenko <debian@onerussian.com>, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/877419
+
+--- a/pandas/io/pytables.py
++++ b/pandas/io/pytables.py
+@@ -11,6 +11,10 @@ import re
+ import time
+ from typing import List, Optional, Type, Union
+ import warnings
++import platform
++import re
++from pandas.compat import is_platform_little_endian
++warn_hdf_platform = "Non-x86 system detected, HDF(5) format I/O may give wrong results - https://bugs.debian.org/877419" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
+ 
+ import numpy as np
+ 
+@@ -477,6 +480,8 @@ class HDFStore:
+     def __init__(
+         self, path, mode=None, complevel=None, complib=None, fletcher32=False, **kwargs
+     ):
++        if warn_hdf_platform:
++            warnings.warn(warn_hdf_platform)
+ 
+         if "format" in kwargs:
+             raise ValueError("format is not a defined argument for HDFStore")
+@@ -724,7 +730,10 @@ class HDFStore:
+             self._handle.flush()
+             if fsync:
+                 try:
+-                    os.fsync(self._handle.fileno())
++                    if is_platform_little_endian():
++                        os.fsync(self._handle.fileno())
++                    else:
++                        os.sync() # due to a pytables bad-cast bug, fileno is invalid on 64-bit big-endian
+                 except OSError:
+                     pass
+ 
+--- a/pandas/io/stata.py
++++ b/pandas/io/stata.py
+@@ -17,6 +17,9 @@ import os
+ import struct
+ import sys
+ import warnings
++import platform
++import re
++warn_stata_platform = "Non-x86 system detected, Stata format I/O may give wrong results - https://bugs.debian.org/877419" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
+ 
+ from dateutil.relativedelta import relativedelta
+ import numpy as np
+@@ -911,6 +914,8 @@ class StataParser:
+         # NOTE: the byte type seems to be reserved for categorical variables
+         # with a label, but the underlying variable is -127 to 100
+         # we're going to drop the label and cast to int
++        if warn_stata_platform:
++            warnings.warn(warn_stata_platform)
+         self.DTYPE_MAP = dict(
+             list(zip(range(1, 245), ["a" + str(i) for i in range(1, 245)]))
+             + [
+--- a/pandas/tests/io/test_common.py
++++ b/pandas/tests/io/test_common.py
+@@ -8,6 +8,7 @@ import os
+ import pytest
+ 
+ from pandas.compat import is_platform_windows
++from pandas.compat import is_platform_little_endian
+ import pandas.util._test_decorators as td
+ 
+ import pandas as pd
+@@ -213,10 +214,10 @@ bar2,12,13,14,15
+             (pd.read_fwf, "os", ("io", "data", "fixed_width_format.txt")),
+             (pd.read_excel, "xlrd", ("io", "data", "test1.xlsx")),
+             (pd.read_feather, "feather", ("io", "data", "feather-0_3_1.feather")),
+-            (
++            pytest.param(
+                 pd.read_hdf,
+                 "tables",
+-                ("io", "data", "legacy_hdf", "datetimetz_object.h5"),
++                ("io", "data", "legacy_hdf", "datetimetz_object.h5"),marks=pytest.mark.xfail(condition=not is_platform_little_endian(),reason="https://bugs.debian.org/877419",strict=False)
+             ),
+             (pd.read_stata, "os", ("io", "data", "stata10_115.dta")),
+             (pd.read_sas, "os", ("io", "sas", "data", "test1.sas7bdat")),
+--- a/pandas/tests/io/pytables/test_pytables.py
++++ b/pandas/tests/io/pytables/test_pytables.py
+@@ -47,6 +47,11 @@ from pandas.io.pytables import (
+     read_hdf,
+ )
+ from pandas.io.pytables import TableIterator  # noqa:E402
++import platform
++import re
++is_intel=bool(re.match('i.?86|x86',platform.uname()[4]))
++from pandas.compat import is_platform_little_endian
++pytestmark = [pytest.mark.xfail(condition=not is_intel,reason="known failure of hdf on some non-x86",strict=False),pytest.mark.forked]
+ 
+ tables = pytest.importorskip("tables")
+ 
+@@ -1097,6 +1102,7 @@ class TestHDFStore(Base):
+             check("table", index)
+             check("fixed", index)
+ 
++    @pytest.mark.skipif(condition=not is_intel,reason="crashes on armhf, https://bugs.debian.org/877419")
+     @pytest.mark.skipif(
+         not is_platform_little_endian(), reason="reason platform is not little endian"
+     )
+@@ -1129,6 +1135,7 @@ class TestHDFStore(Base):
+         ],
+     )
+     @pytest.mark.parametrize("dtype", ["category", object])
++    @pytest.mark.skipif(condition=not is_intel,reason="similar to tests crashing on armhf, https://bugs.debian.org/877419")
+     def test_latin_encoding(self, dtype, val):
+         enc = "latin-1"
+         nan_rep = ""
+@@ -1308,6 +1315,7 @@ class TestHDFStore(Base):
+             # read with KeyError before another write
+             df.to_hdf(path, "k2")
+ 
++    @pytest.mark.skipif(condition=not is_intel,reason="crashes on armhf, https://bugs.debian.org/877419")
+     def test_append_frame_column_oriented(self):
+ 
+         with ensure_clean_store(self.path) as store:
+@@ -3935,6 +3943,7 @@ class TestHDFStore(Base):
+             with pytest.raises(NotImplementedError):
+                 store.select("dfs", start=0, stop=5)
+ 
++    @pytest.mark.skipif(condition=not is_intel,reason="crashes on armhf, https://bugs.debian.org/877419")
+     def test_select_filter_corner(self):
+ 
+         df = DataFrame(np.random.randn(50, 100))
+--- a/pandas/tests/io/test_stata.py
++++ b/pandas/tests/io/test_stata.py
+@@ -24,7 +24,12 @@ from pandas.io.stata import (
+     StataReader,
+     read_stata,
+ )
++import platform
++import re
++is_intel=bool(re.match('i.?86|x86',platform.uname()[4]))
+ 
++from pandas.compat import is_platform_little_endian
++pytestmark = pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of test_stata on non-little endian",strict=False)
+ 
+ @pytest.fixture
+ def dirpath(datapath):
+@@ -196,7 +196,7 @@ class TestStata:
+             # parsed_113 = self.read_dta(self.dta2_113)
+ 
+             # Remove resource warnings
+-            w = [x for x in w if x.category is UserWarning]
++            w = [x for x in w if x.category is UserWarning and not "Non-x86 system detected" in str(x.message)]
+ 
+             # should get warning for each call to read_dta
+             assert len(w) == 3
+@@ -453,7 +453,7 @@ class TestStata:
+                 warnings.simplefilter("always", InvalidColumnName)
+                 original.to_stata(path, None, version=version)
+                 # should get a warning for that format.
+-                assert len(w) == 1
++                assert len([x for x in w if not "Non-x86 system detected" in str(x.message)]) == 1
+ 
+             written_and_read_again = self.read_dta(path)
+             tm.assert_frame_equal(written_and_read_again.set_index("index"), formatted)
+@@ -496,6 +501,7 @@ class TestStata:
+             written_and_read_again = self.read_dta(path)
+             tm.assert_frame_equal(written_and_read_again.set_index("index"), parsed_114)
+ 
++    @pytest.mark.xfail(condition=not is_intel,reason="https://bugs.debian.org/877419",strict=False)
+     @pytest.mark.parametrize(
+         "file", ["dta15_113", "dta15_114", "dta15_115", "dta15_117"]
+     )
+@@ -1264,6 +1270,7 @@ class TestStata:
+                 read_labels = sr.variable_labels()
+             assert read_labels == variable_labels
+ 
++    @pytest.mark.xfail(condition=not is_intel,reason="https://bugs.debian.org/877419",strict=False)
+     @pytest.mark.parametrize("version", [114, 117])
+     def test_invalid_variable_labels(self, version):
+         original = pd.DataFrame(
+@@ -1330,6 +1337,7 @@ class TestStata:
+             with tm.ensure_clean() as path:
+                 original.to_stata(path, variable_labels=variable_labels_long)
+ 
++    @pytest.mark.xfail(condition=not is_intel,reason="https://bugs.debian.org/877419",strict=False)
+     def test_default_date_conversion(self):
+         # GH 12259
+         dates = [
+@@ -1775,8 +1775,9 @@ has been incorrectly encoded by Stata or some other software. You should verify
+ the string values returned are correct."""
+         with tm.assert_produces_warning(UnicodeWarning) as w:
+             encoded = read_stata(self.dta_encoding_118)
+-            assert len(w) == 151
+-            assert w[0].message.args[0] == msg
++            w2 = [x for x in w if not "Non-x86 system detected" in str(x.message)]
++            assert len(w2) == 151
++            assert w2[0].message.args[0] == msg
+ 
+         expected = pd.DataFrame([["Düsseldorf"]] * 151, columns=["kreis1849"])
+         tm.assert_frame_equal(encoded, expected)
+--- a/pandas/util/testing.py
++++ b/pandas/util/testing.py
+@@ -7,6 +7,7 @@ import gzip
+ import http.client
+ import os
+ import re
++import platform
+ from shutil import rmtree
+ import string
+ import tempfile
+@@ -2692,6 +2693,8 @@ def assert_produces_warning(
+                     )
+                     assert actual_warning.filename == caller.filename, msg
+             else:
++                if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
++                    continue
+                 extra_warnings.append(
+                     (
+                         actual_warning.category.__name__,
+diff --git a/pandas/io/clipboards.py b/pandas/io/clipboards.py
+index 0006824f0..7b03686e4 100644
+--- a/pandas/io/clipboards.py
++++ b/pandas/io/clipboards.py
+@@ -1,6 +1,8 @@
+ """ io on the clipboard """
+ from io import StringIO
+ import warnings
++from pandas.compat import is_platform_little_endian
++warn_clipboard_platform="Non-x86 system detected, clipboard I/O may give wrong results - https://bugs.debian.org/877419" if not is_platform_little_endian() else False
+ 
+ from pandas.core.dtypes.generic import ABCDataFrame
+ 
+@@ -22,6 +24,8 @@ def read_clipboard(sep=r"\s+", **kwargs):  # pragma: no cover
+     -------
+     parsed : DataFrame
+     """
++    if warn_clipboard_platform:
++        warnings.warn(warn_clipboard_platform)
+     encoding = kwargs.pop("encoding", "utf-8")
+ 
+     # only utf-8 is valid for passed value because that's what clipboard
+@@ -96,6 +100,8 @@ def to_clipboard(obj, excel=True, sep=None, **kwargs):  # pragma: no cover
+       - Windows:
+       - OS X:
+     """
++    if warn_clipboard_platform:
++        warnings.warn(warn_clipboard_platform)
+     encoding = kwargs.pop("encoding", "utf-8")
+ 
+     # testing if an invalid encoding is passed to clipboard
+diff --git a/pandas/tests/io/test_clipboard.py b/pandas/tests/io/test_clipboard.py
+index fccd52f99..d2e294df2 100644
+--- a/pandas/tests/io/test_clipboard.py
++++ b/pandas/tests/io/test_clipboard.py
+@@ -8,6 +8,7 @@ import pandas as pd
+ from pandas import DataFrame, get_option, read_clipboard
+ from pandas.util import testing as tm
+ from pandas.util.testing import makeCustomDataframe as mkdf
++from pandas.compat import is_platform_little_endian
+ 
+ from pandas.io.clipboard import clipboard_get, clipboard_set
+ from pandas.io.clipboard.exceptions import PyperclipException
+@@ -258,6 +259,7 @@ class TestClipboard:
+ 
+ @pytest.mark.single
+ @pytest.mark.clipboard
++@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="https://bugs.debian.org/877419",strict=False)
+ @pytest.mark.skipif(not _DEPS_INSTALLED, reason="clipboard primitives not installed")
+ @pytest.mark.parametrize("data", ["\U0001f44d...", "Ωœ∑´...", "abcd..."])
+ def test_raw_roundtrip(data):

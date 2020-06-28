@@ -1,0 +1,87 @@
+Description: Don't fail tests on harmless changes to dependencies
+
+Ignore deprecation warnings added in
+Python 3.8, matplotlib 3.2, jedi 0.16/0.17
+(one jedi deprecation appears to come from IPython because it uses stacklevel=2)
+
+Don't assert that matplotlib rejects shorthand hex colors,
+as from 3.2 it accepts them:
+https://matplotlib.org/users/prev_whats_new/whats_new_3.2.0.html#digit-and-4-digit-hex-colors
+
+Ignore change to date axis default range/ticks
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/util/testing.py
++++ b/pandas/util/testing.py
+@@ -14,7 +14,10 @@ import traceback
+ from typing import Union, cast
+ import warnings
+ import zipfile
+-
++try:
++    from matplotlib.cbook import MatplotlibDeprecationWarning
++except ImportError:
++    MatplotlibDeprecationWarning = None
+ import numpy as np
+ from numpy.random import rand, randn
+ 
+@@ -2695,6 +2698,12 @@ def assert_produces_warning(
+             else:
+                 if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
+                     continue
++                if actual_warning.category==DeprecationWarning and "PY_SSIZE_T_CLEAN will be required for '#' formats" in str(actual_warning.message) and 'matplotlib' in actual_warning.filename:
++                    continue
++                if actual_warning.category==MatplotlibDeprecationWarning and "deprecated in Matplotlib 3.2" in str(actual_warning.message) and 'matplotlib' in actual_warning.filename:
++                    continue
++                if actual_warning.category==DeprecationWarning and ('jedi' in actual_warning.filename or 'IPython' in actual_warning.filename):
++                    continue
+                 extra_warnings.append(
+                     (
+                         actual_warning.category.__name__,
+--- a/pandas/tests/plotting/test_datetimelike.py
++++ b/pandas/tests/plotting/test_datetimelike.py
+@@ -1520,11 +1520,7 @@ class TestTSPlot(TestPlotBase):
+         ax.scatter(x="time", y="y", data=df)
+         self.plt.draw()
+         label = ax.get_xticklabels()[0]
+-        if self.mpl_ge_3_0_0:
+-            expected = "2017-12-08"
+-        else:
+-            expected = "2017-12-12"
+-        assert label.get_text() == expected
++        assert label.get_text() in ["2018-01-01","2017-12-08","2017-12-12"] # matplotlib version dependent
+ 
+ 
+ def _check_plot_works(f, freq=None, series=None, *args, **kwargs):
+--- a/pandas/tests/plotting/test_frame.py
++++ b/pandas/tests/plotting/test_frame.py
+@@ -1989,12 +1989,6 @@ class TestDataFramePlots(TestPlotBase):
+         self._check_colors(ax.get_lines(), linecolors=custom_colors)
+         tm.close()
+ 
+-        with pytest.raises(ValueError):
+-            # Color contains shorthand hex value results in ValueError
+-            custom_colors = ["#F00", "#00F", "#FF0", "#000", "#FFF"]
+-            # Forced show plot
+-            _check_plot_works(df.plot, color=custom_colors)
+-
+     @pytest.mark.slow
+     def test_dont_modify_colors(self):
+         colors = ["r", "g", "b"]
+@@ -2046,14 +2040,6 @@ class TestDataFramePlots(TestPlotBase):
+             self._check_colors(ax.get_lines(), linecolors=[c])
+         tm.close()
+ 
+-        with pytest.raises(ValueError):
+-            # Color contains shorthand hex value results in ValueError
+-            custom_colors = ["#F00", "#00F", "#FF0", "#000", "#FFF"]
+-            # Forced show plot
+-            # _check_plot_works adds an ax so catch warning. see GH #13188
+-            with tm.assert_produces_warning(UserWarning):
+-                _check_plot_works(df.plot, color=custom_colors, subplots=True)
+-
+         rgba_colors = [cm.jet(n) for n in np.linspace(0, 1, len(df))]
+         for cmap in ["jet", cm.jet]:
+             axes = df.plot(colormap=cmap, subplots=True)
