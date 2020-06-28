@@ -105,6 +105,8 @@ def _default_locale_getter():
             "{exception}, the 'locale -a' command cannot be found "
             "on your system".format(exception=e)
         )
+    # skip locales without encoding, to avoid Python bug https://bugs.python.org/issue20088
+    raw_locales = raw_locales.replace(b'\ndsb_DE\n',b'\n').replace(b'\nsah_RU\n',b'\n').replace(b'\ncrh_UA\n',b'\n')
     return raw_locales
 
 
