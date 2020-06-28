@@ -320,7 +320,7 @@ class TestDataFrameConvertTo(TestData):
             # Check that bad types raise
             (
                 dict(index=False, column_dtypes={"A": "int32", "B": "foo"}),
-                (TypeError, 'data type "foo" not understood'),
+                (TypeError, 'data type .foo. not understood'),
             ),
         ],
     )
