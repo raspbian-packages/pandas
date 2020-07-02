@@ -714,6 +714,7 @@ class TestCompression(TestPackers):
 
             with catch_warnings():
                 filterwarnings("ignore", category=FutureWarning)
+                filterwarnings("ignore", category=DeprecationWarning)
                 i_rec = self.encode_decode(self.frame, compress=compress)
                 for k in self.frame.keys():
 
@@ -755,6 +756,7 @@ class TestCompression(TestPackers):
         with tm.assert_produces_warning(None):
             with catch_warnings():
                 filterwarnings("ignore", category=FutureWarning)
+                filterwarnings("ignore", category=DeprecationWarning)
                 empty_unpacked = self.encode_decode(empty, compress=compress)
 
         tm.assert_numpy_array_equal(empty_unpacked, empty)
@@ -764,6 +766,7 @@ class TestCompression(TestPackers):
         with tm.assert_produces_warning(None):
             with catch_warnings():
                 filterwarnings("ignore", category=FutureWarning)
+                filterwarnings("ignore", category=DeprecationWarning)
                 char_unpacked = self.encode_decode(char, compress=compress)
 
         tm.assert_numpy_array_equal(char_unpacked, char)

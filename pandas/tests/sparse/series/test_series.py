@@ -520,7 +520,7 @@ class TestSparseSeries(SharedWithSparse):
 
         self._check_all(_compare_with_dense)
 
-        msg = "index 21 is out of bounds for size 20"
+        msg = "index 21 is out of bounds for.* size 20"
         with pytest.raises(IndexError, match=msg):
             self.bseries.take([0, len(self.bseries) + 1])
 

@@ -13,6 +13,7 @@ from typing import List, Optional, Type, Union
 import warnings
 import platform
 import re
+from pandas.compat import is_platform_little_endian
 warn_hdf_platform = "Non-x86 system detected, HDF(5) format I/O may give wrong results - https://bugs.debian.org/877419" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
 
 import numpy as np
@@ -703,7 +704,10 @@ class HDFStore:
             self._handle.flush()
             if fsync:
                 try:
-                    os.fsync(self._handle.fileno())
+                    if is_platform_little_endian():
+                        os.fsync(self._handle.fileno())
+                    else:
+                        os.sync() # due to a pytables bad-cast bug, fileno is invalid on 64-bit big-endian
                 except OSError:
                     pass
 

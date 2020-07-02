@@ -33,3 +33,6 @@ xfail_tests_404.patch
 fix_is_warnings.patch
 remove_ccbysa_snippets.patch
 numpy118_compat.patch
+numpy119_compat.patch
+hurd_compat.patch
+numpy119_compat2.patch

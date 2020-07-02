@@ -1,6 +1,6 @@
 Description: HDF5 and Stata I/O are broken on some architectures
 
-Warn on use, and xfail tests
+Fix some issues, warn on use and xfail tests for the remainder
 
 HDF5 known to fail on s390x, Stata on s390x and ppc64el (in 1.0.0),
 but not all architectures have been checked yet
@@ -14,12 +14,13 @@ Bug-Debian: https://bugs.debian.org/877419
 
 --- a/pandas/io/pytables.py
 +++ b/pandas/io/pytables.py
-@@ -11,6 +11,9 @@ import re
+@@ -11,6 +11,10 @@ import re
  import time
  from typing import List, Optional, Type, Union
  import warnings
 +import platform
 +import re
++from pandas.compat import is_platform_little_endian
 +warn_hdf_platform = "Non-x86 system detected, HDF(5) format I/O may give wrong results - https://bugs.debian.org/877419" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
  
  import numpy as np
@@ -33,6 +34,18 @@ Bug-Debian: https://bugs.debian.org/877419
  
          if "format" in kwargs:
              raise ValueError("format is not a defined argument for HDFStore")
+@@ -724,7 +730,10 @@ class HDFStore:
+             self._handle.flush()
+             if fsync:
+                 try:
+-                    os.fsync(self._handle.fileno())
++                    if is_platform_little_endian():
++                        os.fsync(self._handle.fileno())
++                    else:
++                        os.sync() # due to a pytables bad-cast bug, fileno is invalid on 64-bit big-endian
+                 except OSError:
+                     pass
+ 
 --- a/pandas/io/stata.py
 +++ b/pandas/io/stata.py
 @@ -17,6 +17,9 @@ import os

@@ -1,9 +1,25 @@
-pandas (0.25.3+dfsg2-2+rpi1) bullseye-staging; urgency=medium
+pandas (0.25.3+dfsg2-3+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 0.25.3+dfsg-9+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Thu, 09 Apr 2020 03:11:32 +0000]
   * Disable testsuite.
 
- -- Raspbian forward porter <root@raspbian.org>  Mon, 11 May 2020 15:23:20 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Thu, 02 Jul 2020 17:56:40 +0000
+
+pandas (0.25.3+dfsg2-3) unstable; urgency=medium
+
+  * Nested DataFrames may raise ValueError with numpy 1.19
+    (upstream bug 32289).  Clarify error message and xfail tests.
+  * Stop using a no-longer-existing numpy constant.
+  * Tests: ignore deprecations/rewordings and avoid setup exception
+    with numpy 1.19.  (Together, the above Closes: #963817)
+  * Bump debhelper compat to 13.
+  * Fix HDFStore.flush (part of #877419) on s390x.
+  * Add NEWS.html.gz for Standards-Version 4.5.0.
+    (Choosing not to also add NEWS.gz as it would be large.)
+  * Tests: accept Hurd's errno and lack of multiprocessing.
+  * Docs: replace embedded Javascript copies with links.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sun, 28 Jun 2020 21:47:22 +0100
 
 pandas (0.25.3+dfsg2-2) unstable; urgency=medium
 

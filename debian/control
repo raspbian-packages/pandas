@@ -5,7 +5,7 @@ Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.
 Uploaders: Yaroslav Halchenko <debian@onerussian.com>,
            Michael Hanke <michael.hanke@gmail.com>,
            Rebecca N. Palmer <rebecca_palmer@zoho.com>
-Build-Depends: debhelper-compat (= 12),
+Build-Depends: debhelper-compat (= 13),
                dh-python,
                locales-all,
                quilt,
@@ -60,8 +60,7 @@ Build-Depends-Indep:
  python3-xarray <!nodoc>,
  python3-ipywidgets <!nodoc>,
  python3-seaborn <!nodoc>
-Standards-Version: 4.1.1
-# TODO for 4.4.1: release notes install (Policy 12.7)
+Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Homepage: https://pandas.pydata.org/
 Vcs-Browser: https://salsa.debian.org/science-team/pandas
@@ -119,6 +118,7 @@ Section: doc
 Depends: ${misc:Depends},
          libjs-jquery,
          libjs-requirejs,
+         libjs-underscore,
          libjs-mathjax
 Suggests: python3-pandas
 Description: data structures for "relational" or "labeled" data - documentation

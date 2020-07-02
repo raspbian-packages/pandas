@@ -2704,6 +2704,8 @@ def assert_produces_warning(
                     continue
                 if actual_warning.category==DeprecationWarning and ('jedi' in actual_warning.filename or 'IPython' in actual_warning.filename):
                     continue
+                if actual_warning.category==np.VisibleDeprecationWarning and "Creating an ndarray from ragged nested sequences" in str(actual_warning.message):
+                    continue
                 extra_warnings.append(
                     (
                         actual_warning.category.__name__,

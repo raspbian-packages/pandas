@@ -140,11 +140,14 @@ else
 	    -e 's#\(Date:.*\)[A-Z][a-z]\+, \+[0-9]\+,\? \+[A-Z][a-z]\+,\? \+[0-9]\+#\1$(SOURCE_DATE)#g' \
 	    -e 's#\(Time:.*\)[0-9][0-9]:[0-9][0-9]:[0-9][0-9]#\1$(SOURCE_TIME)#g' $${html} ; \
 	done
+	: # Use jquery+underscore from Debian package, so prune shipped one
+	rm doc/build/html/_static/jquery.js
+	rm doc/build/html/_static/underscore.js
 endif
 endif
-	: # Use jquery from Debian package, so prune shipped one
-	#TODO -rm doc/_build/html/_static/jquery.js
 	dh_installdocs -A *.md
+	# for NEWS.html.gz - put it here and use symlinks to avoid breaking internal links
+	gzip -c -n -9 debian/python-pandas-doc/usr/share/doc/python-pandas-doc/html/whatsnew/index.html > debian/python-pandas-doc/usr/share/doc/python-pandas-doc/html/whatsnew/index.html.gz || true
 	cp -av debian/contributors_list.txt debian/python-pandas-doc/usr/share/doc/python-pandas-doc || true
 	# deduplicate files - the ||true is because we only build-depend on jdupes if we're building documentation
 	jdupes -r -l debian/python-pandas-doc/usr/share/doc || true
