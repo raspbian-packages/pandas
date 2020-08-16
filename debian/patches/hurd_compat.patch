@@ -1,0 +1,56 @@
+Description: Avoid test failures on Hurd
+
+Allow multiprocessing to be unavailable
+Accept any errno not just 2 for (intentionally) nonexistent files
+(Hurd appears to use 2**30+2)
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- pandas-1.0.5+dfsg.orig/pandas/tests/io/parser/test_common.py
++++ pandas-1.0.5+dfsg/pandas/tests/io/parser/test_common.py
+@@ -960,7 +960,7 @@ def test_nonexistent_path(all_parsers):
+     parser = all_parsers
+     path = "{}.csv".format(tm.rands(10))
+ 
+-    msg = "does not exist" if parser.engine == "c" else r"\[Errno 2\]"
++    msg = "does not exist" if parser.engine == "c" else r"\[Errno 2\]|\[Errno [0-9]+\] No such file or directory"
+     with pytest.raises(FileNotFoundError, match=msg) as e:
+         parser.read_csv(path)
+ 
+--- pandas-1.0.5+dfsg.orig/pandas/tests/io/parser/test_multi_thread.py
++++ pandas-1.0.5+dfsg/pandas/tests/io/parser/test_multi_thread.py
+@@ -3,7 +3,12 @@ Tests multithreading behaviour for readi
+ parsing files for each parser defined in parsers.py
+ """
+ from io import BytesIO
+-from multiprocessing.pool import ThreadPool
++import pytest
++try:
++    from multiprocessing.pool import ThreadPool
++    ThreadPool()
++except ImportError:
++    pytest.skip(reason="multiprocessing not available",allow_module_level=True)
+ 
+ import numpy as np
+ 
+--- a/pandas/tests/io/test_common.py
++++ b/pandas/tests/io/test_common.py
+@@ -152,7 +152,7 @@ bar2,12,13,14,15
+         path = os.path.join(HERE, "data", "does_not_exist." + fn_ext)
+         msg1 = r"File (b')?.+does_not_exist\.{}'? does not exist".format(fn_ext)
+         msg2 = (
+-            r"\[Errno 2\] No such file or directory: '.+does_not_exist" r"\.{}'"
++            r"\[Errno [0-9]+\] No such file or directory: '.+does_not_exist" r"\.{}'"
+         ).format(fn_ext)
+         msg3 = "Expected object or value"
+         msg4 = "path_or_buf needs to be a string file path or file-like"
+@@ -191,7 +191,7 @@ bar2,12,13,14,15
+ 
+         msg1 = r"File (b')?.+does_not_exist\.{}'? does not exist".format(fn_ext)
+         msg2 = (
+-            r"\[Errno 2\] No such file or directory:" r" '.+does_not_exist\.{}'"
++            r"\[Errno [0-9]+\] No such file or directory:" r" '.+does_not_exist\.{}'"
+         ).format(fn_ext)
+         msg3 = "Unexpected character found when decoding 'false'"
+         msg4 = "path_or_buf needs to be a string file path or file-like"

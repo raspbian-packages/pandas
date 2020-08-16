@@ -1,0 +1,84 @@
+Description: Be compatible with numpy 1.18
+
+Fix NaT sort order
+Don't assume isinf/isnan fail on datetimes
+
+Origin: upstream f85502531806df4f3c0233edffe9460f3ee26031 + 0c0adfbc291fc1b1e9afad592f5275e783ffd0b0
+Author: jbrockmendel, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/958531
+
+--- a/pandas/core/indexes/datetimelike.py
++++ b/pandas/core/indexes/datetimelike.py
+@@ -262,7 +262,10 @@ class DatetimeIndexOpsMixin(ExtensionOps
+             sorted_index = self.take(_as)
+             return sorted_index, _as
+         else:
+-            sorted_values = np.sort(self._ndarray_values)
++            # NB: using asi8 instead of _ndarray_values matters in numpy 1.18
++            #  because the treatment of NaT has been changed to put NaT last
++            #  instead of first.
++            sorted_values = np.sort(self.asi8)
+             attribs = self._get_attributes_dict()
+             freq = attribs["freq"]
+ 
+--- a/pandas/__init__.py
++++ b/pandas/__init__.py
+@@ -24,6 +24,7 @@ from pandas.compat.numpy import (
+     _np_version_under1p15,
+     _np_version_under1p16,
+     _np_version_under1p17,
++    _np_version_under1p18,
+ )
+ 
+ try:
+--- a/pandas/tests/api/test_api.py
++++ b/pandas/tests/api/test_api.py
+@@ -187,6 +187,7 @@ class TestPDApi(Base):
+         "_np_version_under1p15",
+         "_np_version_under1p16",
+         "_np_version_under1p17",
++        "_np_version_under1p18",
+         "_tslib",
+         "_typing",
+ # not in Debian        "_version",
+--- a/pandas/tests/indexes/test_numpy_compat.py
++++ b/pandas/tests/indexes/test_numpy_compat.py
+@@ -6,9 +6,11 @@ from pandas import (
+     Float64Index,
+     Index,
+     Int64Index,
++    PeriodIndex,
+     TimedeltaIndex,
+     UInt64Index,
+     _np_version_under1p17,
++    _np_version_under1p18,
+ )
+ from pandas.core.indexes.datetimelike import DatetimeIndexOpsMixin
+ from pandas.util import testing as tm
+@@ -80,18 +82,22 @@ def test_numpy_ufuncs_other(indices, fun
+     idx = indices
+     if isinstance(idx, (DatetimeIndex, TimedeltaIndex)):
+ 
+-        # ok under numpy >= 1.17
+-        if not _np_version_under1p17 and func in [np.isfinite]:
++        if not _np_version_under1p18 and func in [np.isfinite, np.isinf, np.isnan]:
++            # numpy 1.18(dev) changed isinf and isnan to not raise on dt64/tfd64
++            result = func(idx)
++            assert isinstance(result, np.ndarray)
++
++        elif not _np_version_under1p17 and func in [np.isfinite]:
++            # ok under numpy >= 1.17
+             # Results in bool array
+             result = func(idx)
+             assert isinstance(result, np.ndarray)
+-            assert not isinstance(result, Index)
+         else:
+             # raise TypeError or ValueError (PeriodIndex)
+             with pytest.raises(Exception):
+                 func(idx)
+ 
+-    elif isinstance(idx, DatetimeIndexOpsMixin):
++    elif isinstance(idx, PeriodIndex):
+         # raise TypeError or ValueError (PeriodIndex)
+         with pytest.raises(Exception):
+             func(idx)
