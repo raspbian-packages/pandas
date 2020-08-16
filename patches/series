@@ -1,0 +1,40 @@
+deb_nonversioneer_version
+deb_doc_donotoverride_PYTHONPATH
+xfail_tests_nonintel_io.patch
+deb_disable_googleanalytics
+deb_no_strict_data
+mathjax-path.patch
+deb_ndsphinx_optional
+xfail_tests_nonintel_nannat.patch
+# Try to skip -- migth have been addressed upstream
+# deb_skip_test_pytables_failure
+# up_buggy_overflows
+# 858260.patch
+# does not apply to 0.22 but kept around since next one might have it
+# up_tst_dont_assert_that_a_bug_exists_in_numpy
+
+# lintian: patch-file-present-but-not-mentioned-in-series
+# Don't remove this comment, so that we can avoid a lintian warning.
+# This patch is conditionally applied via d/rules.
+# 0001-TST-pytest-deprecation-warnings-GH17197-17253-reversed.patch
+skip_tests_copyright.patch
+skip_noencoding_locales.patch
+use_system_intersphinx.patch
+spelling.patch
+fix_shebangs.patch
+pyarrow_feather.patch
+contributor_list_not_in_tarball.patch
+tests_dont_assume_endian.patch
+fix_random_seeds.patch
+ignore_matplotlib_warning.patch
+find_test_data.patch
+link_security.patch
+xfail_tests_404.patch
+fix_is_warnings.patch
+remove_ccbysa_snippets.patch
+numpy118_compat.patch
+numpy119_compat.patch
+hurd_compat.patch
+numpy119_compat2.patch
+matplotlib33_compat.patch
+968208_rounding.patch
