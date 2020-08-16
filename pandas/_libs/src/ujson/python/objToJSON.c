@@ -176,9 +176,9 @@ void *initObjToJSON(void)
         Py_DECREF(mod_nattype);
     }
 
-    /* Initialise numpy API and use 2/3 compatible return */
+    /* Initialise numpy API */
     import_array();
-    return NUMPY_IMPORT_ARRAY_RETVAL;
+    return NULL;
 }
 
 static TypeContext *createTypeContext(void) {
