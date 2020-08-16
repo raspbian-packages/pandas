@@ -8,6 +8,7 @@ import os
 import pytest
 
 from pandas.compat import is_platform_windows
+from pandas.compat import is_platform_little_endian
 import pandas.util._test_decorators as td
 
 import pandas as pd
@@ -213,10 +214,10 @@ bar2,12,13,14,15
             (pd.read_fwf, "os", ("io", "data", "fixed_width_format.txt")),
             (pd.read_excel, "xlrd", ("io", "data", "test1.xlsx")),
             (pd.read_feather, "feather", ("io", "data", "feather-0_3_1.feather")),
-            (
+            pytest.param(
                 pd.read_hdf,
                 "tables",
-                ("io", "data", "legacy_hdf", "datetimetz_object.h5"),
+                ("io", "data", "legacy_hdf", "datetimetz_object.h5"),marks=pytest.mark.xfail(condition=not is_platform_little_endian(),reason="https://bugs.debian.org/877419",strict=False)
             ),
             (pd.read_stata, "os", ("io", "data", "stata10_115.dta")),
             (pd.read_sas, "os", ("io", "sas", "data", "test1.sas7bdat")),
