@@ -36,3 +36,5 @@ numpy118_compat.patch
 numpy119_compat.patch
 hurd_compat.patch
 numpy119_compat2.patch
+matplotlib33_compat.patch
+968208_rounding.patch

@@ -136,7 +136,7 @@ else
 	for html in `find doc/build/html -name _modules -prune -o -name "*.html" -o -name "*.ipynb"` ; do \
 	    sed -i -e 's#$(CURDIR)/.pybuild/[^/]*/build/pandas/#/usr/lib/python3/dist-packages/pandas/#g' \
 	    -e 's#$(CURDIR)/debian/python3-pandas/usr/lib/python3/dist-packages/pandas/#/usr/lib/python3/dist-packages/pandas/#g' \
-	    -e 's#<script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs\.cloudflare\.com/ajax/libs/require\.js/2\.3\.4/require\.min\.js">#<script crossorigin="anonymous" type="text/javascript" src="file:///usr/share/javascript/requirejs/require.min.js">#g' \
+	    -e 's#<script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs\.cloudflare\.com/ajax/libs/require\.js/2\.3\.4/require\.min\.js">#<script type="text/javascript" src="file:///usr/share/javascript/requirejs/require.min.js">#g' \
 	    -e 's#\(Date:.*\)[A-Z][a-z]\+, \+[0-9]\+,\? \+[A-Z][a-z]\+,\? \+[0-9]\+#\1$(SOURCE_DATE)#g' \
 	    -e 's#\(Time:.*\)[0-9][0-9]:[0-9][0-9]:[0-9][0-9]#\1$(SOURCE_TIME)#g' $${html} ; \
 	done

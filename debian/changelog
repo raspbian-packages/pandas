@@ -1,9 +1,22 @@
-pandas (0.25.3+dfsg2-3+rpi1) bullseye-staging; urgency=medium
+pandas (0.25.3+dfsg2-5+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 0.25.3+dfsg-9+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Thu, 09 Apr 2020 03:11:32 +0000]
   * Disable testsuite.
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 02 Jul 2020 17:56:40 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Thu, 20 Aug 2020 17:49:19 +0000
+
+pandas (0.25.3+dfsg2-5) unstable; urgency=medium
+
+  * Tests: ignore rounding difference on i386.  (Closes: #968208)
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sun, 16 Aug 2020 20:09:14 +0100
+
+pandas (0.25.3+dfsg2-4) unstable; urgency=medium
+
+  * Be compatible with matplotlib 3.3.  (Closes: #966393)
+  * Docs: fix broken remote->local Javascript replacement.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sun, 09 Aug 2020 22:11:25 +0100
 
 pandas (0.25.3+dfsg2-3) unstable; urgency=medium
 

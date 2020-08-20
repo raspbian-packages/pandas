@@ -77,7 +77,7 @@ def safe_import(mod_name, min_version=None):
 def _skip_if_no_mpl():
     mod = safe_import("matplotlib")
     if mod:
-        mod.use("Agg", warn=True)
+        mod.use("Agg")
     else:
         return True
 

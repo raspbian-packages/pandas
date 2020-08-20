@@ -1,0 +1,247 @@
+Description: Matplotlib 3.3 compatibility fixups
+
+Author: Tom Augspurger, Saul Shanabrook, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/966393
+Origin: (partly) upstream commits 41022a8 + 00ea10c
+Forwarded: no
+
+--- a/pandas/util/_test_decorators.py
++++ b/pandas/util/_test_decorators.py
+@@ -77,7 +77,7 @@ def safe_import(mod_name, min_version=No
+ def _skip_if_no_mpl():
+     mod = safe_import("matplotlib")
+     if mod:
+-        mod.use("Agg", warn=True)
++        mod.use("Agg")
+     else:
+         return True
+ 
+--- a/pandas/plotting/_matplotlib/boxplot.py
++++ b/pandas/plotting/_matplotlib/boxplot.py
+@@ -265,6 +265,11 @@ def boxplot(
+         if fontsize is not None:
+             ax.tick_params(axis="both", labelsize=fontsize)
+         if kwds.get("vert", 1):
++            ticks = ax.get_xticks()
++            if len(ticks) != len(keys):
++                i, remainder = divmod(len(ticks), len(keys))
++                assert remainder == 0, remainder
++                keys *= i
+             ax.set_xticklabels(keys, rotation=rot)
+         else:
+             ax.set_yticklabels(keys, rotation=rot)
+--- a/pandas/plotting/_matplotlib/compat.py
++++ b/pandas/plotting/_matplotlib/compat.py
+@@ -20,3 +20,4 @@ def _mpl_version(version, op):
+ _mpl_ge_2_2_3 = _mpl_version("2.2.3", operator.ge)
+ _mpl_ge_3_0_0 = _mpl_version("3.0.0", operator.ge)
+ _mpl_ge_3_1_0 = _mpl_version("3.1.0", operator.ge)
++_mpl_ge_3_3_0 = _mpl_version("3.3.0", operator.ge)
+--- a/pandas/plotting/_matplotlib/converter.py
++++ b/pandas/plotting/_matplotlib/converter.py
+@@ -14,7 +14,6 @@ from pandas._libs.tslibs import resoluti
+ from pandas._libs.tslibs.frequencies import FreqGroup, get_freq
+ 
+ from pandas.core.dtypes.common import (
+-    is_datetime64_ns_dtype,
+     is_float,
+     is_float_dtype,
+     is_integer,
+@@ -235,19 +234,6 @@ def get_datevalue(date, freq):
+     raise ValueError("Unrecognizable date '{date}'".format(date=date))
+ 
+ 
+-def _dt_to_float_ordinal(dt):
+-    """
+-    Convert :mod:`datetime` to the Gregorian date as UTC float days,
+-    preserving hours, minutes, seconds and microseconds.  Return value
+-    is a :func:`float`.
+-    """
+-    if isinstance(dt, (np.ndarray, Index, ABCSeries)) and is_datetime64_ns_dtype(dt):
+-        base = dates.epoch2num(dt.asi8 / 1.0e9)
+-    else:
+-        base = dates.date2num(dt)
+-    return base
+-
+-
+ # Datetime Conversion
+ class DatetimeConverter(dates.DateConverter):
+     @staticmethod
+@@ -264,15 +250,11 @@ class DatetimeConverter(dates.DateConver
+     def _convert_1d(values, unit, axis):
+         def try_parse(values):
+             try:
+-                return _dt_to_float_ordinal(tools.to_datetime(values))
++                return dates.date2num(tools.to_datetime(values))
+             except Exception:
+                 return values
+ 
+-        if isinstance(values, (datetime, pydt.date)):
+-            return _dt_to_float_ordinal(values)
+-        elif isinstance(values, np.datetime64):
+-            return _dt_to_float_ordinal(tslibs.Timestamp(values))
+-        elif isinstance(values, pydt.time):
++        if isinstance(values, (datetime, pydt.date, np.datetime64, pydt.time)):
+             return dates.date2num(values)
+         elif is_integer(values) or is_float(values):
+             return values
+@@ -293,12 +275,10 @@ class DatetimeConverter(dates.DateConver
+ 
+             try:
+                 values = tools.to_datetime(values)
+-                if isinstance(values, Index):
+-                    values = _dt_to_float_ordinal(values)
+-                else:
+-                    values = [_dt_to_float_ordinal(x) for x in values]
+             except Exception:
+-                values = _dt_to_float_ordinal(values)
++                pass
++
++            values = dates.date2num(values)
+ 
+         return values
+ 
+@@ -421,8 +401,8 @@ class MilliSecondLocator(dates.DateLocat
+ 
+         freq = "%dL" % self._get_interval()
+         tz = self.tz.tzname(None)
+-        st = _from_ordinal(dates.date2num(dmin))  # strip tz
+-        ed = _from_ordinal(dates.date2num(dmax))
++        st = dmin.replace(tzinfo=None)
++        ed = dmin.replace(tzinfo=None)
+         all_dates = date_range(start=st, end=ed, freq=freq, tz=tz).astype(object)
+ 
+         try:
+--- a/pandas/tests/plotting/test_converter.py
++++ b/pandas/tests/plotting/test_converter.py
+@@ -26,6 +26,7 @@ except ImportError:
+     pass
+ 
+ pytest.importorskip("matplotlib.pyplot")
++dates = pytest.importorskip("matplotlib.dates")
+ 
+ 
+ def test_initial_warning():
+@@ -189,7 +190,7 @@ class TestDateTimeConverter:
+ 
+     def test_conversion(self):
+         rs = self.dtc.convert(["2012-1-1"], None, None)[0]
+-        xp = datetime(2012, 1, 1).toordinal()
++        xp = dates.date2num(datetime(2012, 1, 1))
+         assert rs == xp
+ 
+         rs = self.dtc.convert("2012-1-1", None, None)
+@@ -198,9 +199,6 @@ class TestDateTimeConverter:
+         rs = self.dtc.convert(date(2012, 1, 1), None, None)
+         assert rs == xp
+ 
+-        rs = self.dtc.convert(datetime(2012, 1, 1).toordinal(), None, None)
+-        assert rs == xp
+-
+         rs = self.dtc.convert("2012-1-1", None, None)
+         assert rs == xp
+ 
+--- a/pandas/tests/plotting/test_datetimelike.py
++++ b/pandas/tests/plotting/test_datetimelike.py
+@@ -338,7 +338,7 @@ class TestTSPlot(TestPlotBase):
+         bts = tm.makePeriodSeries()
+         _, ax = self.plt.subplots()
+         bts.plot(ax=ax)
+-        assert ax.get_lines()[0].get_xydata()[0, 0] == bts.index[0].ordinal
++
+         idx = ax.get_lines()[0].get_xdata()
+         assert PeriodIndex(data=idx).freqstr == "B"
+ 
+@@ -1319,6 +1319,8 @@ class TestTSPlot(TestPlotBase):
+     @pytest.mark.slow
+     def test_irregular_ts_shared_ax_xlim(self):
+         # GH 2960
++        from pandas.plotting._matplotlib.converter import DatetimeConverter
++
+         ts = tm.makeTimeSeries()[:20]
+         ts_irregular = ts[[1, 4, 5, 6, 8, 9, 10, 12, 13, 14, 15, 17, 18]]
+ 
+@@ -1329,8 +1331,8 @@ class TestTSPlot(TestPlotBase):
+ 
+         # check that axis limits are correct
+         left, right = ax.get_xlim()
+-        assert left <= ts_irregular.index.min().toordinal()
+-        assert right >= ts_irregular.index.max().toordinal()
++        assert left <= DatetimeConverter.convert(ts_irregular.index.min(), "", ax)
++        assert right >= DatetimeConverter.convert(ts_irregular.index.max(), "", ax)
+ 
+     @pytest.mark.slow
+     def test_secondary_y_non_ts_xlim(self):
+@@ -1385,6 +1387,8 @@ class TestTSPlot(TestPlotBase):
+     @pytest.mark.slow
+     def test_secondary_y_irregular_ts_xlim(self):
+         # GH 3490 - irregular-timeseries with secondary y
++        from pandas.plotting._matplotlib.converter import DatetimeConverter
++
+         ts = tm.makeTimeSeries()[:20]
+         ts_irregular = ts[[1, 4, 5, 6, 8, 9, 10, 12, 13, 14, 15, 17, 18]]
+ 
+@@ -1396,8 +1400,8 @@ class TestTSPlot(TestPlotBase):
+         ts_irregular[:5].plot(ax=ax)
+ 
+         left, right = ax.get_xlim()
+-        assert left <= ts_irregular.index.min().toordinal()
+-        assert right >= ts_irregular.index.max().toordinal()
++        assert left <= DatetimeConverter.convert(ts_irregular.index.min(), "", ax)
++        assert right >= DatetimeConverter.convert(ts_irregular.index.max(), "", ax)
+ 
+     def test_plot_outofbounds_datetime(self):
+         # 2579 - checking this does not raise
+@@ -1501,7 +1505,7 @@ class TestTSPlot(TestPlotBase):
+         s2.plot(ax=ax)
+         s1.plot(ax=ax)
+ 
+-    @pytest.mark.xfail(reason="GH9053 matplotlib does not use ax.xaxis.converter")
++    @pytest.mark.xfail(reason="GH9053 matplotlib does not use ax.xaxis.converter", strict=False)
+     def test_add_matplotlib_datetime64(self):
+         # GH9053 - ensure that a plot with PeriodConverter still understands
+         # datetime64 data. This still fails because matplotlib overrides the
+--- a/pandas/tests/plotting/test_frame.py
++++ b/pandas/tests/plotting/test_frame.py
+@@ -1509,6 +1509,7 @@ class TestDataFramePlots(TestPlotBase):
+             ax.xaxis.get_ticklocs(), np.arange(1, len(numeric_cols) + 1)
+         )
+         assert len(ax.lines) == self.bp_n_objects * len(numeric_cols)
++        tm.close()
+ 
+         axes = series.plot.box(rot=40)
+         self._check_ticks_props(axes, xrot=40, yrot=0)
+--- a/pandas/tests/plotting/test_series.py
++++ b/pandas/tests/plotting/test_series.py
+@@ -267,12 +267,14 @@ class TestSeriesPlots(TestPlotBase):
+         self._check_ticks_props(axes, xrot=30)
+ 
+     def test_irregular_datetime(self):
++        from pandas.plotting._matplotlib.converter import DatetimeConverter
++
+         rng = date_range("1/1/2000", "3/1/2000")
+         rng = rng[[0, 1, 2, 3, 5, 9, 10, 11, 12]]
+         ser = Series(randn(len(rng)), rng)
+         _, ax = self.plt.subplots()
+         ax = ser.plot(ax=ax)
+-        xp = datetime(1999, 1, 1).toordinal()
++        xp = DatetimeConverter.convert(datetime(1999, 1, 1), "", ax)
+         ax.set_xlim("1/1/1999", "1/1/2001")
+         assert xp == ax.get_xlim()[0]
+ 
+@@ -677,11 +679,13 @@ class TestSeriesPlots(TestPlotBase):
+         kinds = (
+             plotting.PlotAccessor._common_kinds + plotting.PlotAccessor._series_kinds
+         )
+-        _, ax = self.plt.subplots()
+         for kind in kinds:
+-
++            _, ax = self.plt.subplots()
+             s.plot(kind=kind, ax=ax)
++            self.plt.close()
++            _, ax = self.plt.subplots()
+             getattr(s.plot, kind)()
++            self.plt.close()
+ 
+     @pytest.mark.slow
+     def test_invalid_plot_data(self):
