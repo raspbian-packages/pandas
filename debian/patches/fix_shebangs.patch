@@ -1,0 +1,101 @@
+Description: Use Python 3 shebangs and subprocess calls
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31147
+
+--- a/ci/print_skipped.py
++++ b/ci/print_skipped.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ import os
+ import xml.etree.ElementTree as et
+ 
+--- a/doc/make.py
++++ b/doc/make.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """
+ Python script for building documentation.
+ 
+--- a/pandas/core/computation/eval.py
++++ b/pandas/core/computation/eval.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ """
+ Top level ``eval`` module.
+--- a/pandas/tests/io/generate_legacy_storage_files.py
++++ b/pandas/tests/io/generate_legacy_storage_files.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ """
+ self-contained to write legacy storage pickle files
+--- a/pandas/tests/plotting/common.py
++++ b/pandas/tests/plotting/common.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # coding: utf-8
+ 
+ import os
+--- a/scripts/download_wheels.py
++++ b/scripts/download_wheels.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """Fetch wheels from wheels.scipy.org for a pandas version."""
+ import argparse
+ import pathlib
+--- a/scripts/validate_docstrings.py
++++ b/scripts/validate_docstrings.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """
+ Analyze docstrings to detect errors.
+ 
+--- a/setup.py
++++ b/setup.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ 
+ """
+ Parts of this file were taken from the pyzmq project
+--- a/doc/sphinxext/announce.py
++++ b/doc/sphinxext/announce.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # -*- encoding:utf-8 -*-
+ """
+ Script to generate contributor and pull request lists
+--- a/scripts/generate_pip_deps_from_conda.py
++++ b/scripts/generate_pip_deps_from_conda.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """
+ Convert the conda environment.yml to the pip requirements-dev.txt,
+ or check that they have the same packages (for the CI)
+--- a/scripts/find_commits_touching_func.py
++++ b/scripts/find_commits_touching_func.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # copyright 2013, y-p @ github
+ """
+ Search the git history for all commits touching a named method
+--- a/scripts/validate_string_concatenation.py
++++ b/scripts/validate_string_concatenation.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """
+ GH #30454
+ 

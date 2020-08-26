@@ -1,0 +1,52 @@
+Description: Allow some numba exceptions on 32 bit systems, warn on non-x86
+
+Specifying the exception type allows only explicit errors,
+not silently wrong answers
+
+Numba has been observed to give wrong answers on mipsel
+and crash on ppc64el.
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/window/test_numba.py
++++ b/pandas/tests/window/test_numba.py
+@@ -5,9 +5,15 @@ import pandas.util._test_decorators as t
+ 
+ from pandas import Series
+ import pandas._testing as tm
++from pandas.compat import is_platform_32bit
++try:
++    from numba.core.errors import UnsupportedParforsError
++except ImportError:
++    UnsupportedParforsError = ImportError
+ 
+ 
+ @td.skip_if_no("numba", "0.46.0")
++@pytest.mark.xfail(condition=is_platform_32bit(), raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
+ @pytest.mark.filterwarnings("ignore:\\nThe keyword argument")
+ # Filter warnings when parallel=True and the function can't be parallelized by Numba
+ class TestApply:
+--- a/pandas/core/window/numba_.py
++++ b/pandas/core/window/numba_.py
+@@ -6,7 +6,10 @@ import numpy as np
+ 
+ from pandas._typing import Scalar
+ from pandas.compat._optional import import_optional_dependency
+-
++import platform
++import re
++import warnings
++warn_numba_platform = "Non-x86 system detected, Numba may give wrong results or crash" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
+ 
+ def make_rolling_apply(
+     func: Callable[..., Scalar],
+@@ -37,6 +40,8 @@ def make_rolling_apply(
+     Numba function
+     """
+     numba = import_optional_dependency("numba")
++    if warn_numba_platform:
++        warnings.warn(warn_numba_platform)
+ 
+     if parallel:
+         loop_range = numba.prange

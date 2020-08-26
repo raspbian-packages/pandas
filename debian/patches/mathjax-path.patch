@@ -1,0 +1,16 @@
+Description: Use Debian packaged mathjax
+
+Author: Andreas Tille <tille@debian.org>
+Forwarded: not-needed
+
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -67,6 +67,8 @@ extensions = [
+     "contributors",  # custom pandas extension
+ ]
+ 
++mathjax_path="MathJax.js"
++
+ exclude_patterns = ["**.ipynb_checkpoints"]
+ try:
+     import nbconvert
