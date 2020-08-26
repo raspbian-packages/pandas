@@ -7,6 +7,9 @@ import pytest
 import pandas as pd
 from pandas import DataFrame, DatetimeIndex, Index, Timestamp, date_range, offsets
 import pandas._testing as tm
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
 
 randn = np.random.randn
 
@@ -63,6 +66,7 @@ class TestDatetimeIndex:
         idx2 = pd.date_range(end="2000", periods=periods, freq="S")
         assert len(idx2) == periods
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     def test_nat(self):
         assert DatetimeIndex([np.nan])[0] is pd.NaT
 

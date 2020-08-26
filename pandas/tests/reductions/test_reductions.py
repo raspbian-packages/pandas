@@ -23,6 +23,9 @@ from pandas import (
 )
 import pandas._testing as tm
 from pandas.core import nanops
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
 
 
 def get_objs():
@@ -1142,6 +1145,7 @@ class TestSeriesMode:
         expected = Series(expected2, dtype=object)
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     @pytest.mark.parametrize(
         "dropna, expected1, expected2",
         [

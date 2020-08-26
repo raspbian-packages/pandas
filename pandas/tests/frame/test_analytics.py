@@ -23,6 +23,9 @@ from pandas import (
 import pandas._testing as tm
 import pandas.core.algorithms as algorithms
 import pandas.core.nanops as nanops
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
 
 
 def assert_stat_op_calc(
@@ -790,6 +793,7 @@ class TestDataFrameAnalytics:
         expected = pd.Series(result, index=["A", "B"])
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     def test_sum_nanops_timedelta(self):
         # prod isn't defined on timedeltas
         idx = ["a", "b", "c"]
