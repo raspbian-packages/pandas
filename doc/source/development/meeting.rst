@@ -16,11 +16,7 @@ The minutes of past meetings are available in `this Google Document <https://doc
 Calendar
 --------
 
-This calendar shows all the developer meetings.
-
-.. raw:: html
-
-   <iframe src="https://calendar.google.com/calendar/embed?src=pgbn14p6poja8a1cf2dv2jhrmg%40group.calendar.google.com" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+`This calendar <https://calendar.google.com/calendar/embed?src=pgbn14p6poja8a1cf2dv2jhrmg%40group.calendar.google.com>`__ shows all the developer meetings.
 
 You can subscribe to this calendar with the following links:
 
