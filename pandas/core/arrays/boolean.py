@@ -390,7 +390,7 @@ class BooleanArray(BaseMaskedArray):
         Returns
         -------
         array : ndarray or ExtensionArray
-            NumPy ndarray, BooleanArray or IntergerArray with 'dtype' for its dtype.
+            NumPy ndarray, BooleanArray or IntegerArray with 'dtype' for its dtype.
 
         Raises
         ------

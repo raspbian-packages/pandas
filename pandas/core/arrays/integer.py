@@ -439,7 +439,7 @@ class IntegerArray(BaseMaskedArray):
         Returns
         -------
         array : ndarray or IntegerArray
-            NumPy ndarray or IntergerArray with 'dtype' for its dtype.
+            NumPy ndarray or IntegerArray with 'dtype' for its dtype.
 
         Raises
         ------
