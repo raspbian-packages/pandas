@@ -5,6 +5,7 @@ import pytest
 
 from pandas import CategoricalDtype, DataFrame, MultiIndex, Series, date_range
 import pandas._testing as tm
+from pandas.compat import is_platform_little_endian
 
 
 class TestDataFrameToRecords:
@@ -239,6 +240,7 @@ class TestDataFrameToRecords:
             ),
         ],
     )
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
     def test_to_records_dtype(self, kwargs, expected):
         # see GH#18146
         df = DataFrame({"A": [1, 2], "B": [0.2, 1.5], "C": ["a", "bc"]})
@@ -312,11 +314,13 @@ class TestDataFrameToRecords:
             ),
         ],
     )
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
     def test_to_records_dtype_mi(self, df, kwargs, expected):
         # see GH#18146
         result = df.to_records(**kwargs)
         tm.assert_almost_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
     def test_to_records_dict_like(self):
         # see GH#18146
         class DictLike:

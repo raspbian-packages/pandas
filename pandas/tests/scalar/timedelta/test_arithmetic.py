@@ -272,7 +272,7 @@ class TestTimedeltaAdditionSubtraction:
         tm.assert_numpy_array_equal(np.array([2]) * td, expected)
         msg = (
             "ufunc '?multiply'? cannot use operands with types"
-            r" dtype\('<m8\[ns\]'\) and dtype\('<m8\[ns\]'\)"
+            r" dtype\('[<>]m8\[ns\]'\) and dtype\('[<>]m8\[ns\]'\)"
         )
         with pytest.raises(TypeError, match=msg):
             td * other
