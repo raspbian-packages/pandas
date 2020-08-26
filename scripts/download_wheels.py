@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Fetch wheels from wheels.scipy.org for a pandas version."""
 import argparse
 import pathlib
