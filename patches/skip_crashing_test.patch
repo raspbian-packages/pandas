@@ -1,0 +1,16 @@
+Description: Skip a test that crashes on s390x
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- pandas-1.0.5+dfsg.orig/pandas/tests/window/test_apply.py
++++ pandas-1.0.5+dfsg/pandas/tests/window/test_apply.py
+@@ -13,6 +13,8 @@ def test_rolling_apply_invalid_raw(bad_r
+         Series(range(3)).rolling(1).apply(len, raw=bad_raw)
+ 
+ 
++from pandas.compat import is_platform_little_endian
++@pytest.mark.skipif(not is_platform_little_endian(), reason="segfaults on s390x")
+ def test_rolling_apply_out_of_bounds(engine_and_raw):
+     # gh-1850
+     engine, raw = engine_and_raw

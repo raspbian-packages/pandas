@@ -1,0 +1,39 @@
+Description: Fix typos
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Origin: lintian
+Forwarded: not-needed (already fixed)
+
+--- a/pandas/_libs/lib.pyx
++++ b/pandas/_libs/lib.pyx
+@@ -2012,7 +2012,7 @@ def maybe_convert_objects(ndarray[object
+         If an array-like object contains only timedelta values or NaT is
+         encountered, whether to convert and return an array of m8[ns] dtype.
+     convert_to_nullable_integer : bool, default False
+-        If an array-like object contains only interger values (and NaN) is
++        If an array-like object contains only integer values (and NaN) is
+         encountered, whether to convert and return an IntegerArray.
+ 
+     Returns
+--- a/pandas/core/arrays/boolean.py
++++ b/pandas/core/arrays/boolean.py
+@@ -390,7 +390,7 @@ class BooleanArray(BaseMaskedArray):
+         Returns
+         -------
+         array : ndarray or ExtensionArray
+-            NumPy ndarray, BooleanArray or IntergerArray with 'dtype' for its dtype.
++            NumPy ndarray, BooleanArray or IntegerArray with 'dtype' for its dtype.
+ 
+         Raises
+         ------
+--- a/pandas/core/arrays/integer.py
++++ b/pandas/core/arrays/integer.py
+@@ -439,7 +439,7 @@ class IntegerArray(BaseMaskedArray):
+         Returns
+         -------
+         array : ndarray or IntegerArray
+-            NumPy ndarray or IntergerArray with 'dtype' for its dtype.
++            NumPy ndarray or IntegerArray with 'dtype' for its dtype.
+ 
+         Raises
+         ------
