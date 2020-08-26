@@ -5,6 +5,8 @@ from datetime import datetime
 from functools import wraps
 import gzip
 import os
+import platform
+import re
 from shutil import rmtree
 import string
 import tempfile
@@ -2481,6 +2483,8 @@ def assert_produces_warning(
                     )
                     assert actual_warning.filename == caller.filename, msg
             else:
+                if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
+                    continue
                 extra_warnings.append(
                     (
                         actual_warning.category.__name__,

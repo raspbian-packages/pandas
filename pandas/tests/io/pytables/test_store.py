@@ -54,6 +54,11 @@ from pandas.io.pytables import (
 
 from pandas.io import pytables as pytables  # noqa: E402 isort:skip
 from pandas.io.pytables import TableIterator  # noqa: E402 isort:skip
+import platform
+import re
+import sys
+is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<=2**32) # meant for armhf, though this form will also skip on armel - uname = kernel arch
+pytestmark = pytest.mark.forked
 
 
 _default_compressor = "blosc"
@@ -1013,6 +1018,7 @@ class TestHDFStore:
             check("table", index)
             check("fixed", index)
 
+    @pytest.mark.skipif(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False)
     @pytest.mark.skipif(
         not is_platform_little_endian(), reason="reason platform is not little endian"
     )
@@ -1045,6 +1051,7 @@ class TestHDFStore:
         ],
     )
     @pytest.mark.parametrize("dtype", ["category", object])
+    @pytest.mark.skipif(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False)
     def test_latin_encoding(self, setup_path, dtype, val):
         enc = "latin-1"
         nan_rep = ""
@@ -1241,6 +1248,7 @@ class TestHDFStore:
             # still read from it.
             pd.read_hdf(store, "k1")
 
+    @pytest.mark.skipif(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False)
     def test_append_frame_column_oriented(self, setup_path):
         with ensure_clean_store(setup_path) as store:
 
@@ -3804,6 +3812,7 @@ class TestHDFStore:
             df.iloc[3:5, 1:3] = np.nan
             df.iloc[8:10, -2] = np.nan
 
+    @pytest.mark.skipif(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False)
     def test_select_filter_corner(self, setup_path):
 
         df = DataFrame(np.random.randn(50, 100))
@@ -4060,6 +4069,7 @@ class TestHDFStore:
             assert isinstance(d1, DataFrame)
 
     @td.xfail_non_writeable
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
     def test_legacy_table_fixed_format_read_py2(self, datapath, setup_path):
         # GH 24510
         # legacy table with fixed format written in Python 2
@@ -4740,6 +4750,7 @@ class TestHDFStore:
             with pd.HDFStore(path) as store:
                 assert os.fspath(store) == str(path)
 
+    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
     def test_read_py2_hdf_file_in_py3(self, datapath):
         # GH 16781
 
