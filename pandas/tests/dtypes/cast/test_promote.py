@@ -96,19 +96,10 @@ def _check_promote(dtype, fill_value, expected_dtype, exp_val_for_scalar=None):
 
 def _assert_match(result_fill_value, expected_fill_value):
     # GH#23982/25425 require the same type in addition to equality/NA-ness
-    res_type = type(result_fill_value)
-    ex_type = type(expected_fill_value)
-    if res_type.__name__ == "uint64":
-        # No idea why, but these (sometimes) do not compare as equal
-        assert ex_type.__name__ == "uint64"
-    elif res_type.__name__ == "ulonglong":
-        # On some builds we get this instead of np.uint64
-        # Note: cant check res_type.dtype.itemsize directly on numpy 1.18
-        assert res_type(0).itemsize == 8
-        assert ex_type == res_type or ex_type == np.uint64
-    else:
-        # On some builds, type comparison fails, e.g. np.int32 != np.int32
-        assert res_type == ex_type or res_type.__name__ == ex_type.__name__
+    # use np.dtype to treat "different" scalar types
+    # with the same data layout as equal
+    # e.g. np.intc and np.int32, np.ulonglong and np.uint64
+    assert np.dtype(type(result_fill_value)) == np.dtype(type(expected_fill_value))
 
     match_value = result_fill_value == expected_fill_value
 
