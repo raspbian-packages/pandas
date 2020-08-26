@@ -226,6 +226,7 @@ In ``pandas`` we may use :meth:`~pandas.pivot_table` method to handle this:
 
    import random
    import string
+   random.seed(123456) # for reproducibility
 
    baseball = pd.DataFrame(
        {'team': ["team %d" % (x + 1) for x in range(5)] * 5,

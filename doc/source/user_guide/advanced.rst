@@ -584,6 +584,7 @@ they need to be sorted. As with any index, you can use :meth:`~DataFrame.sort_in
 .. ipython:: python
 
    import random
+   random.seed(123456) # for reproducibility
    random.shuffle(tuples)
    s = pd.Series(np.random.randn(8), index=pd.MultiIndex.from_tuples(tuples))
    s
