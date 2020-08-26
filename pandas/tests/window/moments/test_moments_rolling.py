@@ -1,6 +1,9 @@
 import copy
 from datetime import datetime
 import warnings
+import sys
+import platform
+import re
 
 import numpy as np
 from numpy.random import randn
@@ -637,7 +640,9 @@ class TestMoments(Base):
         if np.isnan(q1):
             assert np.isnan(q2)
         else:
-            assert q1 == q2
+            assert np.abs(q1-q2)<1e-15
+            if not (re.match('i.?86|x86',platform.uname()[4]) and sys.maxsize<2**33):
+                assert q1 == q2
 
     def test_invalid_quantile_value(self):
         data = np.arange(5)
