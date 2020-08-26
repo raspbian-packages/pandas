@@ -5,9 +5,15 @@ import pandas.util._test_decorators as td
 
 from pandas import Series
 import pandas._testing as tm
+from pandas.compat import is_platform_32bit
+try:
+    from numba.core.errors import UnsupportedParforsError
+except ImportError:
+    UnsupportedParforsError = ImportError
 
 
 @td.skip_if_no("numba", "0.46.0")
+@pytest.mark.xfail(condition=is_platform_32bit(), raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
 @pytest.mark.filterwarnings("ignore:\\nThe keyword argument")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 class TestApply:
