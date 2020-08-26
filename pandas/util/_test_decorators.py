@@ -255,10 +255,6 @@ def check_file_leaks(func) -> Callable:
 
 
 def async_mark():
-    try:
-        import_optional_dependency("pytest_asyncio")
-        async_mark = pytest.mark.asyncio
-    except ImportError:
-        async_mark = pytest.mark.skip(reason="Missing dependency pytest-asyncio")
+    async_mark = pytest.mark.skip(reason="https://bugs.debian.org/969050")
 
     return async_mark
