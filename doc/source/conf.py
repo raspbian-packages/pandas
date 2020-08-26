@@ -632,10 +632,10 @@ def linkcode_resolve(domain, info):
     fn = os.path.relpath(fn, start=os.path.dirname(pandas.__file__))
 
     if "+" in pandas.__version__:
-        return f"http://github.com/pandas-dev/pandas/blob/master/pandas/{fn}{linespec}"
+        return f"https://github.com/pandas-dev/pandas/blob/master/pandas/{fn}{linespec}"
     else:
         return (
-            f"http://github.com/pandas-dev/pandas/blob/"
+            f"https://github.com/pandas-dev/pandas/blob/"
             f"v{pandas.__version__}/pandas/{fn}{linespec}"
         )
 
@@ -702,7 +702,7 @@ def rstjinja(app, docname, source):
     """
     Render our pages as a jinja template for fancy templating goodness.
     """
-    # http://ericholscher.com/blog/2016/jul/25/integrating-jinja-rst-sphinx/
+    # https://www.ericholscher.com/blog/2016/jul/25/integrating-jinja-rst-sphinx/
     # Make sure we're outputting HTML
     if app.builder.format != "html":
         return
