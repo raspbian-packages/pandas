@@ -393,15 +393,15 @@ Consider the following toy example of doubling each observation:
 .. code-block:: ipython
 
    # Custom function without numba
-   In [5]: %timeit df['col1_doubled'] = df.a.apply(double_every_value_nonumba)  # noqa E501
+   In [5]: %timeit df['col1_doubled'] = df['a'].apply(double_every_value_nonumba)  # noqa E501
    1000 loops, best of 3: 797 us per loop
 
    # Standard implementation (faster than a custom function)
-   In [6]: %timeit df['col1_doubled'] = df.a * 2
+   In [6]: %timeit df['col1_doubled'] = df['a'] * 2
    1000 loops, best of 3: 233 us per loop
 
    # Custom function with numba
-   In [7]: %timeit (df['col1_doubled'] = double_every_value_withnumba(df.a.to_numpy())
+   In [7]: %timeit (df['col1_doubled'] = double_every_value_withnumba(df['a'].to_numpy())
    1000 loops, best of 3: 145 us per loop
 
 Caveats
@@ -601,8 +601,6 @@ This allows for *formulaic evaluation*.  The assignment target can be a
 new column name or an existing column name, and it must be a valid Python
 identifier.
 
-.. versionadded:: 0.18.0
-
 The ``inplace`` keyword determines whether this assignment will performed
 on the original ``DataFrame`` or return a copy with the new column.
 
@@ -630,8 +628,6 @@ new or modified columns is returned and the original frame is unchanged.
    df.eval('e = a - c', inplace=False)
    df
 
-.. versionadded:: 0.18.0
-
 As a convenience, multiple assignments can be performed by using a
 multi-line string.
 
@@ -647,14 +643,12 @@ The equivalent in standard Python would be
 .. ipython:: python
 
    df = pd.DataFrame(dict(a=range(5), b=range(5, 10)))
-   df['c'] = df.a + df.b
-   df['d'] = df.a + df.b + df.c
+   df['c'] = df['a'] + df['b']
+   df['d'] = df['a'] + df['b'] + df['c']
    df['a'] = 1
    df
 
-.. versionadded:: 0.18.0
-
-The ``query`` method gained the ``inplace`` keyword which determines
+The ``query`` method has a ``inplace`` keyword which determines
 whether the query modifies the original frame.
 
 .. ipython:: python
@@ -694,7 +688,7 @@ name in an expression.
 
    a = np.random.randn()
    df.query('@a < a')
-   df.loc[a < df.a]  # same as the previous expression
+   df.loc[a < df['a']]  # same as the previous expression
 
 With :func:`pandas.eval` you cannot use the ``@`` prefix *at all*, because it
 isn't defined in that context. ``pandas`` will let you know this if you try to

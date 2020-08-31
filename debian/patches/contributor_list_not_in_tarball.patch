@@ -3,21 +3,22 @@ Description: Don't try to read a contributor list from the git log
 Debian packages are built from tarballs, so there isn't a git log.
 
 Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
-Forwarded: no
+Forwarded: not-needed
 
---- pandas-0.25.2+dfsg.orig/doc/sphinxext/contributors.py
-+++ pandas-0.25.2+dfsg/doc/sphinxext/contributors.py
-@@ -10,9 +10,6 @@ individually.
+--- a/doc/sphinxext/contributors.py
++++ b/doc/sphinxext/contributors.py
+@@ -14,10 +14,8 @@ use::
+ While the v0.23.1 tag does not exist, that will use the HEAD of the
+ branch as the end of the revision range.
  """
+-from announce import build_components
  from docutils import nodes
  from docutils.parsers.rst import Directive
 -import git
--
--from announce import build_components
  
  
  class ContributorsDirective(Directive):
-@@ -20,6 +17,7 @@ class ContributorsDirective(Directive):
+@@ -25,6 +23,7 @@ class ContributorsDirective(Directive):
      name = "contributors"
  
      def run(self):

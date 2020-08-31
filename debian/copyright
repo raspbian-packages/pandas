@@ -2,109 +2,15 @@ Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: pandas
 Upstream-Contact: pandas-dev@python.org
 Source: https://github.com/pandas-dev/pandas
-Files-Excluded: pandas/tests/io/data/computer_sales_page.html
-                pandas/tests/io/data/macau.html
-                pandas/tests/io/data/nyse_wsj.html
-                scripts/find_commits_touching_func.py
-                scripts/merge-pr.py
-                doc/source/user_guide/cookbook.rst
-Comment: tests/* fixed upstream in 1.1, cookbook has around 100 Stack Overflow snippets (CC-BY-SA with possibly inadequate attribution)
+Files-Excluded: doc/source/user_guide/cookbook.rst
+Comment: cookbook has around 100 Stack Overflow snippets (CC-BY-SA with possibly inadequate attribution)
 
 Files: *
 Copyright: 2008-2011 AQR Capital Management, LLC
            2011 Wes McKinney and pandas developers
-           2011-2019 Lambda Foundry, Inc. and PyData Development Team
+           2011-2020 Lambda Foundry, Inc. and PyData Development Team
 License: BSD-3
-Comment: The original source contains some CC-BY-SA snippets by Stack Overflow users (https://stackoverflow.com/users/1114/jeremy-banks, https://stackoverflow.com/users/387251/oliver, https://stackoverflow.com/users/3297752/noah-motion, https://stackoverflow.com/users/925671/bill, https://stackoverflow.com/users/1082349/foobar, https://stackoverflow.com/users/3089209/crantila, https://stackoverflow.com/users/2375855/ojdo, https://stackoverflow.com/users/487339/dsm, https://stackoverflow.com/users/2677943/swenzel, https://stackoverflow.com/users/2262529/midfield), but these may be too small to be copyrightable, and the less trivial ones are patched out in this package
-
-Files: pandas/_libs/tslibs/src/datetime/*
-Copyright: 2005-2013, NumPy Developers
-License: BSD-3
-Origin: numpy
-Comment: Listed as derived from Numpy 1.7
-
-Files: pandas/_libs/skiplist.pyx
-       pandas/_libs/src/skiplist.h
-Copyright: 2009, Raymond Hettinger
-           2011-2019 Wes McKinney and PyData Development Team
-License: Expat and BSD-3
-Origin: http://code.activestate.com/recipes/576930/
-Comment: it is a Cython code "inspired" by the original Python code by Raymond
-
-Files: pandas/_libs/src/headers/ms_*
-Copyright: 2006-2008 Alexander Chemeris
-License: BSD-3
-
-Files: pandas/_libs/src/klib/*
-Copyright: 2008, 2009, 2011 by Attractive Chaos <attractor@live.co.uk>
-License: Expat
-
-Files: pandas/_libs/src/msgpack/*
-Copyright: 2008-2011 FURUHASHI Sadayuki and Naoki INADA
-License: Apache
-
-Files: pandas/_libs/src/parser/tokenizer.*
-Copyright: 2002 Michael Ringgaard
-           2011-2012 Warren Weckesser
-           2001-2012 Python Software Foundation and Python contributors
-           2012-2019 Lambda Foundry, Inc. and PyData Development Team
-License: Python and BSD-3
-Origin: csv (Python standard library), github.com/WarrenWeckesser/textreader
-
-Files: pandas/_libs/src/ujson/*
-Copyright: 1988-1993 The Regents of the University of California
-           1994 Sun Microsystems, Inc.
-           2007 Nick Galbreath
-           2011-2013 ESN Social Software AB and Jonas Tarnstrom
-           2012-2019 Lambda Foundry, Inc. and PyData Development Team
-License: BSD-3 and Expat
-Origin: ultrajson
-
-Files: pandas/compat/*
-Copyright: 2010-2013 Benjamin Peterson
-           2012-2019 Lambda Foundry, Inc. and PyData Development Team
-License: Expat and BSD-3
-Origin: six
-
-Files: pandas/core/window.py
-Copyright: 2010-2012 Archipel Asset Management AB
-           2011-2019 Lambda Foundry, Inc. and PyData Development Team
-License: BSD-3
-Comment: unclear if actual copying from bottleneck has taken place; assuming it has to be safe.  Original was BSD-2, but BSD-2 and BSD-3 = BSD-3
-
-Files: pandas/io/packers.py
-       pandas/tests/io/test_packers.py
-Copyright: 2013 Lev Givon
-           2013-2019 Lambda Foundry, Inc. and PyData Development Team
-License: BSD-3
-
-Files: pandas/io/sas/sas7bdat.py
-Copyright: 2015 Jared Hobbs
-           2016-2018 Lambda Foundry, Inc. and PyData Development Team
-Origin: https://bitbucket.org/jaredhobbs/sas7bdat
-License: Expat
-
-Files: pandas/io/clipboard/*
-Copyright: 2010-2017 Albert Sweigart and Pyperclip contributors
-           2016-2019 Lambda Foundry, Inc. and PyData Development Team
-License: BSD-3
-Origin: Pyperclip
-
-Files: pandas/tests/io/data/banklist.html
-       pandas/tests/io/data/banklist.csv
-       pandas/tests/io/data/spam.html
-Copyright: None; by Federal Deposit Insurance Corporation and US Department of Agriculture
-License: public-domain
-
-Files: pandas/tests/io/data/wikipedia_states.html
-Copyright: 2002-2014 Wikipedia contributors (full list: https://en.wikipedia.org/w/index.php?title=List_of_U.S._states_and_territories_by_area&offset=20140630&action=history)
-License: CC-BY-SA-3.0
-
-Files: setup.py
-Copyright: 2009-2012, Brian Granger, Min Ragan-Kelley (from pyzmq)
-           2004 Infrae (from lxml)
-           2008-2019, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
-License: BSD-3
+Comment: The original source contains some CC-BY-SA snippets by Stack Overflow users (https://stackoverflow.com/users/1114/jeremy-banks, https://stackoverflow.com/users/387251/oliver, https://stackoverflow.com/users/3297752/noah-motion, https://stackoverflow.com/users/925671/bill, https://stackoverflow.com/users/1082349/foobar, https://stackoverflow.com/users/3089209/crantila, https://stackoverflow.com/users/2375855/ojdo, https://stackoverflow.com/users/487339/dsm, https://stackoverflow.com/users/2677943/swenzel), but these may be too small to be copyrightable, and the less trivial ones are patched out in this package
 
 Files: doc/source/themes/nature_with_gtoc/*
 Copyright: 2007-2011 by the Sphinx team
@@ -116,13 +22,121 @@ License: BSD-2
 
 Files: doc/sphinxext/announce.py
 Copyright: 2001-2017 Enthought, Inc. and SciPy Developers.
-           2017-2019 Lambda Foundry, Inc. and PyData Development Team
+           2017-2020 Lambda Foundry, Inc. and PyData Development Team
 License: BSD-3
 Comment: it is possible that other code was also taken from Scipy
 
+Files: pandas/_libs/src/headers/portable.h
+Copyright: 2005-2014 Rich Felker and contributors
+           2008-2019, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+License: Expat and BSD-3
+Origin: musl (partly)
+Comment: this might or might not be from a public domain part of musl
+
+Files: pandas/_libs/src/headers/ms_*
+Copyright: 2006-2008 Alexander Chemeris
+License: BSD-3
+
+Files: pandas/_libs/src/klib/*
+Copyright: 2008, 2009, 2011 by Attractive Chaos <attractor@live.co.uk>
+License: Expat
+
+Files: pandas/_libs/src/parser/tokenizer.*
+Copyright: 2002 Michael Ringgaard
+           2011-2012 Warren Weckesser
+           2001-2012 Python Software Foundation and Python contributors
+           2012-2020 Lambda Foundry, Inc. and PyData Development Team
+License: Python and BSD-3
+Origin: csv (Python standard library), github.com/WarrenWeckesser/textreader
+
+Files: pandas/_libs/src/skiplist.h
+Copyright: 2009, Raymond Hettinger
+           2011-2019 Wes McKinney and PyData Development Team
+License: Expat and BSD-3
+Origin: http://code.activestate.com/recipes/576930/
+Comment: it is a Cython code "inspired" by the original Python code by Raymond
+
+Files: pandas/_libs/src/ujson/*
+Copyright: 1988-1993 The Regents of the University of California
+           1994 Sun Microsystems, Inc.
+           2007 Nick Galbreath
+           2011-2013 ESN Social Software AB and Jonas Tarnstrom
+           2012-2020 Lambda Foundry, Inc. and PyData Development Team
+License: BSD-3 and Expat
+Origin: ultrajson
+
+Files: pandas/_libs/tslibs/parsing.pyx
+Copyright: 2003-2011 - Gustavo Niemeyer <gustavo@niemeyer.net>
+           2012-2014 - Tomi Pieviläinen <tomi.pievilainen@iki.fi>
+           2014-2016 - Yaron de Leeuw <me@jarondl.net>
+           2015-2017 - Paul Ganssle <paul@ganssle.io>
+           2015-2017 - dateutil contributors (see AUTHORS file)
+           2008-2019, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+License: BSD-3
+Origin: dateutil (partly)
+
+Files: pandas/_libs/tslibs/src/datetime/*
+Copyright: 2005-2013, NumPy Developers
+License: BSD-3
+Origin: numpy
+Comment: Listed as derived from Numpy 1.7
+
+Files: pandas/_libs/window/aggregations.pyx
+       pandas/tests/window/moments/test_moments_rolling.py
+Copyright: 2010-2012 Archipel Asset Management AB
+           2011-2019 Lambda Foundry, Inc. and PyData Development Team
+License: BSD-3
+Origin: bottleneck (partly)
+Comment: Original was BSD-2, but BSD-2 and BSD-3 = BSD-3
+
+Files: pandas/compat/*
+Copyright: 2010-2013 Benjamin Peterson
+           2012-2020 Lambda Foundry, Inc. and PyData Development Team
+License: Expat and BSD-3
+Origin: six
+
+Files: pandas/core/accessor.py
+Copyright: 2014-2018 xarray developers
+           2018-2019 Lambda Foundry, Inc. and PyData Development Team
+License: Apache-2.0 and BSD-3
+Origin: xarray (partly)
+
+Files: pandas/io/clipboard/*
+Copyright: 2010-2017 Albert Sweigart and Pyperclip contributors
+           2016-2019 Lambda Foundry, Inc. and PyData Development Team
+License: BSD-3
+Origin: Pyperclip
+
+Files: pandas/io/sas/sas7bdat.py
+Copyright: 2015 Jared Hobbs
+           2016-2019 Lambda Foundry, Inc. and PyData Development Team
+Origin: https://bitbucket.org/jaredhobbs/sas7bdat
+License: Expat
+
+Files: pandas/tests/io/data/html/banklist.html
+       pandas/tests/io/data/csv/banklist.csv
+       pandas/tests/io/data/html/spam.html
+Copyright: None; by Federal Deposit Insurance Corporation and US Department of Agriculture
+License: public-domain
+
+Files: pandas/tests/io/data/html/wikipedia_states.html
+Copyright: 2002-2014 Wikipedia contributors (full list: https://en.wikipedia.org/w/index.php?title=List_of_U.S._states_and_territories_by_area&offset=20140630&action=history)
+License: CC-BY-SA-3.0
+
+Files: scripts/find_commits_touching_func.py
+Copyright: 2013 y-p @ github
+           2013-2017 Lambda Foundry, Inc. and PyData Development Team
+License: BSD-3
+
+Files: setup.py
+Copyright: 2009-2012, Brian Granger, Min Ragan-Kelley (from pyzmq)
+           2004 Infrae (from lxml)
+           2008-2020, AQR Capital Management, LLC, Lambda Foundry, Inc. and PyData Development Team
+License: BSD-3
+
 Files: debian/*
 Copyright: 2011-2018, Yaroslav Halchenko <debian@onerussian.com>
-           2019, Debian Science Team
+           2019-2020, Debian Science Team
 License: BSD-3
 
 License: BSD-2
@@ -197,7 +211,7 @@ License: Expat
  CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  SOFTWARE.
 
-License: Apache
+License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
  You may obtain a copy of the License at

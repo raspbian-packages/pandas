@@ -26,22 +26,10 @@ MIN_CYTHONVER = 0.23
 # Filter out tests with "marker expressions" and "keyword expressions". Ref: pytest(1)
 ifeq ($(DEB_HOST_ARCH),$(filter $(DEB_HOST_ARCH), amd64 i386 kfreebsd-amd64 kfreebsd-i386 x32))
 	PYTEST_MARKER_ARCH :=
-	PYTEST_KEYWORD_ARCH :=
 else
-	PYTEST_MARKER_ARCH := and not intel and not slow
-	PYTEST_KEYWORD_ARCH :=
+	PYTEST_MARKER_ARCH := and not slow
 endif
-
 PYTEST_MARKER := not network $(PYTEST_MARKER_ARCH)
-
-ADDPATCHES :=
-# testing for version became fragile: https://github.com/pytest-dev/pytest/issues/3692
-# PYTESTVER := $(shell python -c 'import pytest; print(pytest.__version__)')
-# and there is way too many uses of pytest.param now, so we can't just easily patch for it... THINK!
-# ADDPATCHES += $(shell dpkg --compare-versions $(PYTESTVER) ge 3.1.0 || echo "0001-TST-pytest-deprecation-warnings-GH17197-17253-reversed.patch" )
-
-# MPLVER := $(shell dpkg -l python-matplotlib | awk '/^ii/{print $$3;}' || echo 0)
-# $(shell dpkg --compare-versions $(MPLVER) lt 1.0 && echo '|test_hist|test_plot|test_boxplot|test_corr_rank' || echo '')
 
 # try to prevent unsunctioned downloads
 export  http_proxy=http://127.0.0.1:9/
@@ -90,18 +78,11 @@ version_py:
 	[ -e pandas/__version.py ] || \
       echo -e "version = '$(UVER_PY)'\nshort_version = '$(UVER_PYSHORT)'" > pandas/__version.py
 
-override_dh_auto_build: version_py debian/patch-stamp
+override_dh_auto_build: version_py
 	# Override default build operation which --force's re-cythonization
 	# on elderly ubuntus
 	# Just build the version.py file
 	:
-
-debian/patch-stamp:
-	if echo "${ADDPATCHES}" | sed -e 's,\s,,g' | grep  '.' ; then \
-       echo ${ADDPATCHES} >> debian/patches/series; \
-	   quilt push -a; \
-    fi
-	touch $@
 
 
 override_dh_auto_install: ${PY3VERS:%=python-install%} ${PY3VERS:%=python-test%}
@@ -136,7 +117,7 @@ else
 	for html in `find doc/build/html -name _modules -prune -o -name "*.html" -o -name "*.ipynb"` ; do \
 	    sed -i -e 's#$(CURDIR)/.pybuild/[^/]*/build/pandas/#/usr/lib/python3/dist-packages/pandas/#g' \
 	    -e 's#$(CURDIR)/debian/python3-pandas/usr/lib/python3/dist-packages/pandas/#/usr/lib/python3/dist-packages/pandas/#g' \
-	    -e 's#<script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs\.cloudflare\.com/ajax/libs/require\.js/2\.3\.4/require\.min\.js">#<script type="text/javascript" src="file:///usr/share/javascript/requirejs/require.min.js">#g' \
+	    -e 's#<script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" type="text/javascript" src="https://cdnjs\.cloudflare\.com/ajax/libs/require\.js/2\.3\.4/require\.min\.js">#<script type="text/javascript" src="file:///usr/share/javascript/requirejs/require.min.js">#g' \
 	    -e 's#\(Date:.*\)[A-Z][a-z]\+, \+[0-9]\+,\? \+[A-Z][a-z]\+,\? \+[0-9]\+#\1$(SOURCE_DATE)#g' \
 	    -e 's#\(Time:.*\)[0-9][0-9]:[0-9][0-9]:[0-9][0-9]#\1$(SOURCE_TIME)#g' $${html} ; \
 	done

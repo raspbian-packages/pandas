@@ -8,29 +8,20 @@ import sys
 import numpy as np  # noqa
 import pytest
 
-from pandas.compat import PY36
+import pandas.util._test_decorators as td
 
 from pandas import DataFrame, Series
-from pandas.util import testing as tm
+import pandas._testing as tm
 
 
 def import_module(name):
     # we *only* want to skip if the module is truly not available
     # and NOT just an actual import error because of pandas changes
 
-    if PY36:
-        try:
-            return importlib.import_module(name)
-        except ModuleNotFoundError:  # noqa
-            pytest.skip("skipping as {} not available".format(name))
-
-    else:
-        try:
-            return importlib.import_module(name)
-        except ImportError as e:
-            if "No module named" in str(e) and name in str(e):
-                pytest.skip("skipping as {} not available".format(name))
-            raise
+    try:
+        return importlib.import_module(name)
+    except ModuleNotFoundError:  # noqa
+        pytest.skip("skipping as {} not available".format(name))
 
 
 @pytest.fixture
@@ -50,11 +41,25 @@ def test_dask(df):
     assert ddf.compute() is not None
 
 
+@pytest.mark.filterwarnings("ignore:Panel class is removed")
 def test_xarray(df):
 
     xarray = import_module("xarray")  # noqa
 
     assert df.to_xarray() is not None
+
+
+@td.skip_if_no("cftime")
+@td.skip_if_no("xarray", "0.10.4")
+def test_xarray_cftimeindex_nearest():
+    # https://github.com/pydata/xarray/issues/3751
+    import cftime
+    import xarray
+
+    times = xarray.cftime_range("0001", periods=2)
+    result = times.get_loc(cftime.DatetimeGregorian(2000, 1, 1), method="nearest")
+    expected = 1
+    assert result == expected
 
 
 def test_oo_optimizable():
@@ -65,6 +70,10 @@ def test_oo_optimizable():
 @tm.network
 # Cython import warning
 @pytest.mark.filterwarnings("ignore:can't:ImportWarning")
+@pytest.mark.filterwarnings(
+    # patsy needs to update their imports
+    "ignore:Using or importing the ABCs from 'collections:DeprecationWarning"
+)
 def test_statsmodels():
 
     statsmodels = import_module("statsmodels")  # noqa
@@ -112,10 +121,8 @@ def test_pandas_datareader():
 
 
 # importing from pandas, Cython import warning
-@pytest.mark.filterwarnings("ignore:The 'warn':DeprecationWarning")
-@pytest.mark.filterwarnings("ignore:pandas.util:DeprecationWarning")
 @pytest.mark.filterwarnings("ignore:can't resolve:ImportWarning")
-@pytest.mark.skip(reason="gh-25778: geopandas stack issue")
+@pytest.mark.skip(reason="Anaconda installation issue - GH32144")
 def test_geopandas():
 
     geopandas = import_module("geopandas")  # noqa
@@ -145,6 +152,7 @@ def test_geopandas_coordinate_indexer():
 
 # Cython import warning
 @pytest.mark.filterwarnings("ignore:can't resolve:ImportWarning")
+@pytest.mark.filterwarnings("ignore:RangeIndex.* is deprecated:DeprecationWarning")
 def test_pyarrow(df):
 
     pyarrow = import_module("pyarrow")  # noqa

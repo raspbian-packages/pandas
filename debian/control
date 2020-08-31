@@ -8,40 +8,48 @@ Uploaders: Yaroslav Halchenko <debian@onerussian.com>,
 Build-Depends: debhelper-compat (= 13),
                dh-python,
                locales-all,
-               quilt,
                python3-all-dev,
-               python3-setuptools,
                cython3 (>= 0.29.13~),
+               python3-bottleneck (>= 1.2.1~) <!nocheck> <!nodoc>,
                python3-bs4 <!nocheck> <!nodoc>,
+               python3-dask (>= 2.10.1~) <!nocheck> <!nodoc>,
                python3-dateutil,
-               python3-hypothesis <!nocheck> <!nodoc>,
                python3-html5lib <!nocheck> <!nodoc>,
+               python3-hypothesis <!nocheck> <!nodoc>,
+               python3-jinja2 <!nocheck> <!nodoc>,
                python3-lxml <!nocheck> <!nodoc>,
                python3-matplotlib [!hurd-i386],
-               python3-nose <!nocheck> <!nodoc>,
+# armel, ppc64el, s390x numba crash, mipsel gives wrong answer, most ports don't have numba
+               python3-numba (>= 0.46.0~) [amd64 i386] <!nocheck> <!nodoc>,
+               python3-numexpr (>= 2.6.2~) <!nocheck> <!nodoc>,
                python3-numpy,
+               python3-odf <!nocheck> <!nodoc>,
                python3-openpyxl <!nocheck> <!nodoc>,
+# upstream actually want pytest >= 5.0.1 but we don't have that
                python3-pytest (>= 4.0.2~) <!nocheck> <!nodoc>,
-               python3-pytest-xdist <!nocheck> <!nodoc>,
+# #969050               python3-pytest-asyncio <!nocheck> <!nodoc>,
                python3-pytest-forked <!nocheck> <!nodoc>,
+               python3-pytest-xdist (>= 1.21~) <!nocheck> <!nodoc>,
                python3-scipy,
+               python3-setuptools,
                python3-six,
-               python3-tables (>= 3.4.2~) [!m68k !sh4 !x32] <!nocheck> <!nodoc>,
+               python3-tables (>= 3.4.2~) <!nocheck> <!nodoc>,
+# too old in Debian python3-tabulate (>= 0.8.3~) <!nocheck> <!nodoc>,
                python3-tk <!nocheck> <!nodoc>,
                python3-tz <!nocheck> <!nodoc>,
-               python3-xlsxwriter <!nocheck> <!nodoc>,
                python3-xlrd <!nocheck> <!nodoc>,
+               python3-xlsxwriter <!nocheck> <!nodoc>,
                python3-xlwt <!nocheck> <!nodoc>,
                xvfb <!nocheck>,
                xauth <!nocheck>,
                xclip <!nocheck>,
 Build-Depends-Indep:
  python3-sphinx <!nodoc>,
- python3-nbsphinx <!nodoc>,
  python3-ipykernel <!nodoc>,
- python3-numpydoc <!nodoc>,
  python3-nbconvert (>= 5.4.1~) <!nodoc>,
- ipython3 <!nodoc>,
+ python3-nbsphinx <!nodoc>,
+ python3-numpydoc <!nodoc>,
+ ipython3 (>= 7.11.1~) <!nodoc>,
  jdupes <!nodoc>,
 # for style.ipynb
  pandoc <!nodoc>,
@@ -54,12 +62,12 @@ Build-Depends-Indep:
 # these are for not having (as many) exception messages in documentation examples
 # so may be temporarily removed if they are broken or to break bootstrap cycles
 # not in Debian (not to be confused with python3-arrow) python3-pyarrow <!nodoc>,
+ python3-ipywidgets <!nodoc>,
  python3-rpy2 <!nodoc>,
+ python3-seaborn <!nodoc>,
  python3-sqlalchemy <!nodoc>,
  python3-statsmodels <!nodoc>,
  python3-xarray <!nodoc>,
- python3-ipywidgets <!nodoc>,
- python3-seaborn <!nodoc>
 Standards-Version: 4.5.0
 Rules-Requires-Root: no
 Homepage: https://pandas.pydata.org/
@@ -71,27 +79,44 @@ Architecture: all
 Depends: ${misc:Depends}, ${python3:Depends},
          python3-numpy (>= 1:1.15~),
          python3-dateutil,
-         python3-pandas-lib(>= ${source:Version}),
+         python3-pandas-lib (>= ${source:Version}),
          python3-pkg-resources,
          python3-six,
 Recommends: python3-scipy,
             python3-matplotlib,
-            python3-numexpr,
-            python3-tables,
             python3-tz,
+# for faster processing
+# see -lib for python3-numba
+            python3-bottleneck,
+            python3-numexpr,
+# for spreadsheet I/O
+            python3-odf,
+            python3-openpyxl,
             python3-xlrd,
-            python3-openpyxl, python3-xlwt,
+            python3-xlwt,
+# for HTML table I/O
             python3-bs4,
             python3-html5lib,
             python3-lxml,
+# for HDF5 I/O
+            python3-tables,
+# for styled output
+            python3-jinja2,
 Suggests: python-pandas-doc,
           python3-statsmodels
-# 0.23 -> 0.25 API breaks, #931557 - assumes the not-yet-fixed ones are fixed on next upload, but is better than nothing
-Breaks: cnvkit (<< 0.9.6-1.1),
-        python3-feather-format (<< 0.3.1+dfsg1-2.1),
-        python3-skbio (<< 0.5.5-2.1),
-        python3-statsmodels (<< 0.10.0~),
-        q2-types (<< 2019.7.0-1.1)
+Breaks:
+# 0.23 -> 0.25 API breaks, #931557
+        cnvkit (<< 0.9.6-2~),
+# 0.25 -> 1.0 API breaks, #950430
+        python3-dask (<< 2.10.1~),
+        python3-biom-format (<< 2.1.8+dfsg-3.1~),
+        python3-feather-format (<< 0.3.1+dfsg1-4~),
+        python3-skbio (<< 0.5.5-4~),
+        python3-statsmodels (<< 0.11.0~),
+        python3-seaborn (<< 0.9.1~),
+        q2-demux (<< 2019.10.0-1.1~),
+        q2templates (<< 2019.10.0+dfsg-1.1~),
+        q2-types (<< 2019.10.0-1.1~)
 Description: data structures for "relational" or "labeled" data
  pandas is a Python package providing fast, flexible, and expressive
  data structures designed to make working with "relational" or
@@ -143,7 +168,10 @@ Description: data structures for "relational" or "labeled" data - documentation
 
 Package: python3-pandas-lib
 Architecture: any
+Multi-Arch: same
 Depends: ${misc:Depends}, ${shlibs:Depends}, ${python3:Depends}, python3-numpy (>=1:1.15~)
+# this is here to allow it to be arch-specific, to avoid numba bugs on other architectures
+Recommends: python3-numba [amd64]
 Description: low-level implementations and bindings for pandas
  This is a low-level package for python3-pandas providing
  architecture-dependent extensions.

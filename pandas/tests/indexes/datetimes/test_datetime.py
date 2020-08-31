@@ -3,14 +3,13 @@ from datetime import date
 import dateutil
 import numpy as np
 import pytest
-import platform
-import re
-is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
 
 import pandas as pd
 from pandas import DataFrame, DatetimeIndex, Index, Timestamp, date_range, offsets
-import pandas.util.testing as tm
-from pandas.util.testing import assert_almost_equal
+import pandas._testing as tm
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
 
 randn = np.random.randn
 
@@ -94,7 +93,7 @@ class TestDatetimeIndex:
     def test_hash_error(self):
         index = date_range("20010101", periods=10)
         with pytest.raises(
-            TypeError, match=("unhashable type: {0.__name__!r}".format(type(index)))
+            TypeError, match=f"unhashable type: '{type(index).__name__}'"
         ):
             hash(index)
 
@@ -193,25 +192,6 @@ class TestDatetimeIndex:
         result = df.T["1/3/2000"]
         assert result.name == df.index[2]
 
-    def test_get_duplicates(self):
-        idx = DatetimeIndex(
-            [
-                "2000-01-01",
-                "2000-01-02",
-                "2000-01-02",
-                "2000-01-03",
-                "2000-01-03",
-                "2000-01-04",
-            ]
-        )
-
-        with tm.assert_produces_warning(FutureWarning):
-            # Deprecated - see GH20239
-            result = idx.get_duplicates()
-
-        ex = DatetimeIndex(["2000-01-02", "2000-01-03"])
-        tm.assert_index_equal(result, ex)
-
     def test_argmin_argmax(self):
         idx = DatetimeIndex(["2000-01-04", "2000-01-01", "2000-01-02"])
         assert idx.argmin() == 1
@@ -266,7 +246,7 @@ class TestDatetimeIndex:
         result = index.isin(list(index))
         assert result.all()
 
-        assert_almost_equal(
+        tm.assert_almost_equal(
             index.isin([index[2], 5]), np.array([False, False, True, False])
         )
 
@@ -417,15 +397,13 @@ class TestDatetimeIndex:
         # This shouldn't produce a warning.
         idx = pd.date_range("2000", periods=2)
         # M8[ns] by default
-        with tm.assert_produces_warning(None):
-            result = np.asarray(idx)
+        result = np.asarray(idx)
 
         expected = np.array(["2000-01-01", "2000-01-02"], dtype="M8[ns]")
         tm.assert_numpy_array_equal(result, expected)
 
         # optionally, object
-        with tm.assert_produces_warning(None):
-            result = np.asarray(idx, dtype=object)
+        result = np.asarray(idx, dtype=object)
 
         expected = np.array([pd.Timestamp("2000-01-01"), pd.Timestamp("2000-01-02")])
         tm.assert_numpy_array_equal(result, expected)
@@ -434,15 +412,12 @@ class TestDatetimeIndex:
         tz = "US/Central"
         idx = pd.date_range("2000", periods=2, tz=tz)
         expected = np.array(["2000-01-01T06", "2000-01-02T06"], dtype="M8[ns]")
-        # We warn by default and return an ndarray[M8[ns]]
-        with tm.assert_produces_warning(FutureWarning):
-            result = np.asarray(idx)
+        result = np.asarray(idx, dtype="datetime64[ns]")
 
         tm.assert_numpy_array_equal(result, expected)
 
         # Old behavior with no warning
-        with tm.assert_produces_warning(None):
-            result = np.asarray(idx, dtype="M8[ns]")
+        result = np.asarray(idx, dtype="M8[ns]")
 
         tm.assert_numpy_array_equal(result, expected)
 
@@ -450,7 +425,25 @@ class TestDatetimeIndex:
         expected = np.array(
             [pd.Timestamp("2000-01-01", tz=tz), pd.Timestamp("2000-01-02", tz=tz)]
         )
-        with tm.assert_produces_warning(None):
-            result = np.asarray(idx, dtype=object)
+        result = np.asarray(idx, dtype=object)
 
         tm.assert_numpy_array_equal(result, expected)
+
+    def test_to_frame_datetime_tz(self):
+        # GH 25809
+        idx = date_range(start="2019-01-01", end="2019-01-30", freq="D", tz="UTC")
+        result = idx.to_frame()
+        expected = DataFrame(idx, index=idx)
+        tm.assert_frame_equal(result, expected)
+
+    @pytest.mark.parametrize("name", [None, "name"])
+    def test_index_map(self, name):
+        # see GH20990
+        count = 6
+        index = pd.date_range("2018-01-01", periods=count, freq="M", name=name).map(
+            lambda x: (x.year, x.month)
+        )
+        exp_index = pd.MultiIndex.from_product(
+            ((2018,), range(1, 7)), names=[name, name]
+        )
+        tm.assert_index_equal(index, exp_index)

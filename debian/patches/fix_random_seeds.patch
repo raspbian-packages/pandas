@@ -3,8 +3,8 @@ Description: Use fixed seeds for reproducible pseudorandomness
 Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Forwarded: no
 
---- pandas-0.25.3+dfsg.orig/doc/source/getting_started/comparison/comparison_with_r.rst
-+++ pandas-0.25.3+dfsg/doc/source/getting_started/comparison/comparison_with_r.rst
+--- a/doc/source/getting_started/comparison/comparison_with_r.rst
++++ b/doc/source/getting_started/comparison/comparison_with_r.rst
 @@ -226,6 +226,7 @@ In ``pandas`` we may use :meth:`~pandas.
  
     import random
@@ -13,9 +13,9 @@ Forwarded: no
  
     baseball = pd.DataFrame(
         {'team': ["team %d" % (x + 1) for x in range(5)] * 5,
---- pandas-0.25.3+dfsg.orig/doc/source/user_guide/advanced.rst
-+++ pandas-0.25.3+dfsg/doc/source/user_guide/advanced.rst
-@@ -565,6 +565,7 @@ they need to be sorted. As with any inde
+--- a/doc/source/user_guide/advanced.rst
++++ b/doc/source/user_guide/advanced.rst
+@@ -584,6 +584,7 @@ they need to be sorted. As with any inde
  .. ipython:: python
  
     import random
@@ -23,9 +23,9 @@ Forwarded: no
     random.shuffle(tuples)
     s = pd.Series(np.random.randn(8), index=pd.MultiIndex.from_tuples(tuples))
     s
---- pandas-0.25.3+dfsg.orig/doc/source/user_guide/visualization.rst
-+++ pandas-0.25.3+dfsg/doc/source/user_guide/visualization.rst
-@@ -996,6 +996,7 @@ are what constitutes the bootstrap plot.
+--- a/doc/source/user_guide/visualization.rst
++++ b/doc/source/user_guide/visualization.rst
+@@ -992,6 +992,7 @@ are what constitutes the bootstrap plot.
     :suppress:
  
     np.random.seed(123456)

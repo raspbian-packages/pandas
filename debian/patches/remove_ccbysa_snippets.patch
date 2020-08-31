@@ -36,14 +36,14 @@ Forwarded: no - deletes some tests/examples without replacement
 +This page has been removed for copyright reasons.
 --- a/doc/source/user_guide/index.rst
 +++ b/doc/source/user_guide/index.rst
-@@ -40,4 +40,3 @@ Further information on any specific meth
-     enhancingperf
+@@ -42,4 +42,3 @@ Further information on any specific meth
+     scale
      sparse
      gotchas
 -    cookbook
 --- a/pandas/io/sql.py
 +++ b/pandas/io/sql.py
-@@ -1406,14 +1406,14 @@ def _get_valid_sqlite_name(name):
+@@ -1401,14 +1401,14 @@ def _get_valid_sqlite_name(name):
      # Replace all " with "".
      # Wrap the entire thing in double quotes.
  
@@ -65,13 +65,13 @@ Forwarded: no - deletes some tests/examples without replacement
  _SAFE_NAMES_WARNING = (
 --- a/pandas/tests/groupby/aggregate/test_other.py
 +++ b/pandas/tests/groupby/aggregate/test_other.py
-@@ -25,30 +25,6 @@ import pandas.util.testing as tm
+@@ -24,30 +24,6 @@ from pandas.core.base import Specificati
  from pandas.io.formats.printing import pprint_thing
  
  
 -def test_agg_api():
 -    # GH 6337
--    # http://stackoverflow.com/questions/21706030/pandas-groupby-agg-function-column-dtype-error
+-    # https://stackoverflow.com/questions/21706030/pandas-groupby-agg-function-column-dtype-error
 -    # different api for agg when passed custom function with mixed frame
 -
 -    df = DataFrame(
@@ -98,19 +98,20 @@ Forwarded: no - deletes some tests/examples without replacement
  
 --- a/pandas/tests/groupby/test_categorical.py
 +++ b/pandas/tests/groupby/test_categorical.py
-@@ -782,27 +782,6 @@ def test_categorical_no_compress():
-     tm.assert_numpy_array_equal(result, exp)
+@@ -796,29 +796,6 @@ def test_groupby_empty_with_category():
+     tm.assert_series_equal(result, expected)
  
  
 -def test_sort():
 -
--    # http://stackoverflow.com/questions/23814368/sorting-pandas-categorical-labels-after-groupby  # noqa: E501
+-    # https://stackoverflow.com/questions/23814368/sorting-pandas-
+-    #        categorical-labels-after-groupby
 -    # This should result in a properly sorted Series so that the plot
 -    # has a sorted x axis
 -    # self.cat.groupby(['value_group'])['value_group'].count().plot(kind='bar')
 -
 -    df = DataFrame({"value": np.random.randint(0, 10000, 100)})
--    labels = ["{0} - {1}".format(i, i + 499) for i in range(0, 10000, 500)]
+-    labels = [f"{i} - {i+499}" for i in range(0, 10000, 500)]
 -    cat_labels = Categorical(labels, labels)
 -
 -    df = df.sort_values(by=["value"], ascending=True)
@@ -123,18 +124,19 @@ Forwarded: no - deletes some tests/examples without replacement
 -    exp.index = CategoricalIndex(exp.index, name=exp.index.name)
 -    tm.assert_series_equal(res, exp)
 -
- 
+-
  def test_sort2():
      # dataframe groupby sort was being ignored # GH 8868
+     df = DataFrame(
 --- a/pandas/tests/indexing/multiindex/test_chaining_and_caching.py
 +++ b/pandas/tests/indexing/multiindex/test_chaining_and_caching.py
-@@ -6,26 +6,6 @@ from pandas.core import common as com
- import pandas.util.testing as tm
+@@ -6,27 +6,6 @@ import pandas._testing as tm
+ import pandas.core.common as com
  
  
 -def test_detect_chained_assignment():
 -    # Inplace ops, originally from:
--    # http://stackoverflow.com/questions/20508968/series-fillna-in-a-multiindex-dataframe-does-not-fill-is-this-a-bug
+-    # https://stackoverflow.com/questions/20508968/series-fillna-in-a-multiindex-dataframe-does-not-fill-is-this-a-bug
 -    a = [12, 23]
 -    b = [123, None]
 -    c = [1234, 2345]
@@ -152,17 +154,18 @@ Forwarded: no - deletes some tests/examples without replacement
 -    with pytest.raises(com.SettingWithCopyError):
 -        zed["eyes"]["right"].fillna(value=555, inplace=True)
 -
- 
+-
  def test_cache_updating():
      # 5216
+     # make sure that we don't try to set a dead cache
 --- a/pandas/tests/indexing/multiindex/test_setitem.py
 +++ b/pandas/tests/indexing/multiindex/test_setitem.py
-@@ -161,35 +161,6 @@ class TestMultiIndexSetItem:
+@@ -140,35 +140,7 @@ class TestMultiIndexSetItem:
          with pytest.raises(TypeError):
              df.loc["bar"] *= 2
  
 -        # from SO
--        # http://stackoverflow.com/questions/24572040/pandas-access-the-level-of-multiindex-for-inplace-operation
+-        # https://stackoverflow.com/questions/24572040/pandas-access-the-level-of-multiindex-for-inplace-operation
 -        df_orig = DataFrame.from_dict(
 -            {
 -                "price": {
@@ -178,7 +181,7 @@ Forwarded: no - deletes some tests/examples without replacement
 -        df_orig.index = MultiIndex.from_tuples(
 -            df_orig.index, names=["Sit", "Com", "Type"]
 -        )
--
+ 
 -        expected = df_orig.copy()
 -        expected.iloc[[0, 2, 3]] *= 2
 -
@@ -195,28 +198,29 @@ Forwarded: no - deletes some tests/examples without replacement
  
 --- a/pandas/tests/indexing/test_chaining_and_caching.py
 +++ b/pandas/tests/indexing/test_chaining_and_caching.py
-@@ -272,13 +272,6 @@ class TestChaining:
+@@ -272,14 +272,6 @@ class TestChaining:
          df["column1"] = df["column1"] + "c"
          str(df)
  
 -        # from SO:
--        # http://stackoverflow.com/questions/24054495/potential-bug-setting-value-for-undefined-column-using-iloc
+-        # https://stackoverflow.com/questions/24054495/potential-bug-setting-value-for-undefined-column-using-iloc
 -        df = DataFrame(np.arange(0, 9), columns=["count"])
 -        df["group"] = "b"
 -
 -        with pytest.raises(com.SettingWithCopyError):
 -            df.iloc[0:5]["group"] = "a"
- 
+-
          # Mixed type setting but same dtype & changing dtype
          df = DataFrame(
+             dict(
 --- a/pandas/tests/io/parser/test_common.py
 +++ b/pandas/tests/io/parser/test_common.py
-@@ -1132,25 +1132,6 @@ def test_trailing_delimiters(all_parsers
+@@ -1057,24 +1057,6 @@ def test_trailing_delimiters(all_parsers
      tm.assert_frame_equal(result, expected)
  
  
 -def test_escapechar(all_parsers):
--    # http://stackoverflow.com/questions/13824840/feature-request-for-
+-    # https://stackoverflow.com/questions/13824840/feature-request-for-
 -    # pandas-read-csv
 -    data = '''SEARCH_TERM,ACTUAL_URL
 -"bra tv bord","http://www.ikea.com/se/sv/catalog/categories/departments/living_room/10475/?se%7cps%7cnonbranded%7cvardagsrum%7cgoogle%7ctv_bord"
@@ -228,34 +232,11 @@ Forwarded: no - deletes some tests/examples without replacement
 -        StringIO(data), escapechar="\\", quotechar='"', encoding="utf-8"
 -    )
 -
--    assert result["SEARCH_TERM"][2] == (
--        'SLAGBORD, "Bergslagen", ' "IKEA:s 1700-tals serie"
--    )
+-    assert result["SEARCH_TERM"][2] == 'SLAGBORD, "Bergslagen", IKEA:s 1700-tals serie'
+-
 -    tm.assert_index_equal(result.columns, Index(["SEARCH_TERM", "ACTUAL_URL"]))
 -
 -
  def test_int64_min_issues(all_parsers):
      # see gh-2599
      parser = all_parsers
---- a/pandas/tests/indexing/test_ix.py
-+++ b/pandas/tests/indexing/test_ix.py
-@@ -181,19 +181,6 @@ class TestIX:
-         result2 = s.loc[0:3]
-         tm.assert_series_equal(result1, result2)
- 
--    def test_ix_weird_slicing(self):
--        # http://stackoverflow.com/q/17056560/1240268
--        df = DataFrame({"one": [1, 2, 3, np.nan, np.nan], "two": [1, 2, 3, 4, 5]})
--        df.loc[df["one"] > 1, "two"] = -df["two"]
--
--        expected = DataFrame(
--            {
--                "one": {0: 1.0, 1: 2.0, 2: 3.0, 3: np.nan, 4: np.nan},
--                "two": {0: 1, 1: -2, 2: -3, 3: 4, 4: 5},
--            }
--        )
--        tm.assert_frame_equal(df, expected)
--
-     def test_ix_assign_column_mixed(self, float_frame):
-         # GH #1142
-         df = float_frame

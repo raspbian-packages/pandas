@@ -2,9 +2,8 @@ import numpy as np
 import pytest
 
 from pandas import DataFrame, MultiIndex, Series
-from pandas.core import common as com
-import pandas.util.testing as tm
-
+import pandas._testing as tm
+import pandas.core.common as com
 
 
 def test_cache_updating():

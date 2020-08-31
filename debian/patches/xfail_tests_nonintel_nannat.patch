@@ -10,6 +10,7 @@ On s390x it's the maximum _positive_ value (2**63-1 ns = year 2262)
 
 Author: Andreas Tille <tille@debian.org>, Graham Inggs <ginggs@debian.org>, Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Bug-Debian: https://bugs.debian.org/877754
+Forwarded: no
 
 --- a/pandas/core/dtypes/cast.py
 +++ b/pandas/core/dtypes/cast.py
@@ -24,16 +25,16 @@ Bug-Debian: https://bugs.debian.org/877754
  
  import numpy as np
  
-@@ -723,6 +727,8 @@ def astype_nansafe(arr, dtype, copy=True
-             "The '{dtype}' dtype has no unit. " "Please pass in '{dtype}[ns]' instead."
+@@ -891,6 +895,8 @@ def astype_nansafe(arr, dtype, copy: boo
+             f"'{dtype.name}[ns]' instead."
          )
-         raise ValueError(msg.format(dtype=dtype.name))
+         raise ValueError(msg)
 +    if warn_nannat_platform and (is_datetime64_dtype(dtype) or is_timedelta64_dtype(dtype)) and np.issubdtype(arr.dtype, np.floating) and not np.isfinite(arr).all():
 +        warnings.warn(warn_nannat_platform)
  
      if copy or is_object_dtype(arr) or is_object_dtype(dtype):
          # Explicit copy, or required since NumPy can't view from / to object.
-@@ -1040,6 +1046,8 @@ def maybe_cast_to_datetime(value, dtype,
+@@ -1263,6 +1269,8 @@ def maybe_cast_to_datetime(value, dtype,
                      value = iNaT
              else:
                  value = np.array(value, copy=False)
@@ -44,17 +45,17 @@ Bug-Debian: https://bugs.debian.org/877754
                  if value.ndim == 0:
 --- a/pandas/tests/dtypes/cast/test_downcast.py
 +++ b/pandas/tests/dtypes/cast/test_downcast.py
-@@ -5,6 +5,9 @@ from pandas.core.dtypes.cast import mayb
+@@ -7,6 +7,9 @@ from pandas.core.dtypes.cast import mayb
  
  from pandas import DatetimeIndex, Series, Timestamp
- from pandas.util import testing as tm
+ import pandas._testing as tm
 +import platform
 +import re
 +is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
  
  
  @pytest.mark.parametrize(
-@@ -68,6 +71,7 @@ def test_downcast_conversion_empty(any_r
+@@ -77,6 +80,7 @@ def test_downcast_conversion_empty(any_r
      tm.assert_numpy_array_equal(result, np.array([], dtype=np.int64))
  
  
@@ -62,21 +63,21 @@ Bug-Debian: https://bugs.debian.org/877754
  @pytest.mark.parametrize("klass", [np.datetime64, np.timedelta64])
  def test_datetime_likes_nan(klass):
      dtype = klass.__name__ + "[ns]"
---- a/pandas/tests/frame/test_indexing.py
-+++ b/pandas/tests/frame/test_indexing.py
-@@ -26,6 +26,9 @@ from pandas import (
- import pandas.core.common as com
- from pandas.core.indexing import IndexingError
- from pandas.tests.frame.common import TestData
+--- a/pandas/tests/frame/indexing/test_where.py
++++ b/pandas/tests/frame/indexing/test_where.py
+@@ -8,6 +8,9 @@ from pandas.core.dtypes.common import is
+ import pandas as pd
+ from pandas import DataFrame, DatetimeIndex, Series, Timestamp, date_range, isna
+ import pandas._testing as tm
 +import platform
 +import re
-+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
- import pandas.util.testing as tm
- from pandas.util.testing import (
-     assert_almost_equal,
-@@ -3049,6 +3052,7 @@ class TestDataFrameIndexing(TestData):
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ 
+ class TestDataFrameIndexingWhere:
+@@ -340,6 +343,7 @@ class TestDataFrameIndexingWhere:
          result = a.where(do_not_replace, b)
-         assert_frame_equal(result, expected)
+         tm.assert_frame_equal(result, expected)
  
 +    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)#not found
      def test_where_datetime(self):
@@ -84,17 +85,17 @@ Bug-Debian: https://bugs.debian.org/877754
          # GH 3311
 --- a/pandas/tests/frame/test_analytics.py
 +++ b/pandas/tests/frame/test_analytics.py
-@@ -5,6 +5,9 @@ import warnings
- 
- import numpy as np
- import pytest
+@@ -23,6 +23,9 @@ from pandas import (
+ import pandas._testing as tm
+ import pandas.core.algorithms as algorithms
+ import pandas.core.nanops as nanops
 +import platform
 +import re
-+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
  
- import pandas.util._test_decorators as td
  
-@@ -1368,6 +1371,7 @@ class TestDataFrameAnalytics:
+ def assert_stat_op_calc(
+@@ -790,6 +793,7 @@ class TestDataFrameAnalytics:
          expected = pd.Series(result, index=["A", "B"])
          tm.assert_series_equal(result, expected)
  
@@ -104,17 +105,17 @@ Bug-Debian: https://bugs.debian.org/877754
          idx = ["a", "b", "c"]
 --- a/pandas/tests/indexes/datetimes/test_datetime.py
 +++ b/pandas/tests/indexes/datetimes/test_datetime.py
-@@ -3,6 +3,9 @@ from datetime import date
- import dateutil
- import numpy as np
- import pytest
-+import platform
-+import re
-+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
- 
+@@ -7,6 +7,9 @@ import pytest
  import pandas as pd
  from pandas import DataFrame, DatetimeIndex, Index, Timestamp, date_range, offsets
-@@ -64,6 +67,7 @@ class TestDatetimeIndex:
+ import pandas._testing as tm
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ randn = np.random.randn
+ 
+@@ -63,6 +66,7 @@ class TestDatetimeIndex:
          idx2 = pd.date_range(end="2000", periods=periods, freq="S")
          assert len(idx2) == periods
  
@@ -124,17 +125,17 @@ Bug-Debian: https://bugs.debian.org/877754
  
 --- a/pandas/tests/reductions/test_reductions.py
 +++ b/pandas/tests/reductions/test_reductions.py
-@@ -2,6 +2,9 @@ from datetime import datetime, timedelta
- 
- import numpy as np
- import pytest
+@@ -23,6 +23,9 @@ from pandas import (
+ )
+ import pandas._testing as tm
+ from pandas.core import nanops
 +import platform
 +import re
-+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
  
- import pandas as pd
- from pandas import (
-@@ -1145,6 +1148,7 @@ class TestSeriesMode:
+ 
+ def get_objs():
+@@ -1142,6 +1145,7 @@ class TestSeriesMode:
          expected = Series(expected2, dtype=object)
          tm.assert_series_equal(result, expected)
  
@@ -144,17 +145,18 @@ Bug-Debian: https://bugs.debian.org/877754
          [
 --- a/pandas/tests/series/test_constructors.py
 +++ b/pandas/tests/series/test_constructors.py
-@@ -12,6 +12,9 @@ from pandas.compat import PY36
- 
- from pandas.core.dtypes.common import is_categorical_dtype, is_datetime64tz_dtype
- from pandas.core.dtypes.dtypes import CategoricalDtype, ordered_sentinel
+@@ -28,7 +28,9 @@ from pandas import (
+ )
+ import pandas._testing as tm
+ from pandas.core.arrays import IntervalArray, period_array
+-
 +import platform
 +import re
-+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
  
- import pandas as pd
- from pandas import (
-@@ -963,6 +966,7 @@ class TestSeriesConstructors:
+ class TestSeriesConstructors:
+     @pytest.mark.parametrize(
+@@ -960,6 +962,7 @@ class TestSeriesConstructors:
  
          tm.assert_series_equal(result, expected)
  
@@ -162,7 +164,7 @@ Bug-Debian: https://bugs.debian.org/877754
      @pytest.mark.parametrize("arg", ["2013-01-01 00:00:00", pd.NaT, np.nan, None])
      def test_constructor_with_naive_string_and_datetimetz_dtype(self, arg):
          # GH 17415: With naive string
-@@ -1246,6 +1250,7 @@ class TestSeriesConstructors:
+@@ -1272,6 +1275,7 @@ class TestSeriesConstructors:
          series[2] = val
          assert isna(series[2])
  
@@ -172,17 +174,17 @@ Bug-Debian: https://bugs.debian.org/877754
          result = Series([np.nan]).astype("M8[ns]")
 --- a/pandas/tests/test_algos.py
 +++ b/pandas/tests/test_algos.py
-@@ -30,6 +30,9 @@ import pandas.core.common as com
- from pandas.core.sorting import safe_sort
- import pandas.util.testing as tm
- from pandas.util.testing import assert_almost_equal
+@@ -35,6 +35,9 @@ from pandas.conftest import BYTES_DTYPES
+ import pandas.core.algorithms as algos
+ from pandas.core.arrays import DatetimeArray
+ import pandas.core.common as com
 +import platform
 +import re
-+is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
  
  
- class TestMatch:
-@@ -1035,6 +1038,7 @@ class TestValueCounts:
+ class TestFactorize:
+@@ -1046,6 +1049,7 @@ class TestValueCounts:
              expected = Series([2, 1, 1], index=[5.0, 10.3, np.nan])
              tm.assert_series_equal(result, expected)
  

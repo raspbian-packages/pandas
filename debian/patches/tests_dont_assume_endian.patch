@@ -6,41 +6,41 @@ the expected values explicitly specify little-endian
 Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Forwarded: no
 
---- a/pandas/tests/frame/test_convert_to.py
-+++ b/pandas/tests/frame/test_convert_to.py
-@@ -15,6 +15,7 @@ from pandas import (
- )
- from pandas.tests.frame.common import TestData
- import pandas.util.testing as tm
+--- a/pandas/tests/frame/methods/test_to_records.py
++++ b/pandas/tests/frame/methods/test_to_records.py
+@@ -5,6 +5,7 @@ import pytest
+ 
+ from pandas import CategoricalDtype, DataFrame, MultiIndex, Series, date_range
+ import pandas._testing as tm
 +from pandas.compat import is_platform_little_endian
  
  
- class TestDataFrameConvertTo(TestData):
-@@ -323,6 +324,7 @@ class TestDataFrameConvertTo(TestData):
+ class TestDataFrameToRecords:
+@@ -239,6 +240,7 @@ class TestDataFrameToRecords:
              ),
          ],
      )
 +    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
      def test_to_records_dtype(self, kwargs, expected):
-         # see gh-18146
+         # see GH#18146
          df = DataFrame({"A": [1, 2], "B": [0.2, 1.5], "C": ["a", "bc"]})
-@@ -396,11 +398,13 @@ class TestDataFrameConvertTo(TestData):
+@@ -312,11 +314,13 @@ class TestDataFrameToRecords:
              ),
          ],
      )
 +    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
      def test_to_records_dtype_mi(self, df, kwargs, expected):
-         # see gh-18146
+         # see GH#18146
          result = df.to_records(**kwargs)
          tm.assert_almost_equal(result, expected)
  
 +    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
      def test_to_records_dict_like(self):
-         # see gh-18146
+         # see GH#18146
          class DictLike:
---- a/pandas/tests/indexes/timedeltas/test_arithmetic.py
-+++ b/pandas/tests/indexes/timedeltas/test_arithmetic.py
-@@ -234,7 +234,7 @@ class TestTimedeltaIndexArithmetic:
+--- a/pandas/tests/scalar/timedelta/test_arithmetic.py
++++ b/pandas/tests/scalar/timedelta/test_arithmetic.py
+@@ -272,7 +272,7 @@ class TestTimedeltaAdditionSubtraction:
          tm.assert_numpy_array_equal(np.array([2]) * td, expected)
          msg = (
              "ufunc '?multiply'? cannot use operands with types"
@@ -60,3 +60,22 @@ Forwarded: no
      ],
      ids=["dt64-0", "dt64-1", "td64", "<U8"],
  )
+--- a/pandas/tests/arrays/test_boolean.py
++++ b/pandas/tests/arrays/test_boolean.py
+@@ -10,6 +10,7 @@ import pandas._testing as tm
+ from pandas.arrays import BooleanArray
+ from pandas.core.arrays.boolean import coerce_to_array
+ from pandas.tests.extension.base import BaseOpsUtil
++from pandas.compat import is_platform_little_endian
+ 
+ 
+ def make_data():
+@@ -295,7 +296,7 @@ def test_to_numpy(box):
+ 
+     arr = con([True, False, None], dtype="boolean")
+     result = arr.to_numpy(dtype="str")
+-    expected = np.array([True, False, pd.NA], dtype="<U5")
++    expected = np.array([True, False, pd.NA], dtype="<U5" if is_platform_little_endian() else ">U5")
+     tm.assert_numpy_array_equal(result, expected)
+ 
+     # no missing values -> can convert to bool, otherwise raises

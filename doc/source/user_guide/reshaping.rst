@@ -6,6 +6,8 @@
 Reshaping and pivot tables
 **************************
 
+.. _reshaping.reshaping:
+
 Reshaping by pivoting DataFrame objects
 ---------------------------------------
 
@@ -14,7 +16,7 @@ Reshaping by pivoting DataFrame objects
 .. ipython:: python
    :suppress:
 
-   import pandas.util.testing as tm
+   import pandas._testing as tm
    tm.N = 3
 
    def unpivot(frame):
@@ -38,7 +40,7 @@ For the curious here is how the above ``DataFrame`` was created:
 
 .. code-block:: python
 
-   import pandas.util.testing as tm
+   import pandas._testing as tm
 
    tm.N = 3
 
@@ -254,8 +256,6 @@ values will be set to ``NaN``.
    df3
    df3.unstack()
 
-.. versionadded:: 0.18.0
-
 Alternatively, unstack takes an optional ``fill_value`` argument, for specifying
 the value of missing data.
 
@@ -315,6 +315,8 @@ user-friendly.
   dft["id"] = dft.index
   dft
   pd.wide_to_long(dft, ["A", "B"], i="id", j="year")
+
+.. _reshaping.combine_with_groupby:
 
 Combining with stats and GroupBy
 --------------------------------
@@ -471,7 +473,7 @@ If ``crosstab`` receives only two Series, it will provide a frequency table.
                        'C': [1, 1, np.nan, 1, 1]})
     df
 
-    pd.crosstab(df.A, df.B)
+    pd.crosstab(df['A'], df['B'])
 
 Any input passed containing ``Categorical`` data will have **all** of its
 categories included in the cross-tabulation, even if the actual data does
@@ -486,20 +488,18 @@ not contain any instances of a particular category.
 Normalization
 ~~~~~~~~~~~~~
 
-.. versionadded:: 0.18.1
-
 Frequency tables can also be normalized to show percentages rather than counts
 using the ``normalize`` argument:
 
 .. ipython:: python
 
-   pd.crosstab(df.A, df.B, normalize=True)
+   pd.crosstab(df['A'], df['B'], normalize=True)
 
 ``normalize`` can also normalize values within each row or within each column:
 
 .. ipython:: python
 
-   pd.crosstab(df.A, df.B, normalize='columns')
+   pd.crosstab(df['A'], df['B'], normalize='columns')
 
 ``crosstab`` can also be passed a third ``Series`` and an aggregation function
 (``aggfunc``) that will be applied to the values of the third ``Series`` within
@@ -507,7 +507,7 @@ each group defined by the first two ``Series``:
 
 .. ipython:: python
 
-   pd.crosstab(df.A, df.B, values=df.C, aggfunc=np.sum)
+   pd.crosstab(df['A'], df['B'], values=df['C'], aggfunc=np.sum)
 
 Adding margins
 ~~~~~~~~~~~~~~
@@ -516,7 +516,7 @@ Finally, one can also add margins or normalize this output.
 
 .. ipython:: python
 
-   pd.crosstab(df.A, df.B, values=df.C, aggfunc=np.sum, normalize=True,
+   pd.crosstab(df['A'], df['B'], values=df['C'], aggfunc=np.sum, normalize=True,
                margins=True)
 
 .. _reshaping.tile:
@@ -542,8 +542,6 @@ Alternatively we can specify custom bin-edges:
 
    c = pd.cut(ages, bins=[0, 18, 35, 70])
    c
-
-.. versionadded:: 0.20.0
 
 If the ``bins`` keyword is an ``IntervalIndex``, then these will be
 used to bin the passed data.::
@@ -629,8 +627,6 @@ the prefix separator. You can specify ``prefix`` and ``prefix_sep`` in 3 ways:
     from_list
     from_dict = pd.get_dummies(df, prefix={'B': 'from_B', 'A': 'from_A'})
     from_dict
-
-.. versionadded:: 0.18.0
 
 Sometimes it will be useful to only keep k-1 levels of a categorical
 variable to avoid collinearity when feeding the result to statistical models.
@@ -734,14 +730,14 @@ Suppose we wanted to pivot ``df`` such that the ``col`` values are columns,
 ``row`` values are the index, and the mean of ``val0`` are the values? In
 particular, the resulting DataFrame should look like:
 
-.. note::
+.. code-block:: text
 
-   col   col0   col1   col2   col3  col4
-   row
-   row0  0.77  0.605    NaN  0.860  0.65
-   row2  0.13    NaN  0.395  0.500  0.25
-   row3   NaN  0.310    NaN  0.545   NaN
-   row4   NaN  0.100  0.395  0.760  0.24
+    col   col0   col1   col2   col3  col4
+    row
+    row0  0.77  0.605    NaN  0.860  0.65
+    row2  0.13    NaN  0.395  0.500  0.25
+    row3   NaN  0.310    NaN  0.545   NaN
+    row4   NaN  0.100  0.395  0.760  0.24
 
 This solution uses :func:`~pandas.pivot_table`. Also note that
 ``aggfunc='mean'`` is the default. It is included here to be explicit.

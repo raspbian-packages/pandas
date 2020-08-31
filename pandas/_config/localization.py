@@ -98,13 +98,7 @@ def _valid_locales(locales, normalize):
 
 
 def _default_locale_getter():
-    try:
-        raw_locales = subprocess.check_output(["locale -a"], shell=True)
-    except subprocess.CalledProcessError as e:
-        raise type(e)(
-            "{exception}, the 'locale -a' command cannot be found "
-            "on your system".format(exception=e)
-        )
+    raw_locales = subprocess.check_output(["locale -a"], shell=True)
     # skip locales without encoding, to avoid Python bug https://bugs.python.org/issue20088
     raw_locales = raw_locales.replace(b'\ndsb_DE\n',b'\n').replace(b'\nsah_RU\n',b'\n').replace(b'\ncrh_UA\n',b'\n')
     return raw_locales
@@ -141,7 +135,9 @@ def get_locales(prefix=None, normalize=True, locale_getter=_default_locale_gette
     """
     try:
         raw_locales = locale_getter()
-    except Exception:
+    except subprocess.CalledProcessError:
+        # Raised on (some? all?) Windows platforms because Note: "locale -a"
+        #  is not defined
         return None
 
     try:
@@ -151,7 +147,15 @@ def get_locales(prefix=None, normalize=True, locale_getter=_default_locale_gette
         raw_locales = raw_locales.split(b"\n")
         out_locales = []
         for x in raw_locales:
-            out_locales.append(str(x, encoding=options.display.encoding))
+            try:
+                out_locales.append(str(x, encoding=options.display.encoding))
+            except UnicodeError:
+                # 'locale -a' is used to populated 'raw_locales' and on
+                # Redhat 7 Linux (and maybe others) prints locale names
+                # using windows-1252 encoding.  Bug only triggered by
+                # a few special characters and when there is an
+                # extensive list of installed locales.
+                out_locales.append(str(x, encoding="windows-1252"))
 
     except TypeError:
         pass
@@ -159,6 +163,6 @@ def get_locales(prefix=None, normalize=True, locale_getter=_default_locale_gette
     if prefix is None:
         return _valid_locales(out_locales, normalize)
 
-    pattern = re.compile("{prefix}.*".format(prefix=prefix))
+    pattern = re.compile(f"{prefix}.*")
     found = pattern.findall("\n".join(out_locales))
     return _valid_locales(found, normalize)

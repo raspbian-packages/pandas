@@ -1,5 +1,7 @@
-Author: Andreas Tille <tille@debian.org>
 Description: Use Debian packaged mathjax
+
+Author: Andreas Tille <tille@debian.org>
+Forwarded: not-needed
 
 --- a/doc/source/conf.py
 +++ b/doc/source/conf.py

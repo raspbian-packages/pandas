@@ -1,33 +1,16 @@
 Description: Use Python 3 shebangs and subprocess calls
 
 Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
-Forwarded: no
+Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31147
 
---- a/pandas/tests/io/test_compression.py
-+++ b/pandas/tests/io/test_compression.py
-@@ -139,7 +139,7 @@ def test_with_missing_lzma():
-         import pandas
-         """
-     )
--    subprocess.check_output(["python", "-c", code])
-+    subprocess.check_output(["python3", "-c", code])
- 
- 
- def test_with_missing_lzma_runtime():
-@@ -156,4 +156,4 @@ def test_with_missing_lzma_runtime():
-             df.to_csv('foo.csv', compression='xz')
-         """
-     )
--    subprocess.check_output(["python", "-c", code])
-+    subprocess.check_output(["python3", "-c", code])
 --- a/ci/print_skipped.py
 +++ b/ci/print_skipped.py
 @@ -1,4 +1,4 @@
 -#!/usr/bin/env python
 +#!/usr/bin/env python3
- 
  import os
- import sys
+ import xml.etree.ElementTree as et
+ 
 --- a/doc/make.py
 +++ b/doc/make.py
 @@ -1,4 +1,4 @@
@@ -51,7 +34,7 @@ Forwarded: no
 +#!/usr/bin/env python3
  
  """
- self-contained to write legacy storage (pickle/msgpack) files
+ self-contained to write legacy storage pickle files
 --- a/pandas/tests/plotting/common.py
 +++ b/pandas/tests/plotting/common.py
 @@ -1,4 +1,4 @@
@@ -100,3 +83,19 @@ Forwarded: no
  """
  Convert the conda environment.yml to the pip requirements-dev.txt,
  or check that they have the same packages (for the CI)
+--- a/scripts/find_commits_touching_func.py
++++ b/scripts/find_commits_touching_func.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ # copyright 2013, y-p @ github
+ """
+ Search the git history for all commits touching a named method
+--- a/scripts/validate_string_concatenation.py
++++ b/scripts/validate_string_concatenation.py
+@@ -1,4 +1,4 @@
+-#!/usr/bin/env python
++#!/usr/bin/env python3
+ """
+ GH #30454
+ 

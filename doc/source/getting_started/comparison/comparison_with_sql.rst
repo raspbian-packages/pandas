@@ -25,7 +25,7 @@ structure.
 .. ipython:: python
 
     url = ('https://raw.github.com/pandas-dev'
-           '/pandas/master/pandas/tests/data/tips.csv')
+           '/pandas/master/pandas/tests/io/data/csv/tips.csv')
     tips = pd.read_csv(url)
     tips.head()
 
@@ -48,6 +48,20 @@ With pandas, column selection is done by passing a list of column names to your 
 
 Calling the DataFrame without the list of column names would display all columns (akin to SQL's
 ``*``).
+
+In SQL, you can add a calculated column:
+
+.. code-block:: sql
+
+    SELECT *, tip/total_bill as tip_rate
+    FROM tips
+    LIMIT 5;
+
+With pandas, you can use the :meth:`DataFrame.assign` method of a DataFrame to append a new column:
+
+.. ipython:: python
+
+    tips.assign(tip_rate=tips['tip'] / tips['total_bill']).head(5)
 
 WHERE
 -----

@@ -45,17 +45,15 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
 --- a/RELEASE.md
 +++ b/RELEASE.md
-@@ -2,5 +2,5 @@ Release Notes
- =============
+@@ -3,4 +3,4 @@ Release Notes
  
  The list of changes to Pandas between each release can be found
--[here](http://pandas.pydata.org/pandas-docs/stable/whatsnew.html). For full
+ [here](https://pandas.pydata.org/pandas-docs/stable/whatsnew/index.html). For full
 -details, see the commit logs at http://github.com/pandas-dev/pandas.
-+[here](https://pandas.pydata.org/pandas-docs/stable/whatsnew/index.html). For full
 +details, see the commit logs at https://github.com/pandas-dev/pandas.
 --- a/asv_bench/benchmarks/pandas_vb_common.py
 +++ b/asv_bench/benchmarks/pandas_vb_common.py
-@@ -48,7 +48,7 @@ except AttributeError:
+@@ -56,7 +56,7 @@ except AttributeError:
  def setup(*args, **kwargs):
      # This function just needs to be imported into each benchmark file to
      # set up the random seed before each function.
@@ -74,21 +72,20 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
 +[2]: https://www.princetonoptimization.com/
 --- a/doc/source/conf.py
 +++ b/doc/source/conf.py
-@@ -632,11 +632,11 @@ def linkcode_resolve(domain, info):
+@@ -632,10 +632,10 @@ def linkcode_resolve(domain, info):
      fn = os.path.relpath(fn, start=os.path.dirname(pandas.__file__))
  
      if "+" in pandas.__version__:
--        return "http://github.com/pandas-dev/pandas/blob/master/pandas/" "{}{}".format(
-+        return "https://github.com/pandas-dev/pandas/blob/master/pandas/" "{}{}".format(
-             fn, linespec
-         )
+-        return f"http://github.com/pandas-dev/pandas/blob/master/pandas/{fn}{linespec}"
++        return f"https://github.com/pandas-dev/pandas/blob/master/pandas/{fn}{linespec}"
      else:
--        return "http://github.com/pandas-dev/pandas/blob/" "v{}/pandas/{}{}".format(
-+        return "https://github.com/pandas-dev/pandas/blob/" "v{}/pandas/{}{}".format(
-             pandas.__version__, fn, linespec
+         return (
+-            f"http://github.com/pandas-dev/pandas/blob/"
++            f"https://github.com/pandas-dev/pandas/blob/"
+             f"v{pandas.__version__}/pandas/{fn}{linespec}"
          )
  
-@@ -703,7 +703,7 @@ def rstjinja(app, docname, source):
+@@ -702,7 +702,7 @@ def rstjinja(app, docname, source):
      """
      Render our pages as a jinja template for fancy templating goodness.
      """
@@ -99,7 +96,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          return
 --- a/doc/source/development/contributing.rst
 +++ b/doc/source/development/contributing.rst
-@@ -35,7 +35,7 @@ Bug reports and enhancement requests
+@@ -56,7 +56,7 @@ Bug reports and enhancement requests
  Bug reports are an important part of making *pandas* more stable. Having a complete bug report
  will allow others to reproduce the bug and provide insight into fixing. See
  `this stackoverflow article <https://stackoverflow.com/help/mcve>`_ and
@@ -108,7 +105,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  for tips on writing a good bug report.
  
  Trying the bug-producing code out on the *master* branch is often a worthwhile exercise
-@@ -46,7 +46,7 @@ Bug reports must:
+@@ -67,7 +67,7 @@ Bug reports must:
  
  #. Include a short, self-contained Python snippet reproducing the problem.
     You can format the code nicely by using `GitHub Flavored Markdown
@@ -117,7 +114,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
        ```python
        >>> from pandas import DataFrame
-@@ -83,19 +83,19 @@ feel free to ask for help.
+@@ -104,19 +104,19 @@ feel free to ask for help.
  
  The code is hosted on `GitHub <https://www.github.com/pandas-dev/pandas>`_. To
  contribute you will need to sign up for a `free GitHub account
@@ -142,7 +139,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  setting up your SSH key, and configuring git.  All these steps need to be completed before
  you can work seamlessly between your local repository and GitHub.
  
-@@ -204,7 +204,7 @@ To return to your root environment::
+@@ -249,7 +249,7 @@ To return to your root environment::
  
        conda deactivate
  
@@ -151,19 +148,16 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  .. _contributing.pip:
  
-@@ -280,9 +280,9 @@ About the *pandas* documentation
+@@ -354,7 +354,7 @@ About the *pandas* documentation
  --------------------------------
  
  The documentation is written in **reStructuredText**, which is almost like writing
--in plain English, and built using `Sphinx <http://sphinx.pocoo.org/>`__. The
+-in plain English, and built using `Sphinx <http://www.sphinx-doc.org/en/master/>`__. The
 +in plain English, and built using `Sphinx <https://www.sphinx-doc.org/en/master/>`__. The
  Sphinx Documentation has an excellent `introduction to reST
--<http://sphinx.pocoo.org/rest.html>`__. Review the Sphinx docs to perform more
-+<https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`__. Review the Sphinx docs to perform more
+ <https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html>`__. Review the Sphinx docs to perform more
  complex changes to the documentation as well.
- 
- Some other important things to know about the docs:
-@@ -305,7 +305,7 @@ Some other important things to know abou
+@@ -379,7 +379,7 @@ Some other important things to know abou
       contributing_docstring.rst
  
  * The tutorials make heavy use of the `ipython directive
@@ -172,7 +166,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
    This directive lets you put code in the documentation which will be run
    during the doc build. For example::
  
-@@ -351,7 +351,7 @@ Some other important things to know abou
+@@ -425,7 +425,7 @@ Some other important things to know abou
      The ``.rst`` files are used to automatically generate Markdown and HTML versions
      of the docs. For this reason, please do not edit ``CONTRIBUTING.md`` directly,
      but instead make any changes to ``doc/source/development/contributing.rst``. Then, to
@@ -181,7 +175,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
      with the following command::
  
        pandoc doc/source/development/contributing.rst -t markdown_github > CONTRIBUTING.md
-@@ -536,8 +536,8 @@ You can also run this command on an enti
+@@ -609,8 +609,8 @@ You can also run this command on an enti
     cpplint --extensions=c,h --headers=h --filter=-readability/casting,-runtime/int,-build/include_subdir --recursive modified-c-directory
  
  To make your commits compliant with this standard, you can install the
@@ -192,7 +186,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  run the following command::
  
      clang-format style=google -dump-config  > .clang-format
-@@ -565,7 +565,7 @@ fixes manually.
+@@ -638,7 +638,7 @@ fixes manually.
  Python (PEP8 / black)
  ~~~~~~~~~~~~~~~~~~~~~
  
@@ -201,7 +195,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  and uses `Black <https://black.readthedocs.io/en/stable/>`_ and
  `Flake8 <http://flake8.pycqa.org/en/latest/>`_ to ensure a consistent code
  format throughout the project.
-@@ -755,9 +755,9 @@ Adding tests is one of the most common r
+@@ -939,9 +939,9 @@ Adding tests is one of the most common r
  it is worth getting in the habit of writing tests ahead of time so this is never an issue.
  
  Like many packages, *pandas* uses `pytest
@@ -213,7 +207,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  .. note::
  
-@@ -805,7 +805,7 @@ Transitioning to ``pytest``
+@@ -992,7 +992,7 @@ Transitioning to ``pytest``
      class TestReallyCoolFeature:
          pass
  
@@ -222,14 +216,14 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  framework that will facilitate testing and developing. Thus, instead of writing test classes, we will write test functions like this:
  
  .. code-block:: python
-@@ -1038,7 +1038,7 @@ On Windows, one can type::
+@@ -1225,7 +1225,7 @@ On Windows, one can type::
  This can significantly reduce the time it takes to locally run tests before
  submitting a pull request.
  
 -For more, see the `pytest <http://docs.pytest.org/en/latest/>`_ documentation.
 +For more, see the `pytest <https://docs.pytest.org/en/latest/>`_ documentation.
  
-     .. versionadded:: 0.20.0
+ Furthermore one can run
  
 --- a/doc/source/development/contributing_docstring.rst
 +++ b/doc/source/development/contributing_docstring.rst
@@ -246,7 +240,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  :ref:`docstring.sharing`.
 --- a/doc/source/development/extending.rst
 +++ b/doc/source/development/extending.rst
-@@ -264,7 +264,7 @@ Subclassing pandas data structures
+@@ -306,7 +306,7 @@ Subclassing pandas data structures
  
    1. Extensible method chains with :ref:`pipe <basics.pipe>`
  
@@ -255,9 +249,29 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
    3. Extending by :ref:`registering an accessor <extending.register-accessors>`
  
+--- a/doc/source/development/maintaining.rst
++++ b/doc/source/development/maintaining.rst
+@@ -36,7 +36,7 @@ of what it means to be a maintainer.
+ * Provide experience / wisdom on API design questions to ensure consistency and maintainability
+ * Project organization (run / attend developer meetings, represent pandas)
+ 
+-http://matthewrocklin.com/blog/2019/05/18/maintainer may be interesting background
++https://matthewrocklin.com/blog/2019/05/18/maintainer may be interesting background
+ reading.
+ 
+ .. _maintaining.triage:
+@@ -78,7 +78,7 @@ Here's a typical workflow for triaging a
+ 4. **Is the issue minimal and reproducible**?
+ 
+    For bug reports, we ask that the reporter provide a minimal reproducible
+-   example. See http://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports
++   example. See https://matthewrocklin.com/blog/work/2018/02/28/minimal-bug-reports
+    for a good explanation. If the example is not reproducible, or if it's
+    *clearly* not minimal, feel free to ask the reporter if they can provide
+    and example or simplify the provided one. Do acknowledge that writing
 --- a/doc/source/ecosystem.rst
 +++ b/doc/source/ecosystem.rst
-@@ -267,8 +267,8 @@ dimensional arrays, rather than the tabu
+@@ -293,8 +293,8 @@ dimensional arrays, rather than the tabu
  Out-of-core
  -------------
  
@@ -343,7 +357,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  on-disk ``DataFrame``.
 --- a/doc/source/getting_started/dsintro.rst
 +++ b/doc/source/getting_started/dsintro.rst
-@@ -658,7 +658,7 @@ union of the column and row labels.
+@@ -610,7 +610,7 @@ union of the column and row labels.
  
  When doing an operation between DataFrame and Series, the default behavior is
  to align the Series **index** on the DataFrame **columns**, thus `broadcasting
@@ -352,8 +366,8 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  row-wise. For example:
  
  .. ipython:: python
---- a/doc/source/install.rst
-+++ b/doc/source/install.rst
+--- a/doc/source/getting_started/install.rst
++++ b/doc/source/getting_started/install.rst
 @@ -7,13 +7,13 @@ Installation
  ============
  
@@ -475,8 +489,8 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  the code base as of this writing. To run it on your machine to verify that
  everything is working (and that you have all of the dependencies, soft and hard,
  installed), make sure you have `pytest
--<http://docs.pytest.org/en/latest/>`__ >= 4.0.2 and `Hypothesis
-+<https://docs.pytest.org/en/latest/>`__ >= 4.0.2 and `Hypothesis
+-<http://docs.pytest.org/en/latest/>`__ >= 5.0.1 and `Hypothesis
++<https://docs.pytest.org/en/latest/>`__ >= 5.0.1 and `Hypothesis
  <https://hypothesis.readthedocs.io/>`__ >= 3.58, then run:
  
  ::
@@ -492,7 +506,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  ================================================================ ==========================
  
  .. _install.recommended_dependencies:
-@@ -299,5 +299,5 @@ top-level :func:`~pandas.read_html` func
+@@ -303,6 +303,6 @@ top-level :func:`~pandas.read_html` func
        usage of the above three libraries.
  
  .. _html5lib: https://github.com/html5lib/html5lib-python
@@ -500,6 +514,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
 -.. _lxml: http://lxml.de
 +.. _BeautifulSoup4: https://www.crummy.com/software/BeautifulSoup
 +.. _lxml: https://lxml.de
+ .. _tabulate: https://github.com/astanin/python-tabulate
 --- a/doc/source/getting_started/tutorials.rst
 +++ b/doc/source/getting_started/tutorials.rst
 @@ -23,12 +23,12 @@ Community guides
@@ -593,7 +608,16 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
      for more details.
  
  .. ipython:: python
-@@ -963,5 +963,5 @@ are scaled by debiasing factors
+@@ -346,7 +346,7 @@ if installed as an optional dependency.
+ ``engine='numba'`` and ``engine_kwargs`` arguments (``raw`` must also be set to ``True``).
+ Numba will be applied in potentially two routines:
+ 
+-1. If ``func`` is a standard Python function, the engine will `JIT <http://numba.pydata.org/numba-doc/latest/user/overview.html>`__
++1. If ``func`` is a standard Python function, the engine will `JIT <https://numba.pydata.org/numba-doc/latest/user/overview.html>`__
+ the passed function. ``func`` can also be a JITed function in which case the engine will not JIT the function again.
+ 2. The engine will JIT the for loop where the apply function is applied to each window.
+ 
+@@ -1063,5 +1063,5 @@ are scaled by debiasing factors
  
  (For :math:`w_i = 1`, this reduces to the usual :math:`N / (N - 1)` factor,
  with :math:`N = t + 1`.)
@@ -643,14 +667,12 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
 --- a/doc/source/user_guide/io.rst
 +++ b/doc/source/user_guide/io.rst
-@@ -4299,13 +4299,13 @@ control compression: ``complevel`` and `
+@@ -4260,11 +4260,11 @@ control compression: ``complevel`` and `
               - `zlib <https://zlib.net/>`_: The default compression library. A classic in terms of compression, achieves good compression rates but is somewhat slow.
               - `lzo <https://www.oberhumer.com/opensource/lzo/>`_: Fast compression and decompression.
               - `bzip2 <http://bzip.org/>`_: Good compression rates.
 -             - `blosc <http://www.blosc.org/>`_: Fast compression and decompression.
 +             - `blosc <https://www.blosc.org/>`_: Fast compression and decompression.
- 
-              .. versionadded:: 0.20.2
  
                  Support for alternative blosc compressors:
  
@@ -659,9 +681,18 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
                    default compressor for ``blosc``
                  - `blosc:lz4
                    <https://fastcompression.blogspot.dk/p/lz4.html>`_:
+@@ -5018,7 +5018,7 @@ Possible values are:
+   like *Presto* and *Redshift*, but has worse performance for
+   traditional SQL backend if the table contains many columns.
+   For more information check the SQLAlchemy `documention
+-  <http://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.Insert.values.params.*args>`__.
++  <https://docs.sqlalchemy.org/en/latest/core/dml.html#sqlalchemy.sql.expression.Insert.values.params.*args>`__.
+ - callable with signature ``(pd_table, conn, keys, data_iter)``:
+   This can be used to implement a more performant insertion method based on
+   specific backend dialect features.
 --- a/doc/source/user_guide/missing_data.rst
 +++ b/doc/source/user_guide/missing_data.rst
-@@ -466,9 +466,9 @@ at the new values.
+@@ -467,9 +467,9 @@ at the new values.
     interp_s = ser.reindex(new_index).interpolate(method='pchip')
     interp_s[49:51]
  
@@ -676,16 +707,16 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
 --- a/doc/source/user_guide/style.ipynb
 +++ b/doc/source/user_guide/style.ipynb
-@@ -10,7 +10,7 @@
+@@ -6,7 +6,7 @@
+    "source": [
+     "# Styling\n",
      "\n",
-     "<span style=\"color: red\">*Provisional: This is a new feature and still under development. We'll be adding features and possibly making breaking changes in future releases. We'd love to hear your feedback.*</span>\n",
-     "\n",
--    "This document is written as a Jupyter Notebook, and can be viewed or downloaded [here](http://nbviewer.ipython.org/github/pandas-dev/pandas/blob/master/doc/source/style.ipynb).\n",
+-    "This document is written as a Jupyter Notebook, and can be viewed or downloaded [here](http://nbviewer.ipython.org/github/pandas-dev/pandas/blob/master/doc/source/user_guide/style.ipynb).\n",
 +    "This document is written as a Jupyter Notebook, and can be viewed or downloaded [here](https://nbviewer.ipython.org/github/pandas-dev/pandas/blob/master/doc/source/user_guide/style.ipynb).\n",
      "\n",
      "You can apply **conditional formatting**, the visual styling of a DataFrame\n",
      "depending on the data within, by using the ``DataFrame.style`` property.\n",
-@@ -433,7 +433,7 @@
+@@ -462,7 +462,7 @@
     "cell_type": "markdown",
     "metadata": {},
     "source": [
@@ -714,7 +745,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  
  The existing interface ``DataFrame.boxplot`` to plot boxplot still can be used.
-@@ -595,7 +595,7 @@ bubble chart using a column of the ``Dat
+@@ -591,7 +591,7 @@ bubble chart using a column of the ``Dat
     plt.close('all')
  
  See the :meth:`scatter <matplotlib.axes.Axes.scatter>` method and the
@@ -723,7 +754,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  .. _visualization.hexbin:
  
-@@ -655,7 +655,7 @@ given by column ``z``. The bins are aggr
+@@ -651,7 +651,7 @@ given by column ``z``. The bins are aggr
     plt.close('all')
  
  See the :meth:`hexbin <matplotlib.axes.Axes.hexbin>` method and the
@@ -732,7 +763,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  .. _visualization.pie:
  
-@@ -753,7 +753,7 @@ If you pass values whose sum total is le
+@@ -749,7 +749,7 @@ If you pass values whose sum total is le
     @savefig series_pie_plot_semi.png
     series.plot.pie(figsize=(6, 6))
  
@@ -741,7 +772,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  .. ipython:: python
      :suppress:
-@@ -1259,7 +1259,7 @@ tick locator methods, it is useful to ca
+@@ -1268,7 +1268,7 @@ tick locator methods, it is useful to ca
  date tick adjustment from matplotlib for figures whose ticklabels overlap.
  
  See the :meth:`autofmt_xdate <matplotlib.figure.autofmt_xdate>` method and the
@@ -750,7 +781,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  Subplots
  ~~~~~~~~
-@@ -1468,7 +1468,7 @@ as seen in the example below.
+@@ -1477,7 +1477,7 @@ as seen in the example below.
  There also exists a helper function ``pandas.plotting.table``, which creates a
  table from :class:`DataFrame` or :class:`Series`, and adds it to an
  ``matplotlib.Axes`` instance. This function can accept keywords which the
@@ -759,7 +790,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  .. ipython:: python
  
-@@ -1486,7 +1486,7 @@ matplotlib `table <http://matplotlib.org
+@@ -1495,7 +1495,7 @@ matplotlib `table <http://matplotlib.org
  
     plt.close('all')
  
@@ -768,7 +799,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
  .. _visualization.colormaps:
  
-@@ -1496,7 +1496,7 @@ Colormaps
+@@ -1505,7 +1505,7 @@ Colormaps
  A potential issue when plotting a large number of columns is that it can be
  difficult to distinguish some series due to repetition in the default colors. To
  remedy this, ``DataFrame`` plotting supports the use of the ``colormap`` argument,
@@ -787,10 +818,10 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
 +see the commit logs at https://github.com/pandas-dev/pandas. For install and
  upgrade instructions, see :ref:`install`.
  
- Version 0.25
+ Version 1.0
 --- a/pandas/_libs/intervaltree.pxi.in
 +++ b/pandas/_libs/intervaltree.pxi.in
-@@ -21,7 +21,7 @@ cdef class IntervalTree(IntervalMixin):
+@@ -26,7 +26,7 @@ cdef class IntervalTree(IntervalMixin):
      """A centered interval tree
  
      Based off the algorithm described on Wikipedia:
@@ -867,8 +898,8 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  */
 --- a/pandas/_libs/src/ujson/python/objToJSON.c
 +++ b/pandas/_libs/src/ujson/python/objToJSON.c
-@@ -30,7 +30,7 @@ https://github.com/client9/stringencoder
- Copyright (c) 2007  Nick Galbreath -- nickg [at] modp [dot] com. All rights reserved.
+@@ -31,7 +31,7 @@ Copyright (c) 2007  Nick Galbreath -- ni
+ reserved.
  
  Numeric decoder derived from from TCL library
 -http://www.opensource.apple.com/source/tcl/tcl-14/tcl/license.terms
@@ -900,7 +931,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  */
 --- a/pandas/_libs/tslibs/c_timestamp.pyx
 +++ b/pandas/_libs/tslibs/c_timestamp.pyx
-@@ -111,7 +111,7 @@ cdef class _Timestamp(datetime):
+@@ -124,7 +124,7 @@ cdef class _Timestamp(datetime):
  
      def __reduce_ex__(self, protocol):
          # python 3.6 compat
@@ -911,7 +942,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
 --- a/pandas/_libs/tslibs/nattype.pyx
 +++ b/pandas/_libs/tslibs/nattype.pyx
-@@ -275,7 +275,7 @@ class NaTType(_NaT):
+@@ -328,7 +328,7 @@ class NaTType(_NaT):
  
      def __reduce_ex__(self, protocol):
          # python 3.6 compat
@@ -922,7 +953,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
 --- a/pandas/core/accessor.py
 +++ b/pandas/core/accessor.py
-@@ -174,7 +174,7 @@ class CachedAccessor:
+@@ -186,7 +186,7 @@ class CachedAccessor:
              return self._accessor
          accessor_obj = self._accessor(obj)
          # Replace the property with the accessor object. Inspired by:
@@ -933,7 +964,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          object.__setattr__(obj, self._name, accessor_obj)
 --- a/pandas/core/arrays/datetimes.py
 +++ b/pandas/core/arrays/datetimes.py
-@@ -1745,7 +1745,7 @@ default 'raise'
+@@ -1642,7 +1642,7 @@ default 'raise'
          """
          Convert Datetime Array to float64 ndarray of Julian Dates.
          0 Julian date is noon January 1, 4713 BC.
@@ -944,7 +975,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          # http://mysite.verizon.net/aesir_research/date/jdalg2.htm
 --- a/pandas/core/frame.py
 +++ b/pandas/core/frame.py
-@@ -1448,9 +1448,9 @@ class DataFrame(NDFrame):
+@@ -1488,9 +1488,9 @@ class DataFrame(NDFrame):
              when getting user credentials.
  
              .. _local webserver flow:
@@ -956,7 +987,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
              *New in version 0.2.0 of pandas-gbq*.
          table_schema : list of dicts, optional
-@@ -3343,7 +3343,7 @@ class DataFrame(NDFrame):
+@@ -3374,7 +3374,7 @@ class DataFrame(NDFrame):
          * To select strings you must use the ``object`` dtype, but note that
            this will return *all* object dtype columns
          * See the `numpy dtype hierarchy
@@ -965,7 +996,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          * To select datetimes, use ``np.datetime64``, ``'datetime'`` or
            ``'datetime64'``
          * To select timedeltas, use ``np.timedelta64``, ``'timedelta'`` or
-@@ -7601,7 +7601,7 @@ class DataFrame(NDFrame):
+@@ -7552,7 +7552,7 @@ Wild         185.0
          semi-definite. This could lead to estimate correlations having
          absolute values which are greater than one, and/or a non-invertible
          covariance matrix. See `Estimation of covariance matrices
@@ -976,7 +1007,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          Examples
 --- a/pandas/core/generic.py
 +++ b/pandas/core/generic.py
-@@ -2641,7 +2641,7 @@ class NDFrame(PandasObject, SelectionMix
+@@ -2592,7 +2592,7 @@ class NDFrame(PandasObject, SelectionMix
  
          References
          ----------
@@ -985,7 +1016,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          .. [2] https://www.python.org/dev/peps/pep-0249/
  
          Examples
-@@ -2845,7 +2845,7 @@ class NDFrame(PandasObject, SelectionMix
+@@ -2801,7 +2801,7 @@ class NDFrame(PandasObject, SelectionMix
  
          Notes
          -----
@@ -994,7 +1025,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
          Examples
          --------
-@@ -6878,9 +6878,9 @@ class NDFrame(PandasObject, SelectionMix
+@@ -6830,9 +6830,9 @@ class NDFrame(PandasObject, SelectionMix
          similar names. These use the actual numerical values of the index.
          For more information on their behavior, see the
          `SciPy documentation
@@ -1008,7 +1039,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          --------
 --- a/pandas/io/formats/format.py
 +++ b/pandas/io/formats/format.py
-@@ -363,7 +363,7 @@ class EastAsianTextAdjustment(TextAdjust
+@@ -410,7 +410,7 @@ class EastAsianTextAdjustment(TextAdjust
              self.ambiguous_width = 1
  
          # Definition of East Asian Width
@@ -1019,7 +1050,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
 --- a/pandas/io/gbq.py
 +++ b/pandas/io/gbq.py
-@@ -58,9 +58,9 @@ def read_gbq(
+@@ -64,9 +64,9 @@ def read_gbq(
          when getting user credentials.
  
          .. _local webserver flow:
@@ -1033,7 +1064,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
      dialect : str, default 'legacy'
 --- a/pandas/io/html.py
 +++ b/pandas/io/html.py
-@@ -983,7 +983,7 @@ def read_html(
+@@ -987,7 +987,7 @@ def read_html(
  
          is a valid attribute dictionary because the 'id' HTML tag attribute is
          a valid HTML attribute for *any* HTML tag as per `this document
@@ -1042,7 +1073,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
              attrs = {'asdf': 'table'}
  
-@@ -992,7 +992,7 @@ def read_html(
+@@ -996,7 +996,7 @@ def read_html(
          table attributes can be found `here
          <http://www.w3.org/TR/REC-html40/struct/tables.html#h-11.2>`__. A
          working draft of the HTML 5 spec can be found `here
@@ -1071,9 +1102,9 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
 -http://www.statsmodels.org/devel/
 +https://www.statsmodels.org/devel/
  """
- 
- from collections import OrderedDict
-@@ -248,7 +248,7 @@ stata_epoch = datetime.datetime(1960, 1,
+ from collections import abc
+ import datetime
+@@ -207,7 +207,7 @@ stata_epoch = datetime.datetime(1960, 1,
  
  def _stata_elapsed_date_to_datetime_vec(dates, fmt):
      """
@@ -1082,7 +1113,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
      Parameters
      ----------
-@@ -413,7 +413,7 @@ def _stata_elapsed_date_to_datetime_vec(
+@@ -372,7 +372,7 @@ def _stata_elapsed_date_to_datetime_vec(
  
  def _datetime_to_stata_elapsed_vec(dates, fmt):
      """
@@ -1091,7 +1122,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
      Parameters
      ----------
-@@ -788,7 +788,7 @@ class StataMissingValue:
+@@ -733,7 +733,7 @@ class StataMissingValue:
  
      Notes
      -----
@@ -1102,7 +1133,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
      101 ... 127 (for int8), 32741 ... 32767  (for int16) and 2147483621 ...
 --- a/pandas/plotting/_misc.py
 +++ b/pandas/plotting/_misc.py
-@@ -154,7 +154,7 @@ def radviz(frame, class_column, ax=None,
+@@ -149,7 +149,7 @@ def radviz(frame, class_column, ax=None,
      influence of all dimensions.
  
      More info available at the `original article
@@ -1124,7 +1155,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          expected_exception = AttributeError
 --- a/pandas/tests/indexes/test_numpy_compat.py
 +++ b/pandas/tests/indexes/test_numpy_compat.py
-@@ -44,7 +44,7 @@ from pandas.util import testing as tm
+@@ -46,7 +46,7 @@ from pandas.core.indexes.datetimelike im
  )
  def test_numpy_ufuncs_basic(indices, func):
      # test ufuncs of numpy, see:
@@ -1133,7 +1164,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  
      idx = indices
      if isinstance(idx, DatetimeIndexOpsMixin):
-@@ -75,7 +75,7 @@ def test_numpy_ufuncs_basic(indices, fun
+@@ -77,7 +77,7 @@ def test_numpy_ufuncs_basic(indices, fun
  )
  def test_numpy_ufuncs_other(indices, func):
      # test ufuncs of numpy, see:
@@ -1144,7 +1175,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
      if isinstance(idx, (DatetimeIndex, TimedeltaIndex)):
 --- a/pandas/tests/tseries/offsets/test_fiscal.py
 +++ b/pandas/tests/tseries/offsets/test_fiscal.py
-@@ -92,7 +92,7 @@ class TestFY5253LastOfMonth(Base):
+@@ -95,7 +95,7 @@ class TestFY5253LastOfMonth(Base):
  
      on_offset_cases = [
          # From Wikipedia (see:
@@ -1153,7 +1184,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          (offset_lom_sat_aug, datetime(2006, 8, 26), True),
          (offset_lom_sat_aug, datetime(2007, 8, 25), True),
          (offset_lom_sat_aug, datetime(2008, 8, 30), True),
-@@ -205,7 +205,7 @@ class TestFY5253NearestEndMonth(Base):
+@@ -208,7 +208,7 @@ class TestFY5253NearestEndMonth(Base):
  
      on_offset_cases = [
          #    From Wikipedia (see:
@@ -1164,7 +1195,7 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
          #    2007-09-01   2007 September 1
 --- a/pandas/tseries/offsets.py
 +++ b/pandas/tseries/offsets.py
-@@ -2049,7 +2049,7 @@ class FY5253(DateOffset):
+@@ -2062,7 +2062,7 @@ class FY5253(DateOffset):
      such as retail, manufacturing and parking industry.
  
      For more information see:
@@ -1172,8 +1203,8 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
 +    https://en.wikipedia.org/wiki/4-4-5_calendar
  
      The year may either:
-     - end on the last X day of the Y month.
-@@ -2252,7 +2252,7 @@ class FY5253Quarter(DateOffset):
+ 
+@@ -2270,7 +2270,7 @@ class FY5253Quarter(DateOffset):
      such as retail, manufacturing and parking industry.
  
      For more information see:
@@ -1181,10 +1212,10 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
 +    https://en.wikipedia.org/wiki/4-4-5_calendar
  
      The year may either:
-     - end on the last X day of the Y month.
+ 
 --- a/pandas/util/_decorators.py
 +++ b/pandas/util/_decorators.py
-@@ -241,7 +241,7 @@ def rewrite_axis_style_signature(
+@@ -248,7 +248,7 @@ def rewrite_axis_style_signature(
  
  
  # Substitution and Appender are derived from matplotlib.docstring (1.1.0)
@@ -1195,18 +1226,18 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
  class Substitution:
 --- a/setup.py
 +++ b/setup.py
-@@ -58,7 +58,7 @@ except ImportError:
+@@ -60,7 +60,7 @@ except ImportError:
  
  # The import of Extension must be after the import of Cython, otherwise
  # we do not get the appropriately patched class.
 -# See https://cython.readthedocs.io/en/latest/src/reference/compilation.html
 +# See https://cython.readthedocs.io/en/latest/src/userguide/source_files_and_compilation.html
- from distutils.extension import Extension  # noqa:E402
- from distutils.command.build import build  # noqa:E402
+ from distutils.extension import Extension  # noqa: E402 isort:skip
+ from distutils.command.build import build  # noqa: E402 isort:skip
  
 --- a/versioneer.py
 +++ b/versioneer.py
-@@ -1678,7 +1678,7 @@ def do_setup():
+@@ -1677,7 +1677,7 @@ def do_setup():
      except EnvironmentError:
          pass
      # That doesn't cover everything MANIFEST.in can do
@@ -1215,3 +1246,65 @@ Forwarded: accepted for 1.1 https://github.com/pandas-dev/pandas/pull/31145
      # it might give some false negatives. Appending redundant 'include'
      # lines is safe, though.
      if "versioneer.py" not in simple_includes:
+--- a/web/pandas/about/citing.md
++++ b/web/pandas/about/citing.md
+@@ -4,7 +4,7 @@
+ 
+ If you use _pandas_ for a scientific publication, we would appreciate citations to one of the following papers:
+ 
+-- [Data structures for statistical computing in python](http://conference.scipy.org/proceedings/scipy2010/pdfs/mckinney.pdf),
++- [Data structures for statistical computing in python](https://conference.scipy.org/proceedings/scipy2010/pdfs/mckinney.pdf),
+    McKinney, Proceedings of the 9th Python in Science Conference, Volume 445, 2010.
+ 
+         @inproceedings{mckinney2010data,
+--- a/web/pandas/about/index.md
++++ b/web/pandas/about/index.md
+@@ -2,8 +2,8 @@
+ 
+ ## History of development
+ 
+-In 2008, _pandas_ development began at [AQR Capital Management](http://www.aqr.com).
+-By the end of 2009 it had been [open sourced](http://en.wikipedia.org/wiki/Open_source),
++In 2008, _pandas_ development began at [AQR Capital Management](https://www.aqr.com).
++By the end of 2009 it had been [open sourced](https://en.wikipedia.org/wiki/Open_source),
+ and is actively supported today by a community of like-minded individuals around the world who
+ contribute their valuable time and energy to help make open source _pandas_
+ possible. Thank you to [all of our contributors](team.html).
+--- a/web/pandas/community/coc.md
++++ b/web/pandas/community/coc.md
+@@ -54,10 +54,10 @@ incident.
+ 
+ This Code of Conduct is adapted from the [Contributor Covenant][homepage],
+ version 1.3.0, available at
+-[http://contributor-covenant.org/version/1/3/0/][version],
++[https://www.contributor-covenant.org/version/1/3/0/][version],
+ and the [Swift Code of Conduct][swift].
+ 
+-[homepage]: http://contributor-covenant.org
+-[version]: http://contributor-covenant.org/version/1/3/0/
++[homepage]: https://www.contributor-covenant.org
++[version]: https://www.contributor-covenant.org/version/1/3/0/
+ [swift]: https://swift.org/community/#code-of-conduct
+ 
+--- a/web/pandas/community/ecosystem.md
++++ b/web/pandas/community/ecosystem.md
+@@ -264,7 +264,7 @@ which pandas excels.
+ 
+ ## Out-of-core
+ 
+-### [Blaze](http://blaze.pydata.org/)
++### [Blaze](https://blaze.pydata.org/)
+ 
+ Blaze provides a standard API for doing computations with various
+ in-memory and on-disk backends: NumPy, Pandas, SQLAlchemy, MongoDB,
+--- a/web/pandas/index.html
++++ b/web/pandas/index.html
+@@ -7,7 +7,7 @@
+                     <h1>pandas</h1>
+                     <p>
+                         <strong>pandas</strong> is a fast, powerful, flexible and easy to use open source data analysis and manipulation tool,<br/>
+-                        built on top of the <a href="http://www.python.org">Python</a> programming language.
++                        built on top of the <a href="https://www.python.org">Python</a> programming language.
+                     </p>
+                     <p>
+                         <a class="btn btn-primary" href="{{ base_url }}/getting_started.html">Install pandas now!</a>

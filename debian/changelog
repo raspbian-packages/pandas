@@ -1,9 +1,38 @@
-pandas (0.25.3+dfsg2-5+rpi1) bullseye-staging; urgency=medium
+pandas (1.0.5+dfsg-3+rpi1) bullseye-staging; urgency=medium
 
   [changes brought forward from 0.25.3+dfsg-9+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Thu, 09 Apr 2020 03:11:32 +0000]
   * Disable testsuite.
 
- -- Raspbian forward porter <root@raspbian.org>  Thu, 20 Aug 2020 17:49:19 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Mon, 31 Aug 2020 20:19:19 +0000
+
+pandas (1.0.5+dfsg-3) unstable; urgency=medium
+
+  * Remove pytest-asyncio test-depends.
+  * Remove numba test-depends on non-x86: at least s390x crashes.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Wed, 26 Aug 2020 22:34:50 +0100
+
+pandas (1.0.5+dfsg-2) unstable; urgency=medium
+
+  * Fix missing import and update numba submodule name in patches.
+  * Disable asyncio tests (workaround for #969050).
+  * Warn that numba may give wrong answers on non-x86,
+    and remove test-depends on mipsel.
+  * Skip a crashing test on s390x.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Wed, 26 Aug 2020 20:19:16 +0100
+
+pandas (1.0.5+dfsg-1) unstable; urgency=medium
+
+  * Upstream bugfix release.  Refresh patches, contributors_list.
+  * Fix invalid test xfails.
+  * Only Recommend numba on amd64, to reduce the risk of bugs.
+  * Don't test-depend on numba on ppc64el (where it crashes, #863511?)
+    or on ports architectures (where it mostly isn't available).
+  * Remove no longer needed test xfails/skips.
+  * Upload to unstable.  (Closes: #950430)
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Tue, 25 Aug 2020 20:07:50 +0100
 
 pandas (0.25.3+dfsg2-5) unstable; urgency=medium
 
@@ -34,11 +63,39 @@ pandas (0.25.3+dfsg2-3) unstable; urgency=medium
 
  -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sun, 28 Jun 2020 21:47:22 +0100
 
+pandas (1.0.4+dfsg-1) experimental; urgency=medium
+
+  * Upstream bugfix release.  (Closes: #962335)
+  * Refresh patches, update contributors_list.
+  * Fix broken tests.
+  * Tests: allow numba to raise an error on 32 bit systems.
+  * Don't test-depend on numba on armel (where it crashes,
+    possibly #863508) or ppc64/riscv64 (where it isn't available).
+  * Xfail some more HDF5 tests on big-endian architectures.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Tue, 09 Jun 2020 22:19:23 +0100
+
 pandas (0.25.3+dfsg2-2) unstable; urgency=medium
 
   * Tests: don't fail on jedi deprecation warnings.
 
  -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Thu, 07 May 2020 11:57:06 +0100
+
+pandas (1.0.3+dfsg2-1) experimental; urgency=medium
+
+  * Upstream bugfix release, update contributors_list.
+  * Merge packaging from unstable,
+    but omit no longer needed clipboard warn/xfail.
+  * Only show the NaN -> datetime warning from float dtypes
+    (to avoid an exception while trying to check).
+  * Recommend numba, as we now have a recent enough version.
+  * Re-add dask test-dependency.
+  * Clarify non-x86 warnings, remove no longer needed xfails / ignores.
+  * Clean up whitespace and patch names/descriptions.
+  * Remove patches no longer needed.
+  * Network tests: use more stable URLs.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Wed, 06 May 2020 17:07:44 +0100
 
 pandas (0.25.3+dfsg2-1) unstable; urgency=medium
 
@@ -92,6 +149,46 @@ pandas (0.25.3+dfsg-5) unstable; urgency=medium
     - Use https for links where available.
 
  -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Mon, 24 Feb 2020 22:38:26 +0000
+
+pandas (1.0.1+dfsg-1) experimental; urgency=medium
+
+  * Upstream bugfix release.
+  * Refresh patches.
+  * Update and sort d/copyright, update contributors_list.
+  * Re-enable checking the test suite.
+  * Declare transition Breaks (see #950430).
+  * Add jinja2 recommends/test-depends.
+  * Fix test_to_numpy failure on big-endian systems.
+  * Register documentation in doc-base.  (Closes: #879226)
+  * Remove no longer needed test xfails/skips,
+    and reorganize the remaining ones.
+  * Tell I/O tests where to find the source tree's test data
+    instead of skipping them.
+  * Enable multiarch.
+  * Temporarily drop dask test-dependency to avoid uninstallability.
+  * Add warnings for the known non-x86 breakages
+    (NaN -> datetime #877754, HDF and Stata I/O #877419).
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sun, 23 Feb 2020 17:13:08 +0000
+
+pandas (1.0.0+dfsg-1) experimental; urgency=medium
+
+  * New upstream release.
+  * Upload to experimental, as this is an API break (see #950430).
+  * Drop patches applied upstream, refresh others.
+  * Update and improve d/copyright, update contributors_list.
+  * Xfail a test that fails in the C locale.
+  * Update and organize depends/recommends.
+  * Docs: use a sphinx theme we have, fix spelling,
+    link to rather than embed remote resource,
+    use https links where available.
+  * Stop using deprecated envvar/tag names.
+  * Xfail rather than skip previously broken tests,
+    and put the condition in the patch not d/rules or d/tests.
+  * Remove no longer used patch-stamp.
+  * Temporarily ignore the test suite to get a first build.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sun, 02 Feb 2020 21:04:36 +0000
 
 pandas (0.25.3+dfsg-4) unstable; urgency=medium
 

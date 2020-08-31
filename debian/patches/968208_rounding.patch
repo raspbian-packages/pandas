@@ -4,8 +4,8 @@ Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Bug-Debian: https://bugs.debian.org/968208
 Forwarded: no
 
---- pandas-0.25.3+dfsg2.orig/pandas/tests/window/test_moments.py
-+++ pandas-0.25.3+dfsg2/pandas/tests/window/test_moments.py
+--- a/pandas/tests/window/moments/test_moments_rolling.py
++++ b/pandas/tests/window/moments/test_moments_rolling.py
 @@ -1,6 +1,9 @@
  import copy
  from datetime import datetime
@@ -16,7 +16,7 @@ Forwarded: no
  
  import numpy as np
  from numpy.random import randn
-@@ -606,7 +609,9 @@ class TestMoments(Base):
+@@ -637,7 +640,9 @@ class TestMoments(Base):
          if np.isnan(q1):
              assert np.isnan(q2)
          else:

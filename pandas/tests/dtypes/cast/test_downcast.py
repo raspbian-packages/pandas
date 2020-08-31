@@ -1,10 +1,12 @@
+import decimal
+
 import numpy as np
 import pytest
 
 from pandas.core.dtypes.cast import maybe_downcast_to_dtype
 
 from pandas import DatetimeIndex, Series, Timestamp
-from pandas.util import testing as tm
+import pandas._testing as tm
 import platform
 import re
 is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
@@ -27,6 +29,13 @@ is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
             np.array([8.0, 8.0, 8.0, 8.0, 9.0000000000005]),
             "infer",
             np.array([8, 8, 8, 8, 9], dtype=np.int64),
+        ),
+        (
+            # This is a judgement call, but we do _not_ downcast Decimal
+            #  objects
+            np.array([decimal.Decimal(0.0)]),
+            "int64",
+            np.array([decimal.Decimal(0.0)]),
         ),
     ],
 )

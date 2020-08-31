@@ -6,6 +6,7 @@ Give a clearer error and xfail the tests.
 
 Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Bug: https://github.com/pandas-dev/pandas/issues/32289
+Bug-Debian: https://bugs.debian.org/963817
 Forwarded: no
 
 --- pandas-1.0.4+dfsg.orig/pandas/core/internals/construction.py
@@ -21,10 +22,11 @@ Forwarded: no
  
 --- pandas-1.0.4+dfsg.orig/pandas/tests/frame/test_constructors.py
 +++ pandas-1.0.4+dfsg/pandas/tests/frame/test_constructors.py
-@@ -145,6 +145,7 @@ class TestDataFrameConstructors:
+@@ -145,7 +145,7 @@ class TestDataFrameConstructors:
          assert df.loc[1, 0] is None
          assert df.loc[0, 1] == "2"
  
+-    @pytest.mark.xfail(_is_numpy_dev, reason="Interprets list of frame as 3D")
 +    @pytest.mark.xfail(condition=True,strict=False,raises=ValueError, reason="Interprets list of frame as 3D, https://github.com/pandas-dev/pandas/issues/32289")
      def test_constructor_list_frames(self):
          # see gh-3243
@@ -38,10 +40,11 @@ Forwarded: no
              DataFrame(np.zeros((3, 3, 3)), columns=["A", "B", "C"], index=[1])
  
          # wrong size axis labels
-@@ -498,6 +498,7 @@ class TestDataFrameConstructors:
+@@ -498,7 +498,7 @@ class TestDataFrameConstructors:
          with pytest.raises(ValueError, match=msg):
              DataFrame({"a": False, "b": True})
  
+-    @pytest.mark.xfail(_is_numpy_dev, reason="Interprets embedded frame as 3D")
 +    @pytest.mark.xfail(condition=True,strict=False,raises=ValueError, reason="Interprets embedded frame as 3D, https://github.com/pandas-dev/pandas/issues/32289")
      def test_constructor_with_embedded_frames(self):
  

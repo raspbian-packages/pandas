@@ -1,5 +1,6 @@
-import pandas as pd
 import numpy as np
+
+import pandas as pd
 
 
 class Methods:
@@ -19,6 +20,28 @@ class Methods:
 
     def time_rolling(self, constructor, window, dtype, method):
         getattr(self.roll, method)()
+
+    def peakmem_rolling(self, constructor, window, dtype, method):
+        getattr(self.roll, method)()
+
+
+class Apply:
+    params = (
+        ["DataFrame", "Series"],
+        [3, 300],
+        ["int", "float"],
+        [sum, np.sum, lambda x: np.sum(x) + 5],
+        [True, False],
+    )
+    param_names = ["constructor", "window", "dtype", "function", "raw"]
+
+    def setup(self, constructor, window, dtype, function, raw):
+        N = 10 ** 3
+        arr = (100 * np.random.random(N)).astype(dtype)
+        self.roll = getattr(pd, constructor)(arr).rolling(window)
+
+    def time_rolling(self, constructor, window, dtype, function, raw):
+        self.roll.apply(function, raw=raw)
 
 
 class ExpandingMethods:
@@ -106,19 +129,18 @@ class Quantile:
         self.roll.quantile(percentile, interpolation=interpolation)
 
 
-class PeakMemFixed:
-    def setup(self):
-        N = 10
-        arr = 100 * np.random.random(N)
-        self.roll = pd.Series(arr).rolling(10)
+class PeakMemFixedWindowMinMax:
 
-    def peakmem_fixed(self):
-        # GH 25926
-        # This is to detect memory leaks in rolling operations.
-        # To save time this is only ran on one method.
-        # 6000 iterations is enough for most types of leaks to be detected
-        for x in range(6000):
-            self.roll.max()
+    params = ["min", "max"]
+
+    def setup(self, operation):
+        N = int(1e6)
+        arr = np.random.random(N)
+        self.roll = pd.Series(arr).rolling(2)
+
+    def peakmem_fixed(self, operation):
+        for x in range(5):
+            getattr(self.roll, operation)()
 
 
-from .pandas_vb_common import setup  # noqa: F401
+from .pandas_vb_common import setup  # noqa: F401 isort:skip
