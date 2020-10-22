@@ -961,7 +961,7 @@ def test_nonexistent_path(all_parsers):
     parser = all_parsers
     path = f"{tm.rands(10)}.csv"
 
-    msg = r"\[Errno 2\]"
+    msg = r"\[Errno 2\]|\[Errno [0-9]+\] No such file or directory"
     with pytest.raises(FileNotFoundError, match=msg) as e:
         parser.read_csv(path)
     assert path == e.value.filename
