@@ -14,6 +14,8 @@ def test_rolling_apply_invalid_raw(bad_raw):
         Series(range(3)).rolling(1).apply(len, raw=bad_raw)
 
 
+from pandas.compat import is_platform_little_endian
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 def test_rolling_apply_out_of_bounds(engine_and_raw):
     # gh-1850
     engine, raw = engine_and_raw
