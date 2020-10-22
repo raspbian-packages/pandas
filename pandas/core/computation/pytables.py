@@ -425,6 +425,10 @@ class PyTablesExprVisitor(BaseExprVisitor):
             value = value.value
         except AttributeError:
             pass
+        try:
+            slobj = slobj.value
+        except AttributeError:
+            pass
 
         try:
             return self.const_type(value[slobj], self.env)
