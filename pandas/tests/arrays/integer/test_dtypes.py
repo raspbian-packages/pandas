@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 from pandas.core.dtypes.generic import ABCIndexClass
+from pandas.compat import is_platform_little_endian
 
 import pandas as pd
 import pandas._testing as tm
@@ -275,7 +276,7 @@ def test_to_numpy_na_raises(dtype):
 
 def test_astype_str():
     a = pd.array([1, 2, None], dtype="Int64")
-    expected = np.array(["1", "2", "<NA>"], dtype="<U21")
+    expected = np.array(["1", "2", "<NA>"], dtype="<U21" if is_platform_little_endian() else ">U21")
 
     tm.assert_numpy_array_equal(a.astype(str), expected)
     tm.assert_numpy_array_equal(a.astype("str"), expected)
