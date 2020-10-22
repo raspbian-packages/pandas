@@ -411,13 +411,13 @@ latex_documents = [
 if pattern is None:
     intersphinx_mapping = {
         "dateutil": ("https://dateutil.readthedocs.io/en/latest/", None),
-        "matplotlib": ("https://matplotlib.org/", None),
-        "numpy": ("https://numpy.org/doc/stable/", None),
-        "pandas-gbq": ("https://pandas-gbq.readthedocs.io/en/latest/", None),
-        "py": ("https://pylib.readthedocs.io/en/latest/", None),
-        "python": ("https://docs.python.org/3/", None),
-        "scipy": ("https://docs.scipy.org/doc/scipy/reference/", None),
-        "statsmodels": ("https://www.statsmodels.org/devel/", None),
+    "matplotlib": ("https://matplotlib.org/", "/usr/share/doc/python-matplotlib-doc/html/objects.inv"),
+    "numpy": ("https://numpy.org/doc/stable/", "/usr/share/doc/python-numpy-doc/html/objects.inv"),
+    "pandas-gbq": ("https://pandas-gbq.readthedocs.io/en/latest/", None), # not in Debian
+    "py": ("https://pylib.readthedocs.io/en/latest/", None), # no -doc in Debian
+    "python": ("https://docs.python.org/3/", "/usr/share/doc/python3-doc/html/objects.inv"),
+    "scipy": ("https://docs.scipy.org/doc/scipy/reference/", ("/usr/share/doc/python-scipy-doc/html/objects.inv","/usr/share/doc/python-scipy/html/objects.inv")),
+    "statsmodels": ("https://www.statsmodels.org/devel/", "/usr/share/doc/python-statsmodels-doc/html/objects.inv"),
         "pyarrow": ("https://arrow.apache.org/docs/", None),
     }
 
