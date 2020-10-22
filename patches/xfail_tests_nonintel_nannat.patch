@@ -1,0 +1,194 @@
+Description: Xfail NaN <-> NaT tests on non-x86 and warn on cast
+
+pd.Series([np.nan]).astype('datetime64[ns]')[0] = pd.NaT on x86
+but 1970-01-01 on arm* because float NaN -> int is undefined:
+https://github.com/numpy/numpy/issues/8325
+https://github.com/pandas-dev/pandas/issues/17792
+https://github.com/pandas-dev/pandas/issues/26964
+
+On s390x it's the maximum _positive_ value (2**63-1 ns = year 2262)
+
+Author: Andreas Tille <tille@debian.org>, Graham Inggs <ginggs@debian.org>, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/877754
+Forwarded: no
+
+--- a/pandas/core/dtypes/cast.py
++++ b/pandas/core/dtypes/cast.py
+@@ -4,6 +4,10 @@ Routines for casting.
+ 
+ from datetime import date, datetime, timedelta
+ from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Type
++import warnings
++import platform
++import re
++warn_nannat_platform = "Non-x86 system detected, float -> datetime/timedelta may not handle NaNs correctly - https://bugs.debian.org/877754" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
+ 
+ import numpy as np
+ 
+@@ -984,6 +988,8 @@ def astype_nansafe(arr, dtype, copy: boo
+             f"'{dtype.name}[ns]' instead."
+         )
+         raise ValueError(msg)
++    if warn_nannat_platform and (is_datetime64_dtype(dtype) or is_timedelta64_dtype(dtype)) and np.issubdtype(arr.dtype, np.floating) and not np.isfinite(arr).all():
++        warnings.warn(warn_nannat_platform)
+ 
+     if copy or is_object_dtype(arr) or is_object_dtype(dtype):
+         # Explicit copy, or required since NumPy can't view from / to object.
+@@ -1360,6 +1366,8 @@ def maybe_cast_to_datetime(value, dtype,
+                     value = iNaT
+             elif not is_sparse(value):
+                 value = np.array(value, copy=False)
++                if warn_nannat_platform and np.issubdtype(value.dtype, np.floating) and not np.isfinite(value).all():
++                    warnings.warn(warn_nannat_platform)
+ 
+                 # have a scalar array-like (e.g. NaT)
+                 if value.ndim == 0:
+--- a/pandas/tests/dtypes/cast/test_downcast.py
++++ b/pandas/tests/dtypes/cast/test_downcast.py
+@@ -7,6 +7,9 @@ from pandas.core.dtypes.cast import mayb
+ 
+ from pandas import DatetimeIndex, Series, Timestamp
+ import pandas._testing as tm
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86',platform.uname()[4]))
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -77,6 +80,7 @@ def test_downcast_conversion_empty(any_r
+     tm.assert_numpy_array_equal(result, np.array([], dtype=np.int64))
+ 
+ 
++@pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
+ @pytest.mark.parametrize("klass", [np.datetime64, np.timedelta64])
+ def test_datetime_likes_nan(klass):
+     dtype = klass.__name__ + "[ns]"
+--- a/pandas/tests/frame/indexing/test_where.py
++++ b/pandas/tests/frame/indexing/test_where.py
+@@ -8,6 +8,9 @@ from pandas.core.dtypes.common import is
+ import pandas as pd
+ from pandas import DataFrame, DatetimeIndex, Series, Timestamp, date_range, isna
+ import pandas._testing as tm
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ 
+ @pytest.fixture(params=["default", "float_string", "mixed_float", "mixed_int"])
+@@ -352,6 +355,7 @@ class TestDataFrameIndexingWhere:
+         result = a.where(do_not_replace, b)
+         tm.assert_frame_equal(result, expected)
+ 
++    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)#not found
+     def test_where_datetime(self):
+ 
+         # GH 3311
+--- a/pandas/tests/frame/test_analytics.py
++++ b/pandas/tests/frame/test_analytics.py
+@@ -23,6 +23,9 @@ from pandas import (
+ import pandas._testing as tm
+ import pandas.core.algorithms as algorithms
+ import pandas.core.nanops as nanops
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ 
+ def assert_stat_op_calc(
+@@ -802,6 +805,7 @@ class TestDataFrameAnalytics:
+         expected = pd.Series(result, index=["A", "B"])
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
+     def test_sum_nanops_timedelta(self):
+         # prod isn't defined on timedeltas
+         idx = ["a", "b", "c"]
+--- a/pandas/tests/indexes/datetimes/test_datetime.py
++++ b/pandas/tests/indexes/datetimes/test_datetime.py
+@@ -7,6 +7,9 @@ import pytest
+ import pandas as pd
+ from pandas import DataFrame, DatetimeIndex, Index, Timestamp, date_range, offsets
+ import pandas._testing as tm
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ randn = np.random.randn
+ 
+@@ -95,6 +98,7 @@ class TestDatetimeIndex:
+         idx2 = pd.date_range(end="2000", periods=periods, freq="S")
+         assert len(idx2) == periods
+ 
++    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
+     def test_nat(self):
+         assert DatetimeIndex([np.nan])[0] is pd.NaT
+ 
+--- a/pandas/tests/reductions/test_reductions.py
++++ b/pandas/tests/reductions/test_reductions.py
+@@ -23,6 +23,9 @@ from pandas import (
+ )
+ import pandas._testing as tm
+ from pandas.core import nanops
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ 
+ def get_objs():
+@@ -1199,6 +1202,7 @@ class TestSeriesMode:
+         expected = Series(expected2, dtype=object)
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
+     @pytest.mark.parametrize(
+         "dropna, expected1, expected2",
+         [
+--- a/pandas/tests/series/test_constructors.py
++++ b/pandas/tests/series/test_constructors.py
+@@ -27,7 +27,9 @@ from pandas import (
+ )
+ import pandas._testing as tm
+ from pandas.core.arrays import IntervalArray, period_array
+-
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ class TestSeriesConstructors:
+     @pytest.mark.parametrize(
+@@ -959,6 +961,7 @@ class TestSeriesConstructors:
+ 
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
+     @pytest.mark.parametrize("arg", ["2013-01-01 00:00:00", pd.NaT, np.nan, None])
+     def test_constructor_with_naive_string_and_datetimetz_dtype(self, arg):
+         # GH 17415: With naive string
+@@ -1289,6 +1292,7 @@ class TestSeriesConstructors:
+         series[2] = val
+         assert isna(series[2])
+ 
++    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
+     def test_NaT_cast(self):
+         # GH10747
+         result = Series([np.nan]).astype("M8[ns]")
+--- a/pandas/tests/test_algos.py
++++ b/pandas/tests/test_algos.py
+@@ -34,6 +34,9 @@ import pandas._testing as tm
+ import pandas.core.algorithms as algos
+ from pandas.core.arrays import DatetimeArray
+ import pandas.core.common as com
++import platform
++import re
++is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
+ 
+ 
+ class TestFactorize:
+@@ -1128,6 +1131,7 @@ class TestValueCounts:
+             expected = Series([2, 1, 1], index=[5.0, 10.3, np.nan])
+             tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
+     def test_value_counts_normalized(self):
+         # GH12558
+         s = Series([1, 2, np.nan, np.nan, np.nan])
