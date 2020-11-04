@@ -152,7 +152,7 @@ bar2,12,13,14,15
 
         path = os.path.join(HERE, "data", "does_not_exist." + fn_ext)
         msg1 = fr"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
-        msg2 = fr"\[Errno 2\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
+        msg2 = fr"\[Errno [0-9]+\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
         msg3 = "Expected object or value"
         msg4 = "path_or_buf needs to be a string file path or file-like"
         msg5 = (
@@ -195,7 +195,7 @@ bar2,12,13,14,15
         monkeypatch.setattr(icom, "_expand_user", lambda x: os.path.join("foo", x))
 
         msg1 = fr"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
-        msg2 = fr"\[Errno 2\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
+        msg2 = fr"\[Errno [0-9]+\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
         msg3 = "Unexpected character found when decoding 'false'"
         msg4 = "path_or_buf needs to be a string file path or file-like"
         msg5 = (

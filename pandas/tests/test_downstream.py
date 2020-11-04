@@ -30,6 +30,11 @@ def df():
 
 
 def test_dask(df):
+    try:
+        from multiprocessing.pool import ThreadPool
+        ThreadPool()
+    except ImportError:
+        pytest.skip("multiprocessing not available")
 
     toolz = import_module("toolz")  # noqa
     dask = import_module("dask")  # noqa
