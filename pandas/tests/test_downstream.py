@@ -146,6 +146,7 @@ def test_pyarrow(df):
     tm.assert_frame_equal(result, df)
 
 
+@pytest.mark.skip(reason="Fails in an installed package as it can't find pandas")
 def test_missing_required_dependency():
     # GH 23868
     # To ensure proper isolation, we pass these flags
