@@ -3,6 +3,7 @@ import pytest
 
 import pandas as pd
 import pandas._testing as tm
+from pandas.compat import is_platform_little_endian
 
 
 def test_astype():
@@ -20,7 +21,7 @@ def test_astype():
     tm.assert_numpy_array_equal(result, expected)
 
     result = arr.astype("str")
-    expected = np.array(["True", "False", "<NA>"], dtype="<U5")
+    expected = np.array(["True", "False", "<NA>"], dtype="<U5" if is_platform_little_endian() else ">U5")
     tm.assert_numpy_array_equal(result, expected)
 
     # no missing values
