@@ -287,14 +287,6 @@ class TestChaining:
         df["column1"] = df["column1"] + "c"
         str(df)
 
-        # from SO:
-        # https://stackoverflow.com/questions/24054495/potential-bug-setting-value-for-undefined-column-using-iloc
-        df = DataFrame(np.arange(0, 9), columns=["count"])
-        df["group"] = "b"
-
-        with pytest.raises(com.SettingWithCopyError):
-            df.iloc[0:5]["group"] = "a"
-
         # Mixed type setting but same dtype & changing dtype
         df = DataFrame(
             dict(
