@@ -4,6 +4,10 @@ import numpy as np
 
 from pandas._typing import Scalar
 from pandas.compat._optional import import_optional_dependency
+import platform
+import re
+import warnings
+warn_numba_platform = "Non-x86 system detected, Numba may give wrong results or crash" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
 
 from pandas.core.util.numba_ import (
     check_kwargs_and_nopython,
@@ -49,6 +53,8 @@ def generate_numba_apply_func(
     numba_func = jit_user_function(func, nopython, nogil, parallel)
 
     numba = import_optional_dependency("numba")
+    if warn_numba_platform:
+        warnings.warn(warn_numba_platform)
 
     if parallel:
         loop_range = numba.prange
