@@ -6,9 +6,18 @@ import pandas.util._test_decorators as td
 from pandas import Series, option_context
 import pandas._testing as tm
 from pandas.core.util.numba_ import NUMBA_FUNC_CACHE
+from pandas.compat import is_platform_32bit, is_platform_little_endian
+import platform
+import sys
+try:
+    from numba.core.errors import UnsupportedParforsError
+except ImportError:
+    UnsupportedParforsError = ImportError
 
 
 @td.skip_if_no("numba", "0.46.0")
+@pytest.mark.xfail(condition=is_platform_32bit(), raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 @pytest.mark.filterwarnings("ignore:\\nThe keyword argument")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 class TestApply:
@@ -37,6 +46,7 @@ class TestApply:
         )
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition='mips' in platform.uname()[4].lower() and sys.maxsize<2**33, reason="Numba may give wrong answers on mipsel", strict=False)
     @pytest.mark.parametrize("jit", [True, False])
     def test_cache(self, jit, nogil, parallel, nopython):
         # Test that the functions are cached correctly if we switch functions
@@ -78,6 +88,7 @@ class TestApply:
 
 
 @td.skip_if_no("numba", "0.46.0")
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 def test_use_global_config():
     def f(x):
         return np.mean(x) + 2

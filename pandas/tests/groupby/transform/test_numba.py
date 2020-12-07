@@ -6,6 +6,7 @@ import pandas.util._test_decorators as td
 from pandas import DataFrame, option_context
 import pandas._testing as tm
 from pandas.core.util.numba_ import NUMBA_FUNC_CACHE
+from pandas.compat import is_platform_little_endian
 
 
 @td.skip_if_no("numba", "0.46.0")
@@ -41,6 +42,7 @@ def test_check_nopython_kwargs():
 
 
 @td.skip_if_no("numba", "0.46.0")
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 @pytest.mark.filterwarnings("ignore:\\nThe keyword argument")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 @pytest.mark.parametrize("jit", [True, False])
@@ -70,6 +72,7 @@ def test_numba_vs_cython(jit, pandas_obj, nogil, parallel, nopython):
 
 
 @td.skip_if_no("numba", "0.46.0")
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 @pytest.mark.filterwarnings("ignore:\\nThe keyword argument")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 @pytest.mark.parametrize("jit", [True, False])
@@ -115,6 +118,7 @@ def test_cache(jit, pandas_obj, nogil, parallel, nopython):
 
 
 @td.skip_if_no("numba", "0.46.0")
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 def test_use_global_config():
     def func_1(values, index):
         return values + 1
