@@ -47,4 +47,3 @@ Further information on any specific method can be obtained in the
     scale
     sparse
     gotchas
-    cookbook
