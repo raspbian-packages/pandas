@@ -8,6 +8,16 @@ including other versions of pandas.
 
 {{ header }}
 
+.. warning::
+
+   Previously, the default argument ``engine=None`` to ``pd.read_excel``
+   would result in using the `xlrd <https://xlrd.readthedocs.io/en/latest/>`_ engine in
+   many cases. The engine ``xlrd`` is no longer maintained, and may not work if ``defusedxml``
+   is installed.  Hence, from version 1.1.5 in Debian and 1.2.0 upstream,
+   if `openpyxl <https://pypi.org/project/openpyxl/>`_  is installed,
+   many of these  cases will now default to using the ``openpyxl`` engine. See the
+   :func:`read_excel` documentation for more details.
+
 .. ---------------------------------------------------------------------------
 
 .. _whatsnew_115.regressions:
