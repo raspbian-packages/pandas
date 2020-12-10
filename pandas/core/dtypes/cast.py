@@ -4,6 +4,10 @@ Routines for casting.
 
 from datetime import date, datetime, timedelta
 from typing import TYPE_CHECKING, Any, List, Optional, Tuple, Type
+import warnings
+import platform
+import re
+warn_nannat_platform = "Non-x86 system detected, float -> datetime/timedelta may not handle NaNs correctly - https://bugs.debian.org/877754" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
 
 import numpy as np
 
@@ -991,6 +995,8 @@ def astype_nansafe(arr, dtype, copy: bool = True, skipna: bool = False):
             f"'{dtype.name}[ns]' instead."
         )
         raise ValueError(msg)
+    if warn_nannat_platform and (is_datetime64_dtype(dtype) or is_timedelta64_dtype(dtype)) and np.issubdtype(arr.dtype, np.floating) and not np.isfinite(arr).all():
+        warnings.warn(warn_nannat_platform)
 
     if copy or is_object_dtype(arr) or is_object_dtype(dtype):
         # Explicit copy, or required since NumPy can't view from / to object.
@@ -1367,6 +1373,8 @@ def maybe_cast_to_datetime(value, dtype, errors: str = "raise"):
                     value = iNaT
             elif not is_sparse(value):
                 value = np.array(value, copy=False)
+                if warn_nannat_platform and np.issubdtype(value.dtype, np.floating) and not np.isfinite(value).all():
+                    warnings.warn(warn_nannat_platform)
 
                 # have a scalar array-like (e.g. NaT)
                 if value.ndim == 0:
