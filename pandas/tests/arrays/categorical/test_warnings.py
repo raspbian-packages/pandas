@@ -18,7 +18,7 @@ class TestCategoricalWarnings:
         # GH 31324 newer jedi version raises Deprecation warning
         import jedi
 
-        if jedi.__version__ < "0.16.0":
+        if jedi.__version__ < "0.16.0" or jedi.__version__ >= "0.18.0":
             warning = tm.assert_produces_warning(None)
         else:
             warning = tm.assert_produces_warning(

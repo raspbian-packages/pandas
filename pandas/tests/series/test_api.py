@@ -498,7 +498,7 @@ class TestSeriesMisc:
         # GH 33567, jedi version raises Deprecation warning in Ipython
         import jedi
 
-        if jedi.__version__ < "0.17.0":
+        if jedi.__version__ < "0.17.0" or jedi.__version__ >= "0.18.0":
             warning = tm.assert_produces_warning(None)
         else:
             warning = tm.assert_produces_warning(
