@@ -339,8 +339,9 @@ def main():
     # external libraries (namely Sphinx) to compile this module and resolve
     # the import of `python_path` correctly. The latter is used to resolve
     # the import within the module, injecting it into the global namespace
-    os.environ["PYTHONPATH"] = args.python_path
-    sys.path.insert(0, args.python_path)
+    # Debian: we set it outside
+    #os.environ["PYTHONPATH"] = args.python_path
+    #sys.path.insert(0, args.python_path)
     globals()["pandas"] = importlib.import_module("pandas")
 
     # Set the matplotlib backend to the non-interactive Agg backend for all
