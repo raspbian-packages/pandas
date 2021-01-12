@@ -2,6 +2,7 @@ from datetime import datetime
 
 import numpy as np
 import pytest
+import sys
 
 import pandas as pd
 from pandas import (
@@ -122,7 +123,7 @@ class TestDatetimeIndexOps:
                 "microsecond",
             ],
         ):
-            idx = pd.date_range(start="2013-04-01", periods=30, freq=freq, tz=tz)
+            idx = pd.date_range(start="2013-04-01", periods=10 if (sys.maxsize<2**33 and freq=='A') else 30, freq=freq, tz=tz)
             assert idx.resolution == expected
 
     def test_value_counts_unique(self, tz_naive_fixture):
