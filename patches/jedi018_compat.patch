@@ -1,0 +1,63 @@
+Description: Don't require external warnings that no longer exist
+
+(The cause is not actually known to be jedi 0.18, but it moved to a
+new upstream version since the last pandas and ipython didn't.)
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- pandas-1.1.5+dfsg.orig/pandas/tests/arrays/categorical/test_warnings.py
++++ pandas-1.1.5+dfsg/pandas/tests/arrays/categorical/test_warnings.py
+@@ -18,7 +18,7 @@ class TestCategoricalWarnings:
+         # GH 31324 newer jedi version raises Deprecation warning
+         import jedi
+ 
+-        if jedi.__version__ < "0.16.0":
++        if jedi.__version__ < "0.16.0" or jedi.__version__ >= "0.18.0":
+             warning = tm.assert_produces_warning(None)
+         else:
+             warning = tm.assert_produces_warning(
+--- pandas-1.1.5+dfsg.orig/pandas/tests/frame/test_api.py
++++ pandas-1.1.5+dfsg/pandas/tests/frame/test_api.py
+@@ -542,7 +542,7 @@ class TestDataFrameMisc:
+         # GH 33567, jedi version raises Deprecation warning in Ipython
+         import jedi
+ 
+-        if jedi.__version__ < "0.17.0":
++        if jedi.__version__ < "0.17.0" or jedi.__version__ >= "0.18.0":
+             warning = tm.assert_produces_warning(None)
+         else:
+             warning = tm.assert_produces_warning(
+--- pandas-1.1.5+dfsg.orig/pandas/tests/indexes/test_base.py
++++ pandas-1.1.5+dfsg/pandas/tests/indexes/test_base.py
+@@ -2206,7 +2206,7 @@ Index(['a', 'bb', 'ccc', 'a', 'bb', 'ccc
+         # GH 31324 newer jedi version raises Deprecation warning
+         import jedi
+ 
+-        if jedi.__version__ < "0.16.0":
++        if jedi.__version__ < "0.16.0" or jedi.__version__ >= "0.18.0":
+             warning = tm.assert_produces_warning(None)
+         else:
+             warning = tm.assert_produces_warning(
+--- pandas-1.1.5+dfsg.orig/pandas/tests/resample/test_resampler_grouper.py
++++ pandas-1.1.5+dfsg/pandas/tests/resample/test_resampler_grouper.py
+@@ -33,7 +33,7 @@ async def test_tab_complete_ipython6_war
+     # GH 33567, jedi version raises Deprecation warning in Ipython
+     import jedi
+ 
+-    if jedi.__version__ < "0.17.0":
++    if jedi.__version__ < "0.17.0" or jedi.__version__ >= "0.18.0":
+         warning = tm.assert_produces_warning(None)
+     else:
+         warning = tm.assert_produces_warning(DeprecationWarning, check_stacklevel=False)
+--- pandas-1.1.5+dfsg.orig/pandas/tests/series/test_api.py
++++ pandas-1.1.5+dfsg/pandas/tests/series/test_api.py
+@@ -498,7 +498,7 @@ class TestSeriesMisc:
+         # GH 33567, jedi version raises Deprecation warning in Ipython
+         import jedi
+ 
+-        if jedi.__version__ < "0.17.0":
++        if jedi.__version__ < "0.17.0" or jedi.__version__ >= "0.18.0":
+             warning = tm.assert_produces_warning(None)
+         else:
+             warning = tm.assert_produces_warning(

@@ -1,0 +1,46 @@
+Description: Stop using now-dead URL in tests/examples
+
+Origin: loosely based on upstream commit 68db2d26ddb5f95de4254d61b850d3dcaf6ce717
+Author: patrick "phofl", Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug: https://github.com/pandas-dev/pandas/issues/38988
+Bug-Debian: https://bugs.debian.org/979621
+Forwarded: no
+
+--- a/doc/source/user_guide/io.rst
++++ b/doc/source/user_guide/io.rst
+@@ -2377,14 +2377,10 @@ Read a URL with no options:
+ 
+ .. ipython:: python
+ 
+-   url = 'https://www.fdic.gov/bank/individual/failed/banklist.html'
++   url = 'https://raw.githubusercontent.com/pandas-dev/pandas/master/pandas/tests/io/data/html/banklist.html'
+    dfs = pd.read_html(url)
+    dfs
+ 
+-.. note::
+-
+-   The data from the above URL changes every Monday so the resulting data above
+-   and the data below may be slightly different.
+ 
+ Read in the content of the file from the above URL and pass it to ``read_html``
+ as a string:
+--- a/pandas/tests/io/test_html.py
++++ b/pandas/tests/io/test_html.py
+@@ -123,7 +123,7 @@ class TestReadHtml:
+ 
+     @tm.network
+     def test_banklist_url_positional_match(self):
+-        url = "http://www.fdic.gov/bank/individual/failed/banklist.html"
++        url = "https://raw.githubusercontent.com/pandas-dev/pandas/master/pandas/tests/io/data/html/banklist.html"
+         # Passing match argument as positional should cause a FutureWarning.
+         with tm.assert_produces_warning(FutureWarning):
+             df1 = self.read_html(
+@@ -136,7 +136,7 @@ class TestReadHtml:
+ 
+     @tm.network
+     def test_banklist_url(self):
+-        url = "http://www.fdic.gov/bank/individual/failed/banklist.html"
++        url = "https://raw.githubusercontent.com/pandas-dev/pandas/master/pandas/tests/io/data/html/banklist.html"
+         df1 = self.read_html(
+             url, match="First Federal Bank of Florida", attrs={"id": "table"}
+         )

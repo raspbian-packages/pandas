@@ -1,0 +1,55 @@
+Description: Use test URLs that are less likely to disappear
+
+Avoid 404 errors in stable when upstream reorganize the test data
+(happened to two of these in 0.25 -> 1.0).
+
+It is _not_ necessary to update the tag version on every package release,
+only if these tests fail because they expect moved/changed data.
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- a/pandas/tests/io/excel/test_readers.py
++++ b/pandas/tests/io/excel/test_readers.py
+@@ -636,7 +636,7 @@ class TestReaders:
+     @tm.network
+     def test_read_from_http_url(self, read_ext):
+         url = (
+-            "https://raw.githubusercontent.com/pandas-dev/pandas/master/"
++            "https://raw.githubusercontent.com/pandas-dev/pandas/v1.0.3/"
+             "pandas/tests/io/data/excel/test1" + read_ext
+         )
+         url_table = pd.read_excel(url)
+--- a/pandas/tests/io/parser/test_common.py
++++ b/pandas/tests/io/parser/test_common.py
+@@ -911,7 +911,7 @@ def test_url(all_parsers, csv_dir_path):
+     kwargs = dict(sep="\t")
+ 
+     url = (
+-        "https://raw.github.com/pandas-dev/pandas/master/"
++        "https://github.com/pandas-dev/pandas/raw/v1.0.3/"
+         "pandas/tests/io/parser/data/salaries.csv"
+     )
+     url_result = parser.read_csv(url, **kwargs)
+--- a/pandas/tests/io/parser/test_network.py
++++ b/pandas/tests/io/parser/test_network.py
+@@ -33,7 +33,7 @@ def check_compressed_urls(salaries_table
+     # test reading compressed urls with various engines and
+     # extension inference
+     base_url = (
+-        "https://github.com/pandas-dev/pandas/raw/master/"
++        "https://github.com/pandas-dev/pandas/raw/v1.0.3/"
+         "pandas/tests/io/parser/data/salaries.csv"
+     )
+ 
+--- a/pandas/tests/io/test_html.py
++++ b/pandas/tests/io/test_html.py
+@@ -147,7 +147,7 @@ class TestReadHtml:
+     @tm.network
+     def test_spam_url(self):
+         url = (
+-            "https://raw.githubusercontent.com/pandas-dev/pandas/master/"
++            "https://raw.githubusercontent.com/pandas-dev/pandas/v1.0.3/"
+             "pandas/tests/io/data/html/spam.html"
+         )
+         df1 = self.read_html(url, match=".*Water.*")
