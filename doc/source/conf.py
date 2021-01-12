@@ -68,6 +68,8 @@ extensions = [
     "contributors",  # custom pandas extension
 ]
 
+mathjax_path="MathJax.js"
+
 exclude_patterns = ["**.ipynb_checkpoints"]
 try:
     import nbconvert
