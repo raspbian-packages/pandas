@@ -3,7 +3,12 @@ Tests multithreading behaviour for reading and
 parsing files for each parser defined in parsers.py
 """
 from io import BytesIO
-from multiprocessing.pool import ThreadPool
+import pytest
+try:
+    from multiprocessing.pool import ThreadPool
+    ThreadPool()
+except ImportError:
+    pytest.skip("multiprocessing not available",allow_module_level=True)
 
 import numpy as np
 import pytest
