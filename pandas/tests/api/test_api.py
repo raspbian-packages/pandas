@@ -200,7 +200,7 @@ class TestPDApi(Base):
         "_testing",
         "_tslib",
         "_typing",
-        "_version",
+# not in Debian        "_version",
     ]
 
     def test_api(self):
