@@ -100,6 +100,9 @@ if TYPE_CHECKING:
         TimedeltaArray,
     )
 
+import platform
+import re
+warn_nannat_platform = "Non-x86 system detected, float -> datetime/timedelta may not handle NaNs correctly - https://bugs.debian.org/877754" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
 _int8_max = np.iinfo(np.int8).max
 _int16_max = np.iinfo(np.int16).max
 _int32_max = np.iinfo(np.int32).max
@@ -1195,6 +1198,8 @@ def astype_nansafe(
             f"'{dtype.name}[ns]' instead."
         )
         raise ValueError(msg)
+    if warn_nannat_platform and (is_datetime64_dtype(dtype) or is_timedelta64_dtype(dtype)) and not (is_datetime64_dtype(arr.dtype) or is_timedelta64_dtype(arr.dtype)) and np.issubdtype(arr.dtype, np.floating) and not np.isfinite(arr).all():
+        warnings.warn(warn_nannat_platform)
 
     if copy or is_object_dtype(arr.dtype) or is_object_dtype(dtype):
         # Explicit copy, or required since NumPy can't view from / to object.
@@ -1625,6 +1630,8 @@ def maybe_cast_to_datetime(
             dtype = ensure_nanosecond_dtype(dtype)
 
             value = np.array(value, copy=False)
+            if warn_nannat_platform and not (is_datetime64_dtype(value.dtype) or is_timedelta64_dtype(value.dtype)) and np.issubdtype(value.dtype, np.floating) and not np.isfinite(value).all():
+                warnings.warn(warn_nannat_platform)
 
             # we have an array of datetime or timedeltas & nulls
             if value.size or not is_dtype_equal(value.dtype, dtype):
