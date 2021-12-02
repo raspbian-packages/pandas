@@ -1,0 +1,16 @@
+Description: Accept changed exception message
+
+Origin: upstream 847e8ba1f89692d100a1087eec88afe36a98282b
+Author: Thomas Li
+
+--- a/pandas/tests/io/parser/test_quoting.py
++++ b/pandas/tests/io/parser/test_quoting.py
+@@ -22,7 +22,7 @@ import pandas._testing as tm
+             {"quotechar": None, "quoting": csv.QUOTE_MINIMAL},
+             "quotechar must be set if quoting enabled",
+         ),
+-        ({"quotechar": 2}, '"quotechar" must be string, not int'),
++        ({"quotechar": 2}, '"quotechar" must be string( or None)?, not int'),
+     ],
+ )
+ def test_bad_quote_char(all_parsers, kwargs, msg):

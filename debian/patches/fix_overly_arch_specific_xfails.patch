@@ -1,0 +1,120 @@
+Description: Fix arch-specific upstream xfails
+
+We test on more architectures, so upstream's xfails are not always
+correct everywhere.  On those known to fail:
+arm64 xfail -> all non-x86 xfail
+x86 or unconditional strict xfail -> unconditional nonstrict xfail
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug: https://github.com/pandas-dev/pandas/issues/38921, https://github.com/pandas-dev/pandas/issues/38798, https://github.com/pandas-dev/pandas/issues/41740, https://github.com/numpy/numpy/issues/19146
+Forwarded: no
+
+--- pandas-1.3.4+dfsg.orig/pandas/tests/window/test_rolling.py
++++ pandas-1.3.4+dfsg/pandas/tests/window/test_rolling.py
+@@ -10,6 +10,10 @@ from pandas.compat import (
+     is_platform_arm,
+     is_platform_mac,
+ )
++import platform
++import re
++is_platform_x86 = bool(re.match('i.?86|x86',platform.uname()[4]))
++
+ from pandas.errors import UnsupportedFunctionCall
+ 
+ from pandas import (
+@@ -1115,7 +1119,7 @@ def test_rolling_sem(frame_or_series):
+     tm.assert_series_equal(result, expected)
+ 
+ 
+-@pytest.mark.xfail(is_platform_arm() and not is_platform_mac(), reason="GH 38921")
++@pytest.mark.xfail(not is_platform_x86, strict=False, reason="GH 38921")
+ @pytest.mark.parametrize(
+     ("func", "third_value", "values"),
+     [
+--- a/pandas/tests/groupby/test_groupby.py
++++ b/pandas/tests/groupby/test_groupby.py
+@@ -2321,7 +2321,7 @@ def test_groupby_series_with_tuple_name():
+     tm.assert_series_equal(result, expected)
+ 
+ 
+-@pytest.mark.xfail(not IS64, reason="GH#38778: fail on 32-bit system")
++@pytest.mark.xfail(not IS64, reason="GH#38778: fail on 32-bit system", strict=False)
+ @pytest.mark.parametrize(
+     "func, values", [("sum", [97.0, 98.0]), ("mean", [24.25, 24.5])]
+ )
+@@ -2334,7 +2334,7 @@ def test_groupby_numerical_stability_sum_mean(func, values):
+     tm.assert_frame_equal(result, expected)
+ 
+ 
+-@pytest.mark.xfail(not IS64, reason="GH#38778: fail on 32-bit system")
++@pytest.mark.xfail(not IS64, reason="GH#38778: fail on 32-bit system", strict=False)
+ def test_groupby_numerical_stability_cumsum():
+     # GH#38934
+     data = [1e16, 1e16, 97, 98, -5e15, -5e15, -5e15, -5e15]
+--- a/pandas/tests/indexes/interval/test_astype.py
++++ b/pandas/tests/indexes/interval/test_astype.py
+@@ -20,6 +20,9 @@ from pandas import (
+     interval_range,
+ )
+ import pandas._testing as tm
++import platform
++import re
++is_platform_x86 = bool(re.match('i.?86|x86',platform.uname()[4]))
+ 
+ 
+ class AstypeTests:
+@@ -170,7 +173,7 @@ class TestFloatSubtype(AstypeTests):
+         )
+         tm.assert_index_equal(result, expected)
+ 
+-    @pytest.mark.xfail(is_platform_arm(), reason="GH 41740")
++    @pytest.mark.xfail(not is_platform_x86, reason="GH 41740", strict=False)
+     def test_subtype_integer_errors(self):
+         # float64 -> uint64 fails with negative values
+         index = interval_range(-10.0, 10.0)
+--- a/pandas/tests/indexes/numeric/test_numeric.py
++++ b/pandas/tests/indexes/numeric/test_numeric.py
+@@ -533,7 +533,7 @@ class TestUInt64Index(NumericInt):
+         tm.assert_index_equal(res, idx)
+ 
+     @pytest.mark.xfail(
+-        not is_platform_arm(),
++        strict=False,
+         reason="https://github.com/numpy/numpy/issues/19146",
+     )
+     def test_constructor_does_not_cast_to_float(self):
+--- a/pandas/tests/tools/test_to_numeric.py
++++ b/pandas/tests/tools/test_to_numeric.py
+@@ -752,7 +752,7 @@ def test_to_numeric_from_nullable_string(values, nullable_string_dtype, expected
+             "UInt64",
+             "signed",
+             "UInt64",
+-            marks=pytest.mark.xfail(not is_platform_arm(), reason="GH38798"),
++            marks=pytest.mark.xfail(strict=False, reason="GH38798"),
+         ),
+         ([1, 1], "Int64", "unsigned", "UInt8"),
+         ([1.0, 1.0], "Float32", "unsigned", "UInt8"),
+--- a/pandas/tests/io/parser/test_c_parser_only.py
++++ b/pandas/tests/io/parser/test_c_parser_only.py
+@@ -26,6 +26,9 @@ from pandas import (
+     concat,
+ )
+ import pandas._testing as tm
++import platform
++import re
++is_platform_x86 = bool(re.match('i.?86|x86',platform.uname()[4]))
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -673,9 +676,9 @@ def test_float_precision_options(c_parser_only):
+ 
+     df3 = parser.read_csv(StringIO(s), float_precision="legacy")
+ 
+-    if IS64:
++    if is_platform_x86 and IS64:
+         assert not df.iloc[0, 0] == df3.iloc[0, 0]
+-    else:
++    elif is_platform_x86:
+         assert df.iloc[0, 0] == df3.iloc[0, 0]
+ 
+     msg = "Unrecognized float_precision option: junk"

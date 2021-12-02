@@ -1,0 +1,22 @@
+Description: Warn that pandas is possibly broken on mips(64)(el)
+
+Tests disabled in d/rules
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- pandas-1.3.4+dfsg.orig/pandas/__init__.py
++++ pandas-1.3.4+dfsg/pandas/__init__.py
+@@ -2,6 +2,12 @@
+ 
+ __docformat__ = "restructuredtext"
+ 
++import platform
++import warnings
++if 'mips' in platform.uname()[4]:
++    warnings.warn("This appears to be a mips system, on which pandas is buggy (may give wrong answers or crash)")
++del platform, warnings
++
+ # Let users know if they're missing any of our hard dependencies
+ hard_dependencies = ("numpy", "pytz", "dateutil")
+ missing_dependencies = []
