@@ -1,0 +1,146 @@
+Description: Be compatible with matplotlib 3.5
+
+Origin: upstream 63e323356eab4fd91e453a9855a97cbc210362ef
+Author: Thomas Li, Simon Hawkins
+Forwarded: not-needed
+
+--- a/pandas/plotting/_matplotlib/compat.py
++++ b/pandas/plotting/_matplotlib/compat.py
+@@ -24,3 +24,4 @@ mpl_ge_3_1_0 = _mpl_version("3.1.0", ope
+ mpl_ge_3_2_0 = _mpl_version("3.2.0", operator.ge)
+ mpl_ge_3_3_0 = _mpl_version("3.3.0", operator.ge)
+ mpl_ge_3_4_0 = _mpl_version("3.4.0", operator.ge)
++mpl_ge_3_5_0 = _mpl_version("3.5.0", operator.ge)
+--- a/pandas/plotting/_matplotlib/converter.py
++++ b/pandas/plotting/_matplotlib/converter.py
+@@ -353,8 +353,8 @@ class PandasAutoDateLocator(dates.AutoDa
+             locator = MilliSecondLocator(self.tz)
+             locator.set_axis(self.axis)
+ 
+-            locator.set_view_interval(*self.axis.get_view_interval())
+-            locator.set_data_interval(*self.axis.get_data_interval())
++            locator.axis.set_view_interval(*self.axis.get_view_interval())
++            locator.axis.set_data_interval(*self.axis.get_data_interval())
+             return locator
+ 
+         return dates.AutoDateLocator.get_locator(self, dmin, dmax)
+--- a/pandas/plotting/_matplotlib/core.py
++++ b/pandas/plotting/_matplotlib/core.py
+@@ -983,6 +983,7 @@ class PlanePlot(MPLPlot):
+         # use the last one which contains the latest information
+         # about the ax
+         img = ax.collections[-1]
++        ax.grid(False)
+         cbar = self.fig.colorbar(img, ax=ax, **kwds)
+ 
+         if mpl_ge_3_0_0():
+--- a/pandas/tests/plotting/common.py
++++ b/pandas/tests/plotting/common.py
+@@ -45,6 +45,8 @@ class TestPlotBase:
+ 
+         from pandas.plotting._matplotlib import compat
+ 
++        self.compat = compat
++
+         mpl.rcdefaults()
+ 
+         self.start_date_to_int64 = 812419200000000000
+@@ -569,6 +571,12 @@ class TestPlotBase:
+         """
+         return [v[field] for v in rcParams["axes.prop_cycle"]]
+ 
++    def get_x_axis(self, ax):
++        return ax._shared_axes["x"] if self.compat.mpl_ge_3_5_0() else ax._shared_x_axes
++
++    def get_y_axis(self, ax):
++        return ax._shared_axes["y"] if self.compat.mpl_ge_3_5_0() else ax._shared_y_axes
++
+ 
+ def _check_plot_works(f, filterwarnings="always", default_axes=False, **kwargs):
+     """
+--- a/pandas/tests/plotting/frame/test_frame.py
++++ b/pandas/tests/plotting/frame/test_frame.py
+@@ -525,8 +525,8 @@ class TestDataFramePlots(TestPlotBase):
+         df.plot(ax=ax1, kind="area")
+         df.plot(ax=ax2, kind="area")
+ 
+-        assert ax1._shared_y_axes.joined(ax1, ax2)
+-        assert ax2._shared_y_axes.joined(ax1, ax2)
++        assert self.get_y_axis(ax1).joined(ax1, ax2)
++        assert self.get_y_axis(ax2).joined(ax1, ax2)
+ 
+     def test_bar_linewidth(self):
+         df = DataFrame(np.random.randn(5, 5))
+--- a/pandas/tests/plotting/test_common.py
++++ b/pandas/tests/plotting/test_common.py
+@@ -39,4 +39,6 @@ class TestCommon(TestPlotBase):
+         next(gen)
+         axes = fig.get_axes()
+         assert len(axes) == 1
+-        assert axes[0].get_geometry() == (2, 1, 2)
++        subplot_geometry = list(axes[0].get_subplotspec().get_geometry()[:-1])
++        subplot_geometry[-1] += 1
++        assert subplot_geometry == [2, 1, 2]
+--- a/pandas/tests/plotting/test_hist_method.py
++++ b/pandas/tests/plotting/test_hist_method.py
+@@ -728,35 +728,35 @@ class TestDataFrameGroupByPlots(TestPlot
+         ax1, ax2 = df.hist(column="height", by=df.gender, sharex=True)
+ 
+         # share x
+-        assert ax1._shared_x_axes.joined(ax1, ax2)
+-        assert ax2._shared_x_axes.joined(ax1, ax2)
++        assert self.get_x_axis(ax1).joined(ax1, ax2)
++        assert self.get_x_axis(ax2).joined(ax1, ax2)
+ 
+         # don't share y
+-        assert not ax1._shared_y_axes.joined(ax1, ax2)
+-        assert not ax2._shared_y_axes.joined(ax1, ax2)
++        assert not self.get_y_axis(ax1).joined(ax1, ax2)
++        assert not self.get_y_axis(ax2).joined(ax1, ax2)
+ 
+     def test_axis_share_y(self):
+         df = self.hist_df
+         ax1, ax2 = df.hist(column="height", by=df.gender, sharey=True)
+ 
+         # share y
+-        assert ax1._shared_y_axes.joined(ax1, ax2)
+-        assert ax2._shared_y_axes.joined(ax1, ax2)
++        assert self.get_y_axis(ax1).joined(ax1, ax2)
++        assert self.get_y_axis(ax2).joined(ax1, ax2)
+ 
+         # don't share x
+-        assert not ax1._shared_x_axes.joined(ax1, ax2)
+-        assert not ax2._shared_x_axes.joined(ax1, ax2)
++        assert not self.get_x_axis(ax1).joined(ax1, ax2)
++        assert not self.get_x_axis(ax2).joined(ax1, ax2)
+ 
+     def test_axis_share_xy(self):
+         df = self.hist_df
+         ax1, ax2 = df.hist(column="height", by=df.gender, sharex=True, sharey=True)
+ 
+         # share both x and y
+-        assert ax1._shared_x_axes.joined(ax1, ax2)
+-        assert ax2._shared_x_axes.joined(ax1, ax2)
++        assert self.get_x_axis(ax1).joined(ax1, ax2)
++        assert self.get_x_axis(ax2).joined(ax1, ax2)
+ 
+-        assert ax1._shared_y_axes.joined(ax1, ax2)
+-        assert ax2._shared_y_axes.joined(ax1, ax2)
++        assert self.get_y_axis(ax1).joined(ax1, ax2)
++        assert self.get_y_axis(ax2).joined(ax1, ax2)
+ 
+     @pytest.mark.parametrize(
+         "histtype, expected",
+--- a/pandas/tests/plotting/test_series.py
++++ b/pandas/tests/plotting/test_series.py
+@@ -154,8 +154,8 @@ class TestSeriesPlots(TestPlotBase):
+         abs(self.ts).plot(ax=ax1, kind="area")
+         abs(self.ts).plot(ax=ax2, kind="area")
+ 
+-        assert ax1._shared_y_axes.joined(ax1, ax2)
+-        assert ax2._shared_y_axes.joined(ax1, ax2)
++        assert self.get_y_axis(ax1).joined(ax1, ax2)
++        assert self.get_y_axis(ax2).joined(ax1, ax2)
+ 
+     def test_label(self):
+         s = Series([1, 2])
