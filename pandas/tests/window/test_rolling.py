@@ -10,6 +10,10 @@ from pandas.compat import (
     is_platform_arm,
     is_platform_mac,
 )
+import platform
+import re
+is_platform_x86 = bool(re.match('i.?86|x86',platform.uname()[4]))
+
 from pandas.errors import UnsupportedFunctionCall
 
 from pandas import (
@@ -1115,7 +1119,7 @@ def test_rolling_sem(frame_or_series):
     tm.assert_series_equal(result, expected)
 
 
-@pytest.mark.xfail(is_platform_arm() and not is_platform_mac(), reason="GH 38921")
+@pytest.mark.xfail(not is_platform_x86, strict=False, reason="GH 38921")
 @pytest.mark.parametrize(
     ("func", "third_value", "values"),
     [
