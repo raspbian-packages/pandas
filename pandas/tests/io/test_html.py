@@ -137,7 +137,7 @@ class TestReadHtml:
     @pytest.mark.xfail(reason="Html file was removed")
     @tm.network
     def test_banklist_url_positional_match(self):
-        url = "https://www.fdic.gov/bank/individual/failed/banklist.html"
+        url = "https://raw.githubusercontent.com/pandas-dev/pandas/master/pandas/tests/io/data/html/banklist.html"
         # Passing match argument as positional should cause a FutureWarning.
         with tm.assert_produces_warning(FutureWarning):
             df1 = self.read_html(
@@ -151,7 +151,7 @@ class TestReadHtml:
     @pytest.mark.xfail(reason="Html file was removed")
     @tm.network
     def test_banklist_url(self):
-        url = "https://www.fdic.gov/bank/individual/failed/banklist.html"
+        url = "https://raw.githubusercontent.com/pandas-dev/pandas/master/pandas/tests/io/data/html/banklist.html"
         df1 = self.read_html(
             url, match="First Federal Bank of Florida", attrs={"id": "table"}
         )
