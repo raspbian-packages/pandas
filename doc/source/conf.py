@@ -65,7 +65,7 @@ extensions = [
     "sphinx.ext.ifconfig",
     "sphinx.ext.linkcode",
     "nbsphinx",
-    "sphinx_panels",
+#    "sphinx_panels",
     "contributors",  # custom pandas extension
 ]
 
