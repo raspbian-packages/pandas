@@ -33,6 +33,11 @@ def df():
 # https://github.com/dask/dask/pull/7318
 @td.skip_array_manager_not_yet_implemented
 def test_dask(df):
+    try:
+        from multiprocessing.pool import ThreadPool
+        ThreadPool()
+    except ImportError:
+        pytest.skip("multiprocessing not available")
 
     toolz = import_module("toolz")  # noqa
     dask = import_module("dask")  # noqa
