@@ -132,6 +132,7 @@ class TestRegistration:
         # Test without registering first, no warning
         with ctx:
             ax.plot(s.index, s.values)
+        plt.clf()
 
         # Now test with registering
         register_matplotlib_converters()
