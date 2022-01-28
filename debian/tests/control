@@ -1,0 +1,51 @@
+# Check that the hard Depends are enough for import
+# cd to not-the-source-directory to get the installed pandas
+Test-Command: cd "$AUTOPKGTEST_TMP" && python3 -c "import pandas;a=pandas.DataFrame([[1,2],[3,4]])"
+Depends: python3-pandas
+Restrictions: allow-stderr
+
+# According to pandas/doc/source/install.rst, running the unit tests looks like:
+# `py.test-3 --skip-slow --skip-network /usr/lib/python3/dist-packages/pandas/ -v -rs`
+# Or simply `python3 -c "import pandas as pd; pd.test()"`, which doesn't require
+# us to specify the path (pandas.__path__) in command line.
+# See: pandas/util/_tester.py
+Tests: unittests3
+# xml test_wrong_url fails without ca-certificates
+Depends: ca-certificates,
+         locales-all,
+         python3-all,
+         python3-bottleneck (>= 1.2.1~),
+         python3-bs4,
+         python3-dask (>= 2.10.1~),
+         python3-dateutil (>= 2.7.3~),
+         python3-html5lib,
+         python3-hypothesis,
+         python3-jinja2,
+         python3-lxml,
+         python3-matplotlib [!hurd-i386],
+# armel, s390x numba crash, mipsel gives wrong answer, most ports don't have numba
+# not in Ubuntu         python3-numba (>= 0.46.0~) [amd64 arm64 armhf i386 mips64el mipsel ppc64el s390x],
+         python3-numexpr (>= 2.7~),
+         python3-numpy (>= 1:1.15~),
+         python3-odf,
+         python3-openpyxl,
+         python3-pandas,
+         python3-pytest (>= 6.0~),
+         python3-pytest-asyncio,
+         python3-pytest-forked,
+         python3-pytest-xdist (>= 1.21~),
+         python3-scipy,
+         python3-six,
+         python3-statsmodels,
+         python3-tables (>= 3.4.3~),
+         python3-tabulate (>= 0.8.3~),
+         python3-tk,
+         python3-tz,
+         python3-xarray,
+         python3-xlrd,
+         python3-xlsxwriter,
+         python3-xlwt,
+         xauth,
+         xvfb,
+         xclip,
+Restrictions: allow-stderr, needs-internet
