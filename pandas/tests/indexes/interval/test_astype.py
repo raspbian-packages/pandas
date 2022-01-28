@@ -20,6 +20,9 @@ from pandas import (
     interval_range,
 )
 import pandas._testing as tm
+import platform
+import re
+is_platform_x86 = bool(re.match('i.?86|x86',platform.uname()[4]))
 
 
 class AstypeTests:
@@ -170,7 +173,7 @@ class TestFloatSubtype(AstypeTests):
         )
         tm.assert_index_equal(result, expected)
 
-    @pytest.mark.xfail(is_platform_arm(), reason="GH 41740")
+    @pytest.mark.xfail(not is_platform_x86, reason="GH 41740", strict=False)
     def test_subtype_integer_errors(self):
         # float64 -> uint64 fails with negative values
         index = interval_range(-10.0, 10.0)
