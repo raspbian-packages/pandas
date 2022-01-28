@@ -519,7 +519,7 @@ def test_pickle_generalurl_read(monkeypatch, mockurl):
         tm.assert_frame_equal(df, result)
 
 
-@td.skip_if_no("fsspec")
+@td.skip_if_no("fsspec", "0.7.4")
 def test_pickle_fsspec_roundtrip():
     with tm.ensure_clean():
         mockurl = "memory://afile"
