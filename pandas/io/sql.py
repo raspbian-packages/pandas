@@ -1860,14 +1860,14 @@ def _get_valid_sqlite_name(name):
     # Replace all " with "".
     # Wrap the entire thing in double quotes.
 
-    uname = _get_unicode_name(name)
-    if not len(uname):
+    name = _get_unicode_name(name)
+    if not len(name):
         raise ValueError("Empty table or column name specified")
 
-    nul_index = uname.find("\x00")
-    if nul_index >= 0:
+    if '\0' in name:
         raise ValueError("SQLite identifier cannot contain NULs")
-    return '"' + uname.replace('"', '""') + '"'
+    name = name.replace('"', '""')
+    return '"' + name + '"'
 
 
 _SAFE_NAMES_WARNING = (
