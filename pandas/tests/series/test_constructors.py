@@ -47,6 +47,9 @@ from pandas.core.arrays import (
 )
 from pandas.core.internals.blocks import NumericBlock
 
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
 
 class TestSeriesConstructors:
     @pytest.mark.parametrize(
@@ -1057,6 +1060,7 @@ class TestSeriesConstructors:
 
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     @pytest.mark.parametrize("arg", ["2013-01-01 00:00:00", NaT, np.nan, None])
     def test_constructor_with_naive_string_and_datetimetz_dtype(self, arg):
         # GH 17415: With naive string
@@ -1434,6 +1438,7 @@ class TestSeriesConstructors:
         series[2] = val
         assert isna(series[2])
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     def test_NaT_cast(self):
         # GH10747
         result = Series([np.nan]).astype("M8[ns]")
