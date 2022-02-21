@@ -8,6 +8,7 @@ from typing import (
     cast,
 )
 import warnings
+import platform
 
 
 @contextmanager
@@ -148,6 +149,8 @@ def _assert_caught_no_extra_warnings(
             ):
                 # FIXME: kludge because pytest.filterwarnings does not
                 #  suppress these, xref GH#38630
+                continue
+            if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
                 continue
 
             extra_warnings.append(
