@@ -179,13 +179,7 @@ from pandas.util._tester import test
 import pandas.testing
 import pandas.arrays
 
-# use the closest tagged version if possible
-from pandas._version import get_versions
-
-v = get_versions()
-__version__ = v.get("closest-tag", v["version"])
-__git_version__ = v.get("full-revisionid")
-del get_versions, v
+from .__version import version as __version__
 
 
 # GH 27101
