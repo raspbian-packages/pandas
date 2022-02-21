@@ -1,0 +1,29 @@
+Description: Skip rather than fail tests if fsspec is too old
+
+(which it currently is in Debian)
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/io/test_fsspec.py
++++ b/pandas/tests/io/test_fsspec.py
+@@ -30,7 +30,7 @@ text = str(df1.to_csv(index=False)).enco
+ 
+ @pytest.fixture
+ def cleared_fs():
+-    fsspec = pytest.importorskip("fsspec")
++    fsspec = pytest.importorskip("fsspec", "0.7.4")
+ 
+     memfs = fsspec.filesystem("memory")
+     yield memfs
+--- a/pandas/tests/io/test_pickle.py
++++ b/pandas/tests/io/test_pickle.py
+@@ -519,7 +519,7 @@ def test_pickle_generalurl_read(monkeypa
+         tm.assert_frame_equal(df, result)
+ 
+ 
+-@td.skip_if_no("fsspec")
++@td.skip_if_no("fsspec", "0.7.4")
+ def test_pickle_fsspec_roundtrip():
+     with tm.ensure_clean():
+         mockurl = "memory://afile"
