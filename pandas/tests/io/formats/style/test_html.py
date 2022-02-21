@@ -36,6 +36,7 @@ def tpl_table():
     return env.get_template("html_table.tpl")
 
 
+@pytest.mark.xfail(reason="--deb-data-root-dir is expected to break this",strict=False)
 def test_html_template_extends_options():
     # make sure if templates are edited tests are updated as are setup fixtures
     # to understand the dependency
