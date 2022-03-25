@@ -1,0 +1,16 @@
+Description: Clean up so test_ts_plot_with_tz doesn't fail
+
+Author: Steffen Rehberg, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug: https://github.com/pandas-dev/pandas/issues/35080
+Forwarded: no
+
+--- a/pandas/tests/plotting/test_converter.py
++++ b/pandas/tests/plotting/test_converter.py
+@@ -132,6 +132,7 @@ class TestRegistration:
+         # Test without registering first, no warning
+         with ctx:
+             ax.plot(s.index, s.values)
++        plt.clf()
+ 
+         # Now test with registering
+         register_matplotlib_converters()
