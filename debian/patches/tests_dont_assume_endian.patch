@@ -1,0 +1,138 @@
+Description: Fix or skip tests that assume the wrong endianness
+
+This is a bug in the tests not pandas itself -
+the expected values explicitly specify little-endian
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/frame/methods/test_to_records.py
++++ b/pandas/tests/frame/methods/test_to_records.py
+@@ -12,6 +12,7 @@ from pandas import (
+     date_range,
+ )
+ import pandas._testing as tm
++from pandas.compat import is_platform_little_endian
+ 
+ 
+ class TestDataFrameToRecords:
+@@ -269,6 +270,7 @@ class TestDataFrameToRecords:
+             ),
+         ],
+     )
++    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
+     def test_to_records_dtype(self, kwargs, expected):
+         # see GH#18146
+         df = DataFrame({"A": [1, 2], "B": [0.2, 1.5], "C": ["a", "bc"]})
+@@ -342,11 +344,13 @@ class TestDataFrameToRecords:
+             ),
+         ],
+     )
++    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
+     def test_to_records_dtype_mi(self, df, kwargs, expected):
+         # see GH#18146
+         result = df.to_records(**kwargs)
+         tm.assert_almost_equal(result, expected)
+ 
++    @pytest.mark.xfail(condition=not is_platform_little_endian(),reason="expected values assume little-endian",strict=False)
+     def test_to_records_dict_like(self):
+         # see GH#18146
+         class DictLike:
+--- a/pandas/tests/scalar/timedelta/test_arithmetic.py
++++ b/pandas/tests/scalar/timedelta/test_arithmetic.py
+@@ -295,7 +295,7 @@ class TestTimedeltaAdditionSubtraction:
+         tm.assert_numpy_array_equal(np.array([2]) * td, expected)
+         msg = (
+             "ufunc '?multiply'? cannot use operands with types "
+-            r"dtype\('<m8\[ns\]'\) and dtype\('<m8\[ns\]'\)"
++            r"dtype\('[<>]m8\[ns\]'\) and dtype\('[<>]m8\[ns\]'\)"
+         )
+         with pytest.raises(TypeError, match=msg):
+             td * other
+--- a/pandas/tests/io/parser/test_c_parser_only.py
++++ b/pandas/tests/io/parser/test_c_parser_only.py
+@@ -141,7 +141,7 @@ nan 2
+             "the dtype timedelta64 is not supported for parsing",
+             {"dtype": {"A": "timedelta64", "B": "float64"}},
+         ),
+-        ("the dtype <U8 is not supported for parsing", {"dtype": {"A": "U8"}}),
++        ("the dtype [<>]U8 is not supported for parsing", dict(dtype={"A": "U8"})),
+     ],
+     ids=["dt64-0", "dt64-1", "td64", "<U8"],
+ )
+--- a/pandas/tests/arrays/boolean/test_construction.py
++++ b/pandas/tests/arrays/boolean/test_construction.py
+@@ -5,6 +5,7 @@ import pandas as pd
+ import pandas._testing as tm
+ from pandas.arrays import BooleanArray
+ from pandas.core.arrays.boolean import coerce_to_array
++from pandas.compat import is_platform_little_endian
+ 
+ 
+ def test_boolean_array_constructor():
+@@ -270,7 +271,7 @@ def test_to_numpy(box):
+ 
+     arr = con([True, False, None], dtype="boolean")
+     result = arr.to_numpy(dtype="str")
+-    expected = np.array([True, False, pd.NA], dtype="<U5")
++    expected = np.array([True, False, pd.NA], dtype="<U5" if is_platform_little_endian() else ">U5")
+     tm.assert_numpy_array_equal(result, expected)
+ 
+     # no missing values -> can convert to bool, otherwise raises
+--- a/pandas/tests/arrays/boolean/test_astype.py
++++ b/pandas/tests/arrays/boolean/test_astype.py
+@@ -3,6 +3,7 @@ import pytest
+ 
+ import pandas as pd
+ import pandas._testing as tm
++from pandas.compat import is_platform_little_endian
+ 
+ 
+ def test_astype():
+@@ -20,7 +21,7 @@ def test_astype():
+     tm.assert_numpy_array_equal(result, expected)
+ 
+     result = arr.astype("str")
+-    expected = np.array(["True", "False", "<NA>"], dtype="<U5")
++    expected = np.array(["True", "False", "<NA>"], dtype="<U5" if is_platform_little_endian() else ">U5")
+     tm.assert_numpy_array_equal(result, expected)
+ 
+     # no missing values
+--- a/pandas/tests/arrays/integer/test_dtypes.py
++++ b/pandas/tests/arrays/integer/test_dtypes.py
+@@ -2,6 +2,7 @@ import numpy as np
+ import pytest
+ 
+ from pandas.core.dtypes.generic import ABCIndex
++from pandas.compat import is_platform_little_endian
+ 
+ import pandas as pd
+ import pandas._testing as tm
+@@ -284,7 +285,7 @@ def test_to_numpy_na_raises(dtype):
+ 
+ def test_astype_str():
+     a = pd.array([1, 2, None], dtype="Int64")
+-    expected = np.array(["1", "2", "<NA>"], dtype="<U21")
++    expected = np.array(["1", "2", "<NA>"], dtype="<U21" if is_platform_little_endian() else ">U21")
+ 
+     tm.assert_numpy_array_equal(a.astype(str), expected)
+     tm.assert_numpy_array_equal(a.astype("str"), expected)
+--- a/pandas/tests/arrays/floating/test_to_numpy.py
++++ b/pandas/tests/arrays/floating/test_to_numpy.py
+@@ -4,6 +4,7 @@ import pytest
+ import pandas as pd
+ import pandas._testing as tm
+ from pandas.core.arrays import FloatingArray
++from pandas.compat import is_platform_little_endian
+ 
+ 
+ @pytest.mark.parametrize("box", [True, False], ids=["series", "array"])
+@@ -115,7 +116,7 @@ def test_to_numpy_string(box, dtype):
+     arr = con([0.0, 1.0, None], dtype="Float64")
+ 
+     result = arr.to_numpy(dtype="str")
+-    expected = np.array([0.0, 1.0, pd.NA], dtype="<U32")
++    expected = np.array([0.0, 1.0, pd.NA], dtype="<U32" if is_platform_little_endian() else ">U32")
+     tm.assert_numpy_array_equal(result, expected)
+ 
+ 
