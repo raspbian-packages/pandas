@@ -30,7 +30,7 @@ text = str(df1.to_csv(index=False)).encode()
 
 @pytest.fixture
 def cleared_fs():
-    fsspec = pytest.importorskip("fsspec")
+    fsspec = pytest.importorskip("fsspec", "0.7.4")
 
     memfs = fsspec.filesystem("memory")
     yield memfs
