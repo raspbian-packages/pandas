@@ -1,0 +1,15 @@
+Author: Andreas Tille <tille@debian.org>
+Last-Update: Wed, 10 Nov 2021 06:42:56 +0100
+Description: Sphinx panels is not packaged yet, so ignore it for the moment
+
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -65,7 +65,7 @@ extensions = [
+     "sphinx.ext.ifconfig",
+     "sphinx.ext.linkcode",
+     "nbsphinx",
+-    "sphinx_panels",
++#    "sphinx_panels",
+     "contributors",  # custom pandas extension
+ ]
+ 
