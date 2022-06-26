@@ -25,6 +25,9 @@ from pandas.errors import (
     OutOfBoundsTimedelta,
 )
 import pandas.util._test_decorators as td
+import platform
+import re
+is_platform_x86 = bool(re.match('i.?86|x86',platform.uname()[4]))
 
 from pandas.core.dtypes.common import is_datetime64_ns_dtype
 
@@ -1484,6 +1487,7 @@ class TestToDatetimeUnit:
         tm.assert_index_equal(result, expected)
 
     # TODO: this is moved from tests.series.test_timeseries, may be redundant
+    @pytest.mark.xfail(not is_platform_x86, strict=False, raises=OutOfBoundsDatetime, reason="fails on riscv64")
     def test_to_datetime_unit(self):
 
         epoch = 1370745748
