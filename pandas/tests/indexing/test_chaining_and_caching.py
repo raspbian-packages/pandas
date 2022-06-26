@@ -354,17 +354,6 @@ class TestChaining:
         str(df)
 
     @pytest.mark.arm_slow
-    def test_detect_chained_assignment_undefined_column(self):
-
-        # from SO:
-        # https://stackoverflow.com/questions/24054495/potential-bug-setting-value-for-undefined-column-using-iloc
-        df = DataFrame(np.arange(0, 9), columns=["count"])
-        df["group"] = "b"
-
-        with pytest.raises(com.SettingWithCopyError, match=msg):
-            df.iloc[0:5]["group"] = "a"
-
-    @pytest.mark.arm_slow
     def test_detect_chained_assignment_changing_dtype(self, using_array_manager):
 
         # Mixed type setting but same dtype & changing dtype

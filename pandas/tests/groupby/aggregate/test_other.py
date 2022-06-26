@@ -26,37 +26,6 @@ from pandas.core.base import SpecificationError
 from pandas.io.formats.printing import pprint_thing
 
 
-def test_agg_api():
-    # GH 6337
-    # https://stackoverflow.com/questions/21706030/pandas-groupby-agg-function-column-dtype-error
-    # different api for agg when passed custom function with mixed frame
-
-    df = DataFrame(
-        {
-            "data1": np.random.randn(5),
-            "data2": np.random.randn(5),
-            "key1": ["a", "a", "b", "b", "a"],
-            "key2": ["one", "two", "one", "two", "one"],
-        }
-    )
-    grouped = df.groupby("key1")
-
-    def peak_to_peak(arr):
-        return arr.max() - arr.min()
-
-    with tm.assert_produces_warning(
-        FutureWarning, match="Dropping invalid", check_stacklevel=False
-    ):
-        expected = grouped.agg([peak_to_peak])
-    expected.columns = ["data1", "data2"]
-
-    with tm.assert_produces_warning(
-        FutureWarning, match="Dropping invalid", check_stacklevel=False
-    ):
-        result = grouped.agg(peak_to_peak)
-    tm.assert_frame_equal(result, expected)
-
-
 def test_agg_datetimes_mixed():
     data = [[1, "2012-01-01", 1.0], [2, "2012-01-02", 2.0], [3, None, 3.0]]
 
