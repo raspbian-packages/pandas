@@ -1,0 +1,2 @@
+# this is test data, not user-facing text
+python3-pandas: national-encoding usr/lib/python3/dist-packages/pandas/tests/io/data/xml/baby_names.xml
