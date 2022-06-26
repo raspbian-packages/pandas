@@ -69,6 +69,8 @@ extensions = [
     "contributors",  # custom pandas extension
 ]
 
+mathjax_path="MathJax.js"
+
 exclude_patterns = [
     "**.ipynb_checkpoints",
     # to ensure that include files (partial pages) aren't built, exclude them
