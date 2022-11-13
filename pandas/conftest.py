@@ -29,6 +29,7 @@ from datetime import (
 from decimal import Decimal
 import operator
 import os
+import argparse
 
 from dateutil.tz import (
     tzlocal,
@@ -90,6 +91,7 @@ def pytest_addoption(parser):
         action="store_true",
         help="Fail if a test is skipped for missing data file.",
     )
+    parser.addoption("--deb-data-root-dir",action="store",help=argparse.SUPPRESS)#for internal use of the Debian CI infrastructure, may change without warning.  Security note: test_pickle can run arbitrary code from this directory
 
 
 def pytest_runtest_setup(item):
@@ -1002,7 +1004,7 @@ def strict_data_files(pytestconfig):
 
 
 @pytest.fixture
-def datapath(strict_data_files):
+def datapath(strict_data_files,pytestconfig):
     """
     Get the path to a data file.
 
@@ -1020,7 +1022,9 @@ def datapath(strict_data_files):
     ValueError
         If the path doesn't exist and the --strict-data-files option is set.
     """
-    BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
+    BASE_PATH = pytestconfig.getoption("--deb-data-root-dir",default=None)
+    if BASE_PATH is None:
+        BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
 
     def deco(*args):
         path = os.path.join(BASE_PATH, *args)
