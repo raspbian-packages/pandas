@@ -45,6 +45,9 @@ import pandas._testing as tm
 import pandas.core.algorithms as algos
 from pandas.core.arrays import DatetimeArray
 import pandas.core.common as com
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
 
 
 class TestFactorize:
@@ -1265,6 +1268,7 @@ class TestValueCounts:
         expected = Series([3, 2, 1], index=[5.0, 10.3, np.nan])
         tm.assert_series_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)
     def test_value_counts_normalized(self):
         # GH12558
         s = Series([1] * 2 + [2] * 3 + [np.nan] * 5)

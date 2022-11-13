@@ -16,6 +16,9 @@ from pandas import (
     isna,
 )
 import pandas._testing as tm
+import platform
+import re
+is_nannat_working=bool(re.match('i.?86|x86|s390|ppc',platform.uname()[4]))
 
 
 @pytest.fixture(params=["default", "float_string", "mixed_float", "mixed_int"])
@@ -360,6 +363,7 @@ class TestDataFrameIndexingWhere:
         result = a.where(do_not_replace, b)
         tm.assert_frame_equal(result, expected)
 
+    @pytest.mark.xfail(condition=not is_nannat_working,reason="https://bugs.debian.org/877754",strict=False)#not found
     def test_where_datetime(self):
 
         # GH 3311
