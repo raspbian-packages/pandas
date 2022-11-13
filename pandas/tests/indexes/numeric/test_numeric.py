@@ -533,7 +533,7 @@ class TestUInt64Index(NumericInt):
         tm.assert_index_equal(res, idx)
 
     @pytest.mark.xfail(
-        not is_platform_arm(),
+        strict=False,
         reason="https://github.com/numpy/numpy/issues/19146",
     )
     def test_constructor_does_not_cast_to_float(self):
