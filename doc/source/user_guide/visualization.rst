@@ -996,6 +996,7 @@ autocorrelation plots.
    :suppress:
 
    np.random.seed(123456)
+   random.seed(123456) # for reproducibility - bootstrap_plot uses random.sample
 
 .. ipython:: python
 
