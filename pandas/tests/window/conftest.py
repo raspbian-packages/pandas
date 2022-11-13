@@ -3,6 +3,7 @@ from datetime import timedelta
 import pytest
 
 import pandas.util._test_decorators as td
+from pandas.compat import is_platform_little_endian
 
 from pandas import (
     DataFrame,
@@ -128,7 +129,7 @@ def engine(request):
 
 @pytest.fixture(
     params=[
-        pytest.param(("numba", True), marks=td.skip_if_no("numba", "0.46.0")),
+        pytest.param(("numba", True), marks=[pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False),td.skip_if_no("numba", "0.46.0")]),
         ("cython", True),
         ("cython", False),
     ]

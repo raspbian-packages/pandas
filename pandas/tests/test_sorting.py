@@ -23,6 +23,7 @@ from pandas.core.sorting import (
     lexsort_indexer,
     nargsort,
 )
+import sys
 
 
 class TestSorting:
@@ -188,6 +189,7 @@ class TestSorting:
 
 class TestMerge:
     @pytest.mark.slow
+    @pytest.mark.xfail(condition=sys.maxsize<2**33, reason="assumes default int is int64", strict=False)
     def test_int64_overflow_issues(self):
 
         # #2690, combinatorial explosion
