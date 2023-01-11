@@ -735,7 +735,7 @@ class TestSeriesConstructors:
     def test_constructor_signed_int_overflow_deprecation(self):
         # GH#41734 disallow silent overflow
         msg = "Values are too large to be losslessly cast"
-        numpy_warning = DeprecationWarning if is_numpy_dev else None
+        numpy_warning = DeprecationWarning
         with tm.assert_produces_warning(
             (FutureWarning, numpy_warning), match=msg, check_stacklevel=False
         ):
