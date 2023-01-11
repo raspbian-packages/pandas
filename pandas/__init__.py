@@ -2,6 +2,12 @@ from __future__ import annotations
 
 __docformat__ = "restructuredtext"
 
+import platform
+import warnings
+if 'mips' in platform.uname()[4]:
+    warnings.warn("This appears to be a mips system, on which pandas is buggy (may give wrong answers or crash)")
+del platform, warnings
+
 # Let users know if they're missing any of our hard dependencies
 _hard_dependencies = ("numpy", "pytz", "dateutil")
 _missing_dependencies = []
