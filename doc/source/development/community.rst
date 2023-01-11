@@ -48,13 +48,9 @@ The agenda for the next meeting and minutes of past meetings are available in
 Calendar
 --------
 
-This calendar shows all the community meetings. Our community meetings are
+`This calendar <https://calendar.google.com/calendar/embed?src=pgbn14p6poja8a1cf2dv2jhrmg%40group.calendar.google.com>`__ shows all the community meetings. Our community meetings are
 ideal for anyone wanting to contribute to pandas, or just curious to know how
 current development is going.
-
-.. raw:: html
-
-   <iframe src="https://calendar.google.com/calendar/embed?src=pgbn14p6poja8a1cf2dv2jhrmg%40group.calendar.google.com" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
 
 You can subscribe to this calendar with the following links:
 
