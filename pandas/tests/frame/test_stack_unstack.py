@@ -1,6 +1,7 @@
 from datetime import datetime
 from io import StringIO
 import itertools
+import sys
 
 import numpy as np
 import pytest
@@ -1862,6 +1863,7 @@ Thu,Lunch,Yes,51.51,17"""
         tm.assert_frame_equal(recons, df)
 
     @pytest.mark.slow
+    @pytest.mark.xfail(condition=sys.maxsize<2**33, reason="assumes default int is int64", strict=False)
     def test_unstack_number_of_levels_larger_than_int32(self, monkeypatch):
         # GH#20601
         # GH 26314: Change ValueError to PerformanceWarning
