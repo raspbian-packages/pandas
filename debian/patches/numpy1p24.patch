@@ -1,0 +1,134 @@
+Description: Avoid test failures with numpy 1.24
+
+(some tests fail on unexpected DeprecationWarnings)
+
+Origin: mostly upstream commit 70121c75a0e2a42e31746b6c205c7bb9e4b9b930
+Author: Patrick Hoefler, Rebecca N. Palmer
+Forwarded: not-needed
+
+--- a/pandas/tests/series/test_constructors.py
++++ b/pandas/tests/series/test_constructors.py
+@@ -735,7 +735,7 @@ class TestSeriesConstructors:
+     def test_constructor_signed_int_overflow_deprecation(self):
+         # GH#41734 disallow silent overflow
+         msg = "Values are too large to be losslessly cast"
+-        numpy_warning = DeprecationWarning if is_numpy_dev else None
++        numpy_warning = DeprecationWarning
+         with tm.assert_produces_warning(
+             (FutureWarning, numpy_warning), match=msg, check_stacklevel=False
+         ):
+--- a/asv_bench/benchmarks/sparse.py
++++ b/asv_bench/benchmarks/sparse.py
+@@ -219,12 +219,12 @@ class GetItemMask:
+         d = 1e-5
+         arr = make_array(N, d, np.nan, np.float64)
+         self.sp_arr = SparseArray(arr)
+-        b_arr = np.full(shape=N, fill_value=fill_value, dtype=np.bool8)
++        b_arr = np.full(shape=N, fill_value=fill_value, dtype=np.bool_)
+         fv_inds = np.unique(
+             np.random.randint(low=0, high=N - 1, size=int(N * d), dtype=np.int32)
+         )
+         b_arr[fv_inds] = True if pd.isna(fill_value) else not fill_value
+-        self.sp_b_arr = SparseArray(b_arr, dtype=np.bool8, fill_value=fill_value)
++        self.sp_b_arr = SparseArray(b_arr, dtype=np.bool_, fill_value=fill_value)
+ 
+     def time_mask(self, fill_value):
+         self.sp_arr[self.sp_b_arr]
+--- a/pandas/core/arrays/sparse/array.py
++++ b/pandas/core/arrays/sparse/array.py
+@@ -728,7 +728,7 @@ class SparseArray(OpsMixin, PandasObject
+         dtype = SparseDtype(bool, self._null_fill_value)
+         if self._null_fill_value:
+             return type(self)._simple_new(isna(self.sp_values), self.sp_index, dtype)
+-        mask = np.full(len(self), False, dtype=np.bool8)
++        mask = np.full(len(self), False, dtype=np.bool_)
+         mask[self.sp_index.indices] = isna(self.sp_values)
+         return type(self)(mask, fill_value=False, dtype=dtype)
+ 
+@@ -1043,7 +1043,7 @@ class SparseArray(OpsMixin, PandasObject
+                     if not key.fill_value:
+                         return self.take(key.sp_index.indices)
+                     n = len(self)
+-                    mask = np.full(n, True, dtype=np.bool8)
++                    mask = np.full(n, True, dtype=np.bool_)
+                     mask[key.sp_index.indices] = False
+                     return self.take(np.arange(n)[mask])
+                 else:
+--- a/pandas/core/interchange/column.py
++++ b/pandas/core/interchange/column.py
+@@ -315,7 +315,7 @@ class PandasColumn(Column):
+             valid = invalid == 0
+             invalid = not valid
+ 
+-            mask = np.zeros(shape=(len(buf),), dtype=np.bool8)
++            mask = np.zeros(shape=(len(buf),), dtype=np.bool_)
+             for i, obj in enumerate(buf):
+                 mask[i] = valid if isinstance(obj, str) else invalid
+ 
+--- a/pandas/tests/arrays/sparse/test_indexing.py
++++ b/pandas/tests/arrays/sparse/test_indexing.py
+@@ -85,7 +85,7 @@ class TestGetitem:
+ 
+     def test_getitem_bool_sparse_array(self):
+         # GH 23122
+-        spar_bool = SparseArray([False, True] * 5, dtype=np.bool8, fill_value=True)
++        spar_bool = SparseArray([False, True] * 5, dtype=np.bool_, fill_value=True)
+         exp = SparseArray([np.nan, 2, np.nan, 5, 6])
+         tm.assert_sp_array_equal(arr[spar_bool], exp)
+ 
+@@ -95,7 +95,7 @@ class TestGetitem:
+         tm.assert_sp_array_equal(res, exp)
+ 
+         spar_bool = SparseArray(
+-            [False, True, np.nan] * 3, dtype=np.bool8, fill_value=np.nan
++            [False, True, np.nan] * 3, dtype=np.bool_, fill_value=np.nan
+         )
+         res = arr[spar_bool]
+         exp = SparseArray([np.nan, 3, 5])
+--- a/pandas/tests/arrays/sparse/test_reductions.py
++++ b/pandas/tests/arrays/sparse/test_reductions.py
+@@ -142,7 +142,7 @@ class TestReductions:
+             assert result == expected
+ 
+     def test_bool_sum_min_count(self):
+-        spar_bool = SparseArray([False, True] * 5, dtype=np.bool8, fill_value=True)
++        spar_bool = SparseArray([False, True] * 5, dtype=np.bool_, fill_value=True)
+         res = spar_bool.sum(min_count=1)
+         assert res == 5
+         res = spar_bool.sum(min_count=11)
+--- a/pandas/tests/arrays/sparse/test_unary.py
++++ b/pandas/tests/arrays/sparse/test_unary.py
+@@ -59,9 +59,9 @@ class TestUnaryMethods:
+         tm.assert_sp_array_equal(exp, res)
+ 
+     def test_invert_operator(self):
+-        arr = SparseArray([False, True, False, True], fill_value=False, dtype=np.bool8)
++        arr = SparseArray([False, True, False, True], fill_value=False, dtype=np.bool_)
+         exp = SparseArray(
+-            np.invert([False, True, False, True]), fill_value=True, dtype=np.bool8
++            np.invert([False, True, False, True]), fill_value=True, dtype=np.bool_
+         )
+         res = ~arr
+         tm.assert_sp_array_equal(exp, res)
+--- a/pandas/tests/io/excel/test_writers.py
++++ b/pandas/tests/io/excel/test_writers.py
+@@ -496,15 +496,14 @@ class TestExcelWriter:
+ 
+         tm.assert_frame_equal(df, recons)
+ 
+-    @pytest.mark.parametrize("np_type", [np.bool8, np.bool_])
+-    def test_bool_types(self, np_type, path):
+-        # Test np.bool8 and np.bool_ values read come back as float.
+-        df = DataFrame([1, 0, True, False], dtype=np_type)
++    def test_bool_types(self, path):
++        # Test np.bool_ values read come back as float.
++        df = DataFrame([1, 0, True, False], dtype=np.bool_)
+         df.to_excel(path, "test1")
+ 
+         with ExcelFile(path) as reader:
+             recons = pd.read_excel(reader, sheet_name="test1", index_col=0).astype(
+-                np_type
++                np.bool_
+             )
+ 
+         tm.assert_frame_equal(df, recons)
