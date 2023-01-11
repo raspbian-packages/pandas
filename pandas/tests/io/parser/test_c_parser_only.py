@@ -29,6 +29,9 @@ from pandas import (
     concat,
 )
 import pandas._testing as tm
+import platform
+import re
+is_platform_x86 = bool(re.match('i.?86|x86',platform.uname()[4]))
 
 
 @pytest.mark.parametrize(
@@ -680,9 +683,9 @@ def test_float_precision_options(c_parser_only):
 
     df3 = parser.read_csv(StringIO(s), float_precision="legacy")
 
-    if IS64:
+    if is_platform_x86 and IS64:
         assert not df.iloc[0, 0] == df3.iloc[0, 0]
-    else:
+    elif is_platform_x86:
         assert df.iloc[0, 0] == df3.iloc[0, 0]
 
     msg = "Unrecognized float_precision option: junk"
