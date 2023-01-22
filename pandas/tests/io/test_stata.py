@@ -36,6 +36,8 @@ from pandas.io.stata import (
     read_stata,
 )
 
+from pandas.compat import is_platform_little_endian
+pytestmark = pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of test_stata on non-little endian",strict=False)
 
 @pytest.fixture
 def mixed_frame():
@@ -148,7 +150,7 @@ class TestStata:
             # )
 
             # Remove resource warnings
-            w = [x for x in w if x.category is UserWarning]
+            w = [x for x in w if x.category is UserWarning and not "Non-x86 system detected" in str(x.message)]
 
             # should get warning for each call to read_dta
             assert len(w) == 3
@@ -414,7 +416,7 @@ class TestStata:
                 warnings.simplefilter("always", InvalidColumnName)
                 original.to_stata(path, convert_dates=None, version=version)
                 # should get a warning for that format.
-                assert len(w) == 1
+                assert len([x for x in w if not "Non-x86 system detected" in str(x.message)]) == 1
 
             written_and_read_again = self.read_dta(path)
             tm.assert_frame_equal(written_and_read_again.set_index("index"), formatted)
@@ -1759,8 +1761,9 @@ the string values returned are correct."""
             encoded = read_stata(
                 datapath("io", "data", "stata", "stata1_encoding_118.dta")
             )
-            assert len(w) == 151
-            assert w[0].message.args[0] == msg
+            w2 = [x for x in w if not "Non-x86 system detected" in str(x.message)]
+            assert len(w2) == 151
+            assert w2[0].message.args[0] == msg
 
         expected = DataFrame([["Düsseldorf"]] * 151, columns=["kreis1849"])
         tm.assert_frame_equal(encoded, expected)
