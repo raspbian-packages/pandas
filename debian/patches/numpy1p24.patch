@@ -1,0 +1,22 @@
+Description: Ignore extra warning from numpy 1.24
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed (on main, this is .raises due to other changes)
+
+--- a/pandas/tests/test_downstream.py
++++ b/pandas/tests/test_downstream.py
+@@ -105,11 +105,11 @@ def test_construct_dask_float_array_int_
+     expected = Series(arr, dtype="i8")
+     tm.assert_series_equal(res, expected)
+ 
+-    msg = "In a future version, passing float-dtype values containing NaN"
++    msg = "In a future version, passing float-dtype values containing NaN|invalid value encountered in cast"
+     arr[2] = np.nan
+-    with tm.assert_produces_warning(FutureWarning, match=msg):
++    with tm.assert_produces_warning((FutureWarning,RuntimeWarning), match=msg, check_stacklevel=False):
+         res = Series(darr, dtype="i8")
+-    with tm.assert_produces_warning(FutureWarning, match=msg):
++    with tm.assert_produces_warning((FutureWarning,RuntimeWarning), match=msg, check_stacklevel=False):
+         expected = Series(arr, dtype="i8")
+     tm.assert_series_equal(res, expected)
+ 
