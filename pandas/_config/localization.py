@@ -108,7 +108,10 @@ def _valid_locales(locales: list[str] | str, normalize: bool) -> list[str]:
 
 
 def _default_locale_getter() -> bytes:
-    return subprocess.check_output(["locale -a"], shell=True)
+    raw_locales = subprocess.check_output(["locale -a"], shell=True)
+    # skip locales without encoding, to avoid Python bug https://bugs.python.org/issue20088
+    raw_locales = raw_locales.replace(b'\ndsb_DE\n',b'\n').replace(b'\nsah_RU\n',b'\n').replace(b'\ncrh_UA\n',b'\n')
+    return raw_locales
 
 
 def get_locales(
