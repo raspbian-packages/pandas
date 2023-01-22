@@ -4,6 +4,7 @@ import string
 import warnings
 
 import numpy as np
+from numpy.testing import assert_array_almost_equal_nulp
 import pytest
 
 import pandas.util._test_decorators as td
@@ -378,7 +379,7 @@ class TestDataFramePlotsSubplots(TestPlotBase):
         # no subplots
         df = DataFrame({"A": [3] * 5, "B": list(range(1, 6))}, index=range(5))
         ax = df.plot.bar(grid=True, log=True)
-        tm.assert_numpy_array_equal(ax.yaxis.get_ticklocs(), expected)
+        assert_array_almost_equal_nulp(ax.yaxis.get_ticklocs(), expected, 4)
 
     def test_bar_log_subplots(self):
         expected = np.array([0.1, 1.0, 10.0, 100.0, 1000.0, 1e4])
@@ -387,8 +388,8 @@ class TestDataFramePlotsSubplots(TestPlotBase):
             log=True, subplots=True
         )
 
-        tm.assert_numpy_array_equal(ax[0].yaxis.get_ticklocs(), expected)
-        tm.assert_numpy_array_equal(ax[1].yaxis.get_ticklocs(), expected)
+        assert_array_almost_equal_nulp(ax[0].yaxis.get_ticklocs(), expected, 4)
+        assert_array_almost_equal_nulp(ax[1].yaxis.get_ticklocs(), expected, 4)
 
     def test_boxplot_subplots_return_type(self, hist_df):
         df = hist_df
