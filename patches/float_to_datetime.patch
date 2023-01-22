@@ -1,0 +1,46 @@
+Description: float-to-datetime conversion fixes
+
+Avoid assuming that NaN casts to NaT (= fails on riscv64/hppa ?)
+Don't round to int for the bounds check when we don't for the real
+conversion (wrong near the bounds, and maybe also a waste of time)
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: https://github.com/pandas-dev/pandas/pull/50183
+
+--- a/pandas/_libs/tslib.pyx
++++ b/pandas/_libs/tslib.pyx
+@@ -296,12 +296,18 @@ def array_with_unit_to_datetime(
+         # if we have nulls that are not type-compat
+         # then need to iterate
+ 
+-        if values.dtype.kind in ["i", "f", "u"]:
++        if values.dtype.kind in ["i", "u"]:
+             iresult = values.astype("i8", copy=False)
+             # fill missing values by comparing to NPY_NAT
+             mask = iresult == NPY_NAT
+             iresult[mask] = 0
+-            fvalues = iresult.astype("f8") * mult
++            fvalues = iresult.astype("f8") * mult # TODO as this is only used for bounds checking, would it be more efficient to divide the bounds by mult? (don't just use integer iresult * mult, we need arithmetic overflow to be an error not a wraparound)
++            need_to_iterate = False
++            
++        if values.dtype.kind in ["f",]:
++            mask = (values != values) | (values == NPY_NAT) # first is NaNs
++            fvalues = (values * mult).astype("f8") # TODO would values.astype('f8')*mult have less rounding error? (or does this need to support longer-than-double floats where it's worse?) would copy=False be faster?
++            fvalues[mask] = 0
+             need_to_iterate = False
+ 
+         if not need_to_iterate:
+@@ -315,11 +321,9 @@ def array_with_unit_to_datetime(
+                 result = (iresult * mult).astype("M8[ns]")
+ 
+             elif values.dtype.kind == "f":
+-                fresult = (values * mult).astype("f8")
+-                fresult[mask] = 0
+                 if prec:
+-                    fresult = round(fresult, prec)
+-                result = fresult.astype("M8[ns]", copy=False)
++                    fvalues = round(fvalues, prec) # TODO why does this exist, it looks like prec's always 0 (was p from precision_to_unit meant to be prec?)
++                result = fvalues.astype("M8[ns]", copy=False)
+ 
+             iresult = result.view("i8")
+             iresult[mask] = NPY_NAT
