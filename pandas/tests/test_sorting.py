@@ -29,6 +29,7 @@ from pandas.core.sorting import (
     lexsort_indexer,
     nargsort,
 )
+import sys
 
 
 @pytest.fixture
@@ -226,6 +227,7 @@ class TestSorting:
         tm.assert_numpy_array_equal(result, np.array(exp), check_dtype=False)
 
 
+@pytest.mark.xfail(condition=sys.maxsize<2**33, reason="assumes default int is int64", strict=False)#used to be just the first one but that's been split into several
 class TestMerge:
     def test_int64_overflow_outer_merge(self):
         # #2690, combinatorial explosion
