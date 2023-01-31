@@ -1,0 +1,107 @@
+Description: Fix test failures on 32-bit systems
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: partly https://bugs.debian.org/1026351
+Forwarded: no
+
+--- a/pandas/core/arrays/_ranges.py
++++ b/pandas/core/arrays/_ranges.py
+@@ -162,9 +162,7 @@ def _generate_range_overflow_safe_signed
+                 # Putting this into a DatetimeArray/TimedeltaArray
+                 #  would incorrectly be interpreted as NaT
+                 raise OverflowError
+-            # error: Incompatible return value type (got "signedinteger[_64Bit]",
+-            # expected "int")
+-            return result  # type: ignore[return-value]
++            return int(result)
+         except (FloatingPointError, OverflowError):
+             # with endpoint negative and addend positive we risk
+             #  FloatingPointError; with reversed signed we risk OverflowError
+@@ -185,9 +183,7 @@ def _generate_range_overflow_safe_signed
+             i64max = np.uint64(i8max)
+             assert result > i64max
+             if result <= i64max + np.uint64(stride):
+-                # error: Incompatible return value type (got "unsignedinteger", expected
+-                # "int")
+-                return result  # type: ignore[return-value]
++                return int(result)
+ 
+     raise OutOfBoundsDatetime(
+         f"Cannot generate range with {side}={endpoint} and periods={periods}"
+--- a/pandas/tests/test_sorting.py
++++ b/pandas/tests/test_sorting.py
+@@ -29,6 +29,7 @@ from pandas.core.sorting import (
+     lexsort_indexer,
+     nargsort,
+ )
++import sys
+ 
+ 
+ @pytest.fixture
+@@ -226,6 +227,7 @@ class TestSorting:
+         tm.assert_numpy_array_equal(result, np.array(exp), check_dtype=False)
+ 
+ 
++@pytest.mark.xfail(condition=sys.maxsize<2**33, reason="assumes default int is int64", strict=False)#used to be just the first one but that's been split into several
+ class TestMerge:
+     def test_int64_overflow_outer_merge(self):
+         # #2690, combinatorial explosion
+--- a/pandas/tests/frame/test_stack_unstack.py
++++ b/pandas/tests/frame/test_stack_unstack.py
+@@ -1,6 +1,7 @@
+ from datetime import datetime
+ from io import StringIO
+ import itertools
++import sys
+ 
+ import numpy as np
+ import pytest
+@@ -1862,6 +1863,7 @@ Thu,Lunch,Yes,51.51,17"""
+         tm.assert_frame_equal(recons, df)
+ 
+     @pytest.mark.slow
++    @pytest.mark.xfail(condition=sys.maxsize<2**33, reason="assumes default int is int64", strict=False)
+     def test_unstack_number_of_levels_larger_than_int32(self, monkeypatch):
+         # GH#20601
+         # GH 26314: Change ValueError to PerformanceWarning
+--- a/pandas/tests/reshape/test_pivot.py
++++ b/pandas/tests/reshape/test_pivot.py
+@@ -4,6 +4,7 @@ from datetime import (
+     timedelta,
+ )
+ from itertools import product
++import sys
+ 
+ import numpy as np
+ import pytest
+@@ -2018,6 +2019,7 @@ class TestPivotTable:
+         tm.assert_frame_equal(result, expected)
+ 
+     @pytest.mark.slow
++    @pytest.mark.xfail(condition=sys.maxsize<2**33, reason="assumes default int is int64", strict=False)
+     def test_pivot_number_of_levels_larger_than_int32(self, monkeypatch):
+         # GH 20601
+         # GH 26314: Change ValueError to PerformanceWarning
+--- a/pandas/tests/test_downstream.py
++++ b/pandas/tests/test_downstream.py
+@@ -311,7 +311,7 @@ def test_missing_required_dependency():
+     for name in ["numpy", "pytz", "dateutil"]:
+         assert name in output
+ 
+-
++@pytest.mark.xfail(condition=sys.maxsize<2**33, reason="different nativesize-int vs int64 type rules", strict=False)
+ def test_frame_setitem_dask_array_into_new_col():
+     # GH#47128
+ 
+--- a/pandas/tests/series/methods/test_round.py
++++ b/pandas/tests/series/methods/test_round.py
+@@ -30,8 +30,7 @@ class TestSeriesRound:
+     def test_round_numpy_with_nan(self, any_float_dtype):
+         # See GH#14197
+         ser = Series([1.53, np.nan, 0.06], dtype=any_float_dtype)
+-        with tm.assert_produces_warning(None):
+-            result = ser.round()
++        result = ser.round() # on armhf, numpy warns
+         expected = Series([2.0, np.nan, 0.0], dtype=any_float_dtype)
+         tm.assert_series_equal(result, expected)
+ 
