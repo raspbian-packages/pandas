@@ -175,13 +175,7 @@ from pandas.io.json import _json_normalize as json_normalize
 
 from pandas.util._tester import test
 
-# use the closest tagged version if possible
-from pandas._version import get_versions
-
-v = get_versions()
-__version__ = v.get("closest-tag", v["version"])
-__git_version__ = v.get("full-revisionid")
-del get_versions, v
+from .__version import version as __version__
 
 # GH 27101
 __deprecated_num_index_names = ["Float64Index", "Int64Index", "UInt64Index"]

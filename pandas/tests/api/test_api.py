@@ -195,7 +195,7 @@ class TestPDApi(Base):
         "_is_numpy_dev",
         "_testing",
         "_typing",
-        "_version",
+# not in Debian        "_version",
     ]
 
     def test_api(self):
