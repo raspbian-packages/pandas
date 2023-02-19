@@ -311,7 +311,7 @@ def test_missing_required_dependency():
     for name in ["numpy", "pytz", "dateutil"]:
         assert name in output
 
-
+@pytest.mark.xfail(condition=sys.maxsize<2**33, reason="different nativesize-int vs int64 type rules", strict=False)
 def test_frame_setitem_dask_array_into_new_col():
     # GH#47128
 
