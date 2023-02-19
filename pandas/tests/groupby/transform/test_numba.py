@@ -1,3 +1,5 @@
+import sys
+
 import pytest
 
 from pandas.errors import NumbaUtilError
@@ -9,6 +11,12 @@ from pandas import (
     option_context,
 )
 import pandas._testing as tm
+from pandas.compat import is_platform_little_endian
+try:
+    from numba.core.errors import UnsupportedParforsError,TypingError
+except ImportError:
+    UnsupportedParforsError = ImportError
+    TypingError = ImportError
 
 
 @td.skip_if_no("numba")
@@ -44,6 +52,8 @@ def test_check_nopython_kwargs():
 
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=sys.maxsize<2**33, raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 @pytest.mark.filterwarnings("ignore")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 @pytest.mark.parametrize("jit", [True, False])
@@ -73,6 +83,8 @@ def test_numba_vs_cython(jit, pandas_obj, nogil, parallel, nopython):
 
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=sys.maxsize<2**33, raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 @pytest.mark.filterwarnings("ignore")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 @pytest.mark.parametrize("jit", [True, False])
@@ -114,6 +126,7 @@ def test_cache(jit, pandas_obj, nogil, parallel, nopython):
 
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 def test_use_global_config():
     def func_1(values, index):
         return values + 1
@@ -145,6 +158,7 @@ def test_multifunc_notimplimented(agg_func):
 
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 def test_args_not_cached():
     # GH 41647
     def sum_last(values, index, n):
@@ -162,6 +176,7 @@ def test_args_not_cached():
 
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 def test_index_data_correctly_passed():
     # GH 43133
     def f(values, index):
@@ -203,6 +218,8 @@ def test_engine_kwargs_not_cached():
 
 @td.skip_if_no("numba")
 @pytest.mark.filterwarnings("ignore")
+@pytest.mark.xfail(condition=sys.maxsize<2**33, raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
+@pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 def test_multiindex_one_key(nogil, parallel, nopython):
     def numba_func(values, index):
         return 1

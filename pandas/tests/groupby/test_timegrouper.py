@@ -23,6 +23,7 @@ from pandas import (
 import pandas._testing as tm
 from pandas.core.groupby.grouper import Grouper
 from pandas.core.groupby.ops import BinGrouper
+from pandas.compat import is_platform_little_endian
 
 
 @pytest.fixture
@@ -908,6 +909,7 @@ class TestGroupBy:
         tm.assert_series_equal(res, expected)
 
     @td.skip_if_no("numba")
+    @pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
     def test_groupby_agg_numba_timegrouper_with_nat(
         self, groupby_with_truncated_bingrouper
     ):

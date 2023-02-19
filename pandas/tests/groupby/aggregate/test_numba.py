@@ -1,6 +1,16 @@
+import sys
+
 import numpy as np
 import pytest
 
+try:
+    from numba.core.errors import UnsupportedParforsError,TypingError
+except ImportError:
+    UnsupportedParforsError = ImportError
+    TypingError = ImportError
+
+from pandas.compat import is_platform_little_endian
+pytestmark = [pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False),pytest.mark.xfail(condition=sys.maxsize<2**33, raises=(UnsupportedParforsError,TypingError), reason="some Numba functionality is not available on 32 bit systems", strict=False)]
 from pandas.errors import NumbaUtilError
 import pandas.util._test_decorators as td
 
@@ -47,6 +57,7 @@ def test_check_nopython_kwargs():
 
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=sys.maxsize<2**33, raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
 @pytest.mark.filterwarnings("ignore")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 @pytest.mark.parametrize("jit", [True, False])
@@ -76,6 +87,7 @@ def test_numba_vs_cython(jit, pandas_obj, nogil, parallel, nopython):
 
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=sys.maxsize<2**33, raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
 @pytest.mark.filterwarnings("ignore")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 @pytest.mark.parametrize("jit", [True, False])

@@ -7,9 +7,17 @@ from pandas import (
     Series,
 )
 import pandas._testing as tm
-
+import sys
+try:
+    from numba.core.errors import UnsupportedParforsError,TypingError
+except ImportError:
+    UnsupportedParforsError = ImportError
+    TypingError = ImportError
+from pandas.compat import is_platform_little_endian
+pytestmark = pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False)
 
 @td.skip_if_no("numba")
+@pytest.mark.xfail(condition=sys.maxsize<2**33, raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
 @pytest.mark.filterwarnings("ignore")
 # Filter warnings when parallel=True and the function can't be parallelized by Numba
 class TestEngine:
