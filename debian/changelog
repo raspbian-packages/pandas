@@ -1,10 +1,17 @@
-pandas (1.5.3+dfsg-1+rpi1) bookworm-staging; urgency=medium
+pandas (1.5.3+dfsg-2+rpi1) bookworm-staging; urgency=medium
 
+  [changes brought forward from 1.5.3+dfsg-1+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Tue, 31 Jan 2023 13:21:16 +0000]
   * Disable testsuite.
   * Disable documentation build.
   * Partiallly fix clean target.
 
- -- Peter Michael Green <plugwash@raspbian.org>  Tue, 31 Jan 2023 13:21:16 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Wed, 01 Mar 2023 14:16:20 +0000
+
+pandas (1.5.3+dfsg-2) unstable; urgency=medium
+
+  * Tests: use a non-backzone timezone.  (Closes: #1031437)
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sun, 19 Feb 2023 11:01:48 +0000
 
 pandas (1.5.3+dfsg-1) unstable; urgency=medium
 

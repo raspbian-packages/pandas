@@ -25,3 +25,4 @@ no_sphinx_toggleprompt.patch
 sphinx_old_pydata_theme.patch
 1029251_ignore_rounding_error.patch
 numpy1p24.patch
+1031437.patch
