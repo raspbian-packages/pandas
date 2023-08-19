@@ -1,0 +1,79 @@
+Description: Don't fail plot tests on rounding error
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/1029251
+Forwarded: no
+
+--- a/pandas/tests/plotting/frame/test_frame_subplots.py
++++ b/pandas/tests/plotting/frame/test_frame_subplots.py
+@@ -4,6 +4,7 @@ import string
+ import warnings
+ 
+ import numpy as np
++from numpy.testing import assert_array_almost_equal_nulp
+ import pytest
+ 
+ import pandas.util._test_decorators as td
+@@ -378,7 +379,7 @@ class TestDataFramePlotsSubplots(TestPlo
+         # no subplots
+         df = DataFrame({"A": [3] * 5, "B": list(range(1, 6))}, index=range(5))
+         ax = df.plot.bar(grid=True, log=True)
+-        tm.assert_numpy_array_equal(ax.yaxis.get_ticklocs(), expected)
++        assert_array_almost_equal_nulp(ax.yaxis.get_ticklocs(), expected, 4)
+ 
+     def test_bar_log_subplots(self):
+         expected = np.array([0.1, 1.0, 10.0, 100.0, 1000.0, 1e4])
+@@ -387,8 +388,8 @@ class TestDataFramePlotsSubplots(TestPlo
+             log=True, subplots=True
+         )
+ 
+-        tm.assert_numpy_array_equal(ax[0].yaxis.get_ticklocs(), expected)
+-        tm.assert_numpy_array_equal(ax[1].yaxis.get_ticklocs(), expected)
++        assert_array_almost_equal_nulp(ax[0].yaxis.get_ticklocs(), expected, 4)
++        assert_array_almost_equal_nulp(ax[1].yaxis.get_ticklocs(), expected, 4)
+ 
+     def test_boxplot_subplots_return_type(self, hist_df):
+         df = hist_df
+--- a/pandas/tests/plotting/test_series.py
++++ b/pandas/tests/plotting/test_series.py
+@@ -3,6 +3,7 @@ from datetime import datetime
+ from itertools import chain
+ 
+ import numpy as np
++from numpy.testing import assert_array_almost_equal_nulp
+ import pytest
+ 
+ import pandas.util._test_decorators as td
+@@ -249,12 +250,12 @@ class TestSeriesPlots(TestPlotBase):
+ 
+         _, ax = self.plt.subplots()
+         ax = Series([200, 500]).plot.bar(log=True, ax=ax)
+-        tm.assert_numpy_array_equal(ax.yaxis.get_ticklocs(), expected)
++        assert_array_almost_equal_nulp(ax.yaxis.get_ticklocs(), expected, 4)
+         tm.close()
+ 
+         _, ax = self.plt.subplots()
+         ax = Series([200, 500]).plot.barh(log=True, ax=ax)
+-        tm.assert_numpy_array_equal(ax.xaxis.get_ticklocs(), expected)
++        assert_array_almost_equal_nulp(ax.xaxis.get_ticklocs(), expected, 4)
+         tm.close()
+ 
+         # GH 9905
+@@ -267,7 +268,7 @@ class TestSeriesPlots(TestPlotBase):
+         res = ax.get_ylim()
+         tm.assert_almost_equal(res[0], ymin)
+         tm.assert_almost_equal(res[1], ymax)
+-        tm.assert_numpy_array_equal(ax.yaxis.get_ticklocs(), expected)
++        assert_array_almost_equal_nulp(ax.yaxis.get_ticklocs(), expected, 4)
+         tm.close()
+ 
+         _, ax = self.plt.subplots()
+@@ -275,7 +276,7 @@ class TestSeriesPlots(TestPlotBase):
+         res = ax.get_xlim()
+         tm.assert_almost_equal(res[0], ymin)
+         tm.assert_almost_equal(res[1], ymax)
+-        tm.assert_numpy_array_equal(ax.xaxis.get_ticklocs(), expected)
++        assert_array_almost_equal_nulp(ax.xaxis.get_ticklocs(), expected, 4)
+ 
+     def test_bar_ignore_index(self):
+         df = Series([1, 2, 3, 4], index=["a", "b", "c", "d"])

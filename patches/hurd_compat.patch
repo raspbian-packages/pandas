@@ -1,0 +1,123 @@
+Description: Avoid test failures on Hurd
+
+Allow multiprocessing to be unavailable
+Accept any errno not just 2 for (intentionally) nonexistent files
+(Hurd appears to use 2**30+2)
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/io/parser/common/test_file_buffer_url.py
++++ b/pandas/tests/io/parser/common/test_file_buffer_url.py
+@@ -90,7 +90,7 @@ def test_nonexistent_path(all_parsers):
+     parser = all_parsers
+     path = f"{uuid.uuid4()}.csv"
+ 
+-    msg = r"\[Errno 2\]"
++    msg = r"\[Errno 2\]|\[Errno [0-9]+\] No such file or directory"
+     with pytest.raises(FileNotFoundError, match=msg) as e:
+         parser.read_csv(path)
+     assert path == e.value.filename
+@@ -101,7 +101,7 @@ def test_no_permission(all_parsers):
+     # GH 23784
+     parser = all_parsers
+ 
+-    msg = r"\[Errno 13\]"
++    msg = r"\[Errno 13\]|\[Errno [0-9]+\] Permission denied"
+     with tm.ensure_clean() as path:
+         os.chmod(path, 0)  # make file unreadable
+ 
+--- a/pandas/tests/io/parser/common/test_float.py
++++ b/pandas/tests/io/parser/common/test_float.py
+@@ -53,7 +53,7 @@ def test_too_many_exponent_digits(all_pa
+     data = f"data\n10E{exp}"
+     result = parser.read_csv(StringIO(data), float_precision=precision)
+     if precision == "round_trip":
+-        if exp == 999999999999999999 and is_platform_linux():
++        if exp == 999999999999999999:
+             mark = pytest.mark.xfail(reason="GH38794, on Linux gives object result")
+             request.node.add_marker(mark)
+ 
+--- a/pandas/tests/io/parser/test_multi_thread.py
++++ b/pandas/tests/io/parser/test_multi_thread.py
+@@ -4,7 +4,12 @@ parsing files for each parser defined in
+ """
+ from contextlib import ExitStack
+ from io import BytesIO
+-from multiprocessing.pool import ThreadPool
++import pytest
++try:
++    from multiprocessing.pool import ThreadPool
++    ThreadPool()
++except ImportError:
++    pytest.skip("multiprocessing not available",allow_module_level=True)
+ 
+ import numpy as np
+ import pytest
+--- a/pandas/tests/test_downstream.py
++++ b/pandas/tests/test_downstream.py
+@@ -40,6 +40,11 @@ def df():
+ 
+ @pytest.mark.filterwarnings("ignore:.*64Index is deprecated:FutureWarning")
+ def test_dask(df):
++    try:
++        from multiprocessing.pool import ThreadPool
++        ThreadPool()
++    except ImportError:
++        pytest.skip("multiprocessing not available")
+ 
+     # dask sets "compute.use_numexpr" to False, so catch the current value
+     # and ensure to reset it afterwards to avoid impacting other tests
+--- a/pandas/tests/io/test_common.py
++++ b/pandas/tests/io/test_common.py
+@@ -196,16 +196,16 @@ Look,a snake,🐍"""
+ 
+         path = os.path.join(HERE, "data", "does_not_exist." + fn_ext)
+         msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
+-        msg2 = rf"\[Errno 2\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
++        msg2 = rf"\[Errno [0-9]+\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
+         msg3 = "Expected object or value"
+         msg4 = "path_or_buf needs to be a string file path or file-like"
+         msg5 = (
+-            rf"\[Errno 2\] File .+does_not_exist\.{fn_ext} does not exist: "
++            rf"\[Errno [0-9]+\] File .+does_not_exist\.{fn_ext} does not exist: "
+             rf"'.+does_not_exist\.{fn_ext}'"
+         )
+-        msg6 = rf"\[Errno 2\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
++        msg6 = rf"\[Errno [0-9]+\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
+         msg7 = (
+-            rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
++            rf"\[Errno [0-9]+\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
+         )
+         msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
+ 
+@@ -266,16 +266,16 @@ Look,a snake,🐍"""
+         monkeypatch.setattr(icom, "_expand_user", lambda x: os.path.join("foo", x))
+ 
+         msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
+-        msg2 = rf"\[Errno 2\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
++        msg2 = rf"\[Errno [0-9]+\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
+         msg3 = "Unexpected character found when decoding 'false'"
+         msg4 = "path_or_buf needs to be a string file path or file-like"
+         msg5 = (
+-            rf"\[Errno 2\] File .+does_not_exist\.{fn_ext} does not exist: "
++            rf"\[Errno [0-9]+\] File .+does_not_exist\.{fn_ext} does not exist: "
+             rf"'.+does_not_exist\.{fn_ext}'"
+         )
+-        msg6 = rf"\[Errno 2\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
++        msg6 = rf"\[Errno [0-9]+\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
+         msg7 = (
+-            rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
++            rf"\[Errno [0-9]+\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
+         )
+         msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
+ 
+@@ -583,7 +583,7 @@ def test_bad_encdoing_errors():
+ 
+ def test_errno_attribute():
+     # GH 13872
+-    with pytest.raises(FileNotFoundError, match="\\[Errno 2\\]") as err:
++    with pytest.raises(FileNotFoundError, match="\\[Errno [0-9]+\\]") as err:
+         pd.read_csv("doesnt_exist")
+         assert err.errno == errno.ENOENT
+ 
