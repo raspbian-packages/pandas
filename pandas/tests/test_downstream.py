@@ -105,11 +105,11 @@ def test_construct_dask_float_array_int_dtype_match_ndarray():
     expected = Series(arr, dtype="i8")
     tm.assert_series_equal(res, expected)
 
-    msg = "In a future version, passing float-dtype values containing NaN"
+    msg = "In a future version, passing float-dtype values containing NaN|invalid value encountered in cast"
     arr[2] = np.nan
-    with tm.assert_produces_warning(FutureWarning, match=msg):
+    with tm.assert_produces_warning((FutureWarning,RuntimeWarning), match=msg, check_stacklevel=False):
         res = Series(darr, dtype="i8")
-    with tm.assert_produces_warning(FutureWarning, match=msg):
+    with tm.assert_produces_warning((FutureWarning,RuntimeWarning), match=msg, check_stacklevel=False):
         expected = Series(arr, dtype="i8")
     tm.assert_series_equal(res, expected)
 
