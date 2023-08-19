@@ -1,0 +1,66 @@
+Description: Allow tests to use the data files in the source tree
+
+We don't ship these in the package,
+but do want to run the tests that use them
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- a/pandas/conftest.py
++++ b/pandas/conftest.py
+@@ -30,6 +30,7 @@ from decimal import Decimal
+ import operator
+ import os
+ from typing import Callable
++import argparse
+ 
+ from dateutil.tz import (
+     tzlocal,
+@@ -112,6 +113,7 @@ def pytest_addoption(parser) -> None:
+         action="store_true",
+         help="Fail if a test is skipped for missing data file.",
+     )
++    parser.addoption("--deb-data-root-dir",action="store",help=argparse.SUPPRESS)#for internal use of the Debian CI infrastructure, may change without warning.  Security note: test_pickle can run arbitrary code from this directory
+ 
+ 
+ def ignore_doctest_warning(item: pytest.Item, path: str, message: str) -> None:
+@@ -1141,7 +1143,7 @@ def strict_data_files(pytestconfig):
+ 
+ 
+ @pytest.fixture
+-def datapath(strict_data_files: str) -> Callable[..., str]:
++def datapath(strict_data_files: str,pytestconfig) -> Callable[..., str]:
+     """
+     Get the path to a data file.
+ 
+@@ -1159,7 +1161,9 @@ def datapath(strict_data_files: str) ->
+     ValueError
+         If the path doesn't exist and the --strict-data-files option is set.
+     """
+-    BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
++    BASE_PATH = pytestconfig.getoption("--deb-data-root-dir",default=None)
++    if BASE_PATH is None:
++        BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
+ 
+     def deco(*args):
+         path = os.path.join(BASE_PATH, *args)
+--- a/pandas/tests/util/test_util.py
++++ b/pandas/tests/util/test_util.py
+@@ -57,6 +57,7 @@ def test_datapath_missing(datapath):
+         datapath("not_a_file")
+ 
+ 
++@pytest.mark.xfail(reason="--deb-data-root-dir intentionally breaks this",strict=False)
+ def test_datapath(datapath):
+     args = ("io", "data", "csv", "iris.csv")
+ 
+--- a/pandas/tests/io/formats/style/test_html.py
++++ b/pandas/tests/io/formats/style/test_html.py
+@@ -40,6 +40,7 @@ def tpl_table():
+     return env.get_template("html_table.tpl")
+ 
+ 
++@pytest.mark.xfail(reason="--deb-data-root-dir is expected to break this",strict=False)
+ def test_html_template_extends_options():
+     # make sure if templates are edited tests are updated as are setup fixtures
+     # to understand the dependency

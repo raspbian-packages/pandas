@@ -1,0 +1,34 @@
+Description: Allow building with Debian's pydata-sphinx-theme
+
+This is currently too old to have all the options upstream expects
+
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -244,12 +244,7 @@ html_theme_options = {
+     "footer_items": ["pandas_footer", "sphinx-version"],
+     "github_url": "https://github.com/pandas-dev/pandas",
+     "twitter_url": "https://twitter.com/pandas_dev",
+-    "logo": {"image_dark": "https://pandas.pydata.org/static/img/pandas_white.svg"},
+-    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
+-    "switcher": {
+-        "json_url": "/versions.json",
+-        "version_match": switcher_version,
+-    },
++    "navbar_end": ["navbar-icon-links"],
+ }
+ 
+ # Add any paths that contain custom themes here, relative to this directory.
+--- a/doc/_templates/sidebar-nav-bs.html
++++ b/doc/_templates/sidebar-nav-bs.html
+@@ -1,9 +1,9 @@
+ <nav class="bd-links" id="bd-docs-nav" aria-label="Main navigation">
+   <div class="bd-toc-item navbar-nav">
+     {% if pagename.startswith("reference") %}
+-    {{ generate_toctree_html("sidebar", maxdepth=4, collapse=True, includehidden=True, titles_only=True) }}
++    {{ generate_nav_html("sidebar", maxdepth=4, collapse=True, includehidden=True, titles_only=True) }}
+     {% else %}
+-    {{ generate_toctree_html("sidebar", maxdepth=4, collapse=False, includehidden=True, titles_only=True) }}
++    {{ generate_nav_html("sidebar", maxdepth=4, collapse=False, includehidden=True, titles_only=True) }}
+     {% endif %}
+   </div>
+ </nav>

@@ -1,0 +1,58 @@
+# Check that the hard Depends are enough for import
+# cd to not-the-source-directory to get the installed pandas
+Test-Command: cd "$AUTOPKGTEST_TMP" && python3 -c "import pandas;a=pandas.DataFrame([[1,2],[3,4]])"
+Depends: python3-pandas
+Restrictions: allow-stderr
+
+# According to pandas/doc/source/install.rst, running the unit tests looks like:
+# `py.test-3 --skip-slow --skip-network /usr/lib/python3/dist-packages/pandas/ -v -rs`
+# Or simply `python3 -c "import pandas as pd; pd.test()"`, which doesn't require
+# us to specify the path (pandas.__path__) in command line.
+# See: pandas/util/_tester.py
+Tests: unittests3
+# xml test_wrong_url fails without ca-certificates
+Depends: python3-pandas,
+         ca-certificates,
+         locales-all,
+         python3-all,
+# we don't have this version         python3-blosc (>= 1.21.0~),
+         python3-bottleneck (>= 1.3.2~),
+         python3-bs4 (>= 4.9.3~),
+         python3-dask (>= 2.10.1~),
+         python3-dateutil,
+         python3-fsspec (>= 2021.07.0~),
+         python3-html5lib (>= 1.1~),
+         python3-hypothesis (>= 6.13.0~),
+         python3-jinja2 (>= 3.0~),
+         python3-lxml (>= 4.6.3~),
+         python3-matplotlib (>= 3.3.2~) [!ia64 !sh4 !x32],
+# numba may crash on non-x86 (#1033907)
+         python3-numba (>= 0.53.1~) [amd64 i386],
+         python3-numexpr (>= 2.8.0~),
+         python3-numpy (>= 1:1.18.5~),
+         python3-odf (>= 1.4.1~),
+         python3-openpyxl (>= 3.0.7~),
+# doesn't seem to work in this test environment         python3-psycopg2 (>= 2.8.6~),
+# doesn't seem to work in this test environment         python3-pymysql (>= 1.0.2~),
+         python3-pytest (>= 6.0~),
+         python3-pytest-asyncio (>= 0.17~),
+         python3-pytest-forked,
+         python3-pytest-xdist (>= 1.31~),
+         python3-scipy,
+         python3-setuptools (>= 51~),
+# we don't have this version         python3-snappy (>= 0.6.0~),
+         python3-sqlalchemy (>= 1.4.16~),
+         python3-tables (>= 3.6.1~),
+         python3-tabulate (>= 0.8.9~),
+         python3-tk,
+         python3-tz (>= 2022.1~),
+         python3-xarray (>= 0.19.0~),
+# we don't have this version         python3-xlrd (>= 2.0.1~),
+         python3-xlsxwriter (>= 1.4.3~),
+# having xlwt and not xlrd breaks tests/io/test_fsspec.py         python3-xlwt (>= 1.3.0~),
+         python3-zstandard,
+         tzdata-legacy,
+         xauth,
+         xvfb,
+         xclip,
+Restrictions: allow-stderr, needs-internet
