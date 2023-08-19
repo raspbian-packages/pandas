@@ -22,6 +22,10 @@ from pandas.tests.io.pytables.common import (
     ensure_clean_store,
     tables,
 )
+import platform
+import re
+import sys
+is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
 
 from pandas.io import pytables as pytables
 from pandas.io.pytables import Term
@@ -263,6 +267,7 @@ def test_complibs(setup_path):
             h5table.close()
 
 
+@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
 @pytest.mark.skipif(
     not is_platform_little_endian(), reason="reason platform is not little endian"
 )
@@ -296,6 +301,7 @@ def test_encoding(setup_path):
     ],
 )
 @pytest.mark.parametrize("dtype", ["category", object])
+@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
 def test_latin_encoding(setup_path, dtype, val):
     enc = "latin-1"
     nan_rep = ""

@@ -13,6 +13,7 @@ from typing import (
     cast,
 )
 import warnings
+import platform
 
 
 @contextmanager
@@ -178,6 +179,8 @@ def _assert_caught_no_extra_warnings(
                 # due to these open files.
                 if any("matplotlib" in mod for mod in sys.modules):
                     continue
+            if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
+                continue
 
             extra_warnings.append(
                 (
