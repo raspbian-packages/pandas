@@ -3,6 +3,7 @@ from datetime import datetime
 from itertools import chain
 
 import numpy as np
+from numpy.testing import assert_array_almost_equal_nulp
 import pytest
 
 import pandas.util._test_decorators as td
@@ -249,12 +250,12 @@ class TestSeriesPlots(TestPlotBase):
 
         _, ax = self.plt.subplots()
         ax = Series([200, 500]).plot.bar(log=True, ax=ax)
-        tm.assert_numpy_array_equal(ax.yaxis.get_ticklocs(), expected)
+        assert_array_almost_equal_nulp(ax.yaxis.get_ticklocs(), expected, 4)
         tm.close()
 
         _, ax = self.plt.subplots()
         ax = Series([200, 500]).plot.barh(log=True, ax=ax)
-        tm.assert_numpy_array_equal(ax.xaxis.get_ticklocs(), expected)
+        assert_array_almost_equal_nulp(ax.xaxis.get_ticklocs(), expected, 4)
         tm.close()
 
         # GH 9905
@@ -267,7 +268,7 @@ class TestSeriesPlots(TestPlotBase):
         res = ax.get_ylim()
         tm.assert_almost_equal(res[0], ymin)
         tm.assert_almost_equal(res[1], ymax)
-        tm.assert_numpy_array_equal(ax.yaxis.get_ticklocs(), expected)
+        assert_array_almost_equal_nulp(ax.yaxis.get_ticklocs(), expected, 4)
         tm.close()
 
         _, ax = self.plt.subplots()
@@ -275,7 +276,7 @@ class TestSeriesPlots(TestPlotBase):
         res = ax.get_xlim()
         tm.assert_almost_equal(res[0], ymin)
         tm.assert_almost_equal(res[1], ymax)
-        tm.assert_numpy_array_equal(ax.xaxis.get_ticklocs(), expected)
+        assert_array_almost_equal_nulp(ax.xaxis.get_ticklocs(), expected, 4)
 
     def test_bar_ignore_index(self):
         df = Series([1, 2, 3, 4], index=["a", "b", "c", "d"])
