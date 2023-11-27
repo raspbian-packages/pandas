@@ -30,6 +30,7 @@ from pandas._libs.tslibs import (
     to_offset,
 )
 from pandas.compat.numpy import function as nv
+from pandas.errors import InvalidIndexError
 from pandas.util._decorators import (
     Appender,
     cache_readonly,
@@ -139,7 +140,7 @@ class DatetimeIndexOpsMixin(NDArrayBackedExtensionIndex):
         hash(key)
         try:
             self.get_loc(key)
-        except (KeyError, TypeError, ValueError):
+        except (KeyError, TypeError, ValueError, InvalidIndexError):
             return False
         return True
 
