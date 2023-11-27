@@ -39,6 +39,10 @@ from pandas.io.pytables import (
     HDFStore,
     read_hdf,
 )
+import platform
+import re
+import sys
+is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
 
 pytestmark = pytest.mark.single_cpu
 
@@ -790,6 +794,7 @@ def test_start_stop_fixed(setup_path):
         df.iloc[8:10, -2] = np.nan
 
 
+@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
 def test_select_filter_corner(setup_path):
 
     df = DataFrame(np.random.randn(50, 100))
