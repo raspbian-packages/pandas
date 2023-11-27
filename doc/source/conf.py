@@ -244,12 +244,7 @@ html_theme_options = {
     "footer_items": ["pandas_footer", "sphinx-version"],
     "github_url": "https://github.com/pandas-dev/pandas",
     "twitter_url": "https://twitter.com/pandas_dev",
-    "logo": {"image_dark": "https://pandas.pydata.org/static/img/pandas_white.svg"},
-    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
-    "switcher": {
-        "json_url": "/versions.json",
-        "version_match": switcher_version,
-    },
+    "navbar_end": ["navbar-icon-links"],
 }
 
 # Add any paths that contain custom themes here, relative to this directory.
