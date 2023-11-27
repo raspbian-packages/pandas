@@ -1,0 +1,29 @@
+Description: Don't require a warning armel numpy doesn't have
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no (this version requires dpkg)
+
+--- a/pandas/tests/apply/test_str.py
++++ b/pandas/tests/apply/test_str.py
+@@ -72,6 +72,12 @@ def test_apply_np_reducer(op, how):
+ @pytest.mark.parametrize("how", ["transform", "apply"])
+ def test_apply_np_transformer(float_frame, op, how):
+     # GH 39116
++    # armel numpy currently doesn't have the invalid log/sqrt warning (see 1.4.3-1 build log,
++    # possibly the same underlying issue as statsmodels https://bugs.debian.org/956882)
++    # using nullcontext() instead of warn=None to not start failing if this ever gets fixed
++    import subprocess
++    import contextlib
++    debian_arch = subprocess.run(["dpkg","--print-architecture"],capture_output=True).stdout
+ 
+     # float_frame will _usually_ have negative values, which will
+     #  trigger the warning here, but let's put one in just to be sure
+@@ -80,7 +86,7 @@ def test_apply_np_transformer(float_fram
+     if op in ["log", "sqrt"]:
+         warn = RuntimeWarning
+ 
+-    with tm.assert_produces_warning(warn, check_stacklevel=False):
++    with (contextlib.nullcontext() if (debian_arch==b'armel\n') else tm.assert_produces_warning(warn, check_stacklevel=False)):
+         # float_frame fixture is defined in conftest.py, so we don't check the
+         # stacklevel as otherwise the test would fail.
+         result = getattr(float_frame, how)(op)

@@ -1,0 +1,58 @@
+Description: Fix or skip tests that assume the wrong endianness
+
+This is a bug in the tests not pandas itself -
+the expected values explicitly specify little-endian
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed - upstream fix ad98c2b77
+
+--- a/pandas/tests/frame/methods/test_to_records.py
++++ b/pandas/tests/frame/methods/test_to_records.py
+@@ -12,6 +12,7 @@ from pandas import (
+     date_range,
+ )
+ import pandas._testing as tm
++from pandas.compat import is_platform_little_endian
+ 
+ 
+ class TestDataFrameToRecords:
+@@ -96,7 +97,7 @@ class TestDataFrameToRecords:
+             + [np.asarray(df.iloc[:, i]) for i in range(3)],
+             dtype={
+                 "names": ["A", "level_1", "0", "1", "2"],
+-                "formats": ["O", "O", "<f8", "<f8", "<f8"],
++                "formats": ["O", "O", "<f8", "<f8", "<f8"] if is_platform_little_endian() else ["O", "O", ">f8", ">f8", ">f8"],
+             },
+         )
+         tm.assert_numpy_array_equal(result, expected)
+@@ -123,7 +124,7 @@ class TestDataFrameToRecords:
+                 ("2022-01-01", "2022-01-01", "2022-01-01"),
+                 ("2022-01-02", "2022-01-02", "2022-01-02"),
+             ],
+-            dtype=[("1", "<M8[ns]"), ("2", "<M8[ns]"), ("3", "<M8[ns]")],
++            dtype=[("1", "<M8[ns]"), ("2", "<M8[ns]"), ("3", "<M8[ns]")] if is_platform_little_endian() else [("1", ">M8[ns]"), ("2", ">M8[ns]"), ("3", ">M8[ns]")],
+         )
+ 
+         result = df.to_records(index=False)
+--- a/pandas/tests/scalar/timedelta/test_arithmetic.py
++++ b/pandas/tests/scalar/timedelta/test_arithmetic.py
+@@ -435,7 +435,7 @@ class TestTimedeltaMultiplicationDivisio
+ 
+         msg = (
+             "ufunc '?multiply'? cannot use operands with types "
+-            r"dtype\('<m8\[ns\]'\) and dtype\('<m8\[ns\]'\)"
++            r"dtype\('[<>]m8\[ns\]'\) and dtype\('[<>]m8\[ns\]'\)"
+         )
+         with pytest.raises(TypeError, match=msg):
+             td * other
+--- a/pandas/tests/arrays/floating/test_arithmetic.py
++++ b/pandas/tests/arrays/floating/test_arithmetic.py
+@@ -162,7 +162,7 @@ def test_error_invalid_values(data, all_
+             "not all arguments converted during string formatting",
+             "can't multiply sequence by non-int of type 'float'",
+             "ufunc 'subtract' cannot use operands with types dtype",
+-            r"ufunc 'add' cannot use operands with types dtype\('<M8\[ns\]'\)",
++            r"ufunc 'add' cannot use operands with types dtype\('[<>]M8\[ns\]'\)",
+             r"ufunc 'add' cannot use operands with types dtype\('float\d{2}'\)",
+             "cannot subtract DatetimeArray from ndarray",
+         ]

@@ -1,0 +1,28 @@
+Description: Don't test datetime in locales with no encoding
+
+Some datetime tests run the test in every available locale.
+If this set includes locales without an encoding (currently dsb_DE
+and sah_RU), it fails due to Python bug
+https://bugs.python.org/issue20088
+
+Failure log
+https://tests.reproducible-builds.org/debian/rbuild/buster/amd64/pandas_0.23.3+dfsg-3.rbuild.log.gz
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug: https://github.com/pandas-dev/pandas/issues/20957
+Forwarded: no
+
+--- a/pandas/_config/localization.py
++++ b/pandas/_config/localization.py
+@@ -108,7 +108,10 @@ def _valid_locales(locales: list[str] |
+ 
+ 
+ def _default_locale_getter() -> bytes:
+-    return subprocess.check_output(["locale -a"], shell=True)
++    raw_locales = subprocess.check_output(["locale -a"], shell=True)
++    # skip locales without encoding, to avoid Python bug https://bugs.python.org/issue20088
++    raw_locales = raw_locales.replace(b'\ndsb_DE\n',b'\n').replace(b'\nsah_RU\n',b'\n').replace(b'\ncrh_UA\n',b'\n')
++    return raw_locales
+ 
+ 
+ def get_locales(
