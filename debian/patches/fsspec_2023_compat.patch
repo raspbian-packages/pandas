@@ -1,0 +1,86 @@
+Description: Stop using no-longer-existing fsspec method
+
+Origin: upstream commit e73d4d29203dab20e001beb1090d07683de583d6
+Bug-Debian: https://bugs.debian.org/1042043
+Author: Thomas Li, Patrick Hoefler
+Forwarded: not-needed
+
+--- a/pandas/tests/io/test_fsspec.py
++++ b/pandas/tests/io/test_fsspec.py
+@@ -50,10 +50,8 @@ def test_read_csv(cleared_fs, df1):
+ 
+ 
+ def test_reasonable_error(monkeypatch, cleared_fs):
+-    from fsspec import registry
+     from fsspec.registry import known_implementations
+ 
+-    registry.target.clear()
+     with pytest.raises(ValueError, match="nosuchprotocol"):
+         read_csv("nosuchprotocol://test/test.csv")
+     err_msg = "test error message"
+--- a/pandas/tests/io/test_gcs.py
++++ b/pandas/tests/io/test_gcs.py
+@@ -22,17 +22,12 @@ from pandas.util import _test_decorators
+ @pytest.fixture
+ def gcs_buffer(monkeypatch):
+     """Emulate GCS using a binary buffer."""
+-    from fsspec import (
+-        AbstractFileSystem,
+-        registry,
+-    )
+-
+-    registry.target.clear()  # remove state
++    import fsspec
+ 
+     gcs_buffer = BytesIO()
+     gcs_buffer.close = lambda: True
+ 
+-    class MockGCSFileSystem(AbstractFileSystem):
++    class MockGCSFileSystem(fsspec.AbstractFileSystem):
+         def open(*args, **kwargs):
+             gcs_buffer.seek(0)
+             return gcs_buffer
+@@ -41,7 +36,8 @@ def gcs_buffer(monkeypatch):
+             # needed for pyarrow
+             return [{"name": path, "type": "file"}]
+ 
+-    monkeypatch.setattr("gcsfs.GCSFileSystem", MockGCSFileSystem)
++    # Overwrites the default implementation from gcsfs to our mock class
++    fsspec.register_implementation("gs", MockGCSFileSystem, clobber=True)
+ 
+     return gcs_buffer
+ 
+@@ -54,9 +50,6 @@ def test_to_read_gcs(gcs_buffer, format)
+ 
+     GH 33987
+     """
+-    from fsspec import registry
+-
+-    registry.target.clear()  # remove state
+ 
+     df1 = DataFrame(
+         {
+@@ -131,9 +124,6 @@ def test_to_csv_compression_encoding_gcs
+     GH 35677 (to_csv, compression), GH 26124 (to_csv, encoding), and
+     GH 32392 (read_csv, encoding)
+     """
+-    from fsspec import registry
+-
+-    registry.target.clear()  # remove state
+     df = tm.makeDataFrame()
+ 
+     # reference of compressed and encoded file
+@@ -173,12 +163,8 @@ def test_to_csv_compression_encoding_gcs
+ @td.skip_if_no("gcsfs")
+ def test_to_parquet_gcs_new_file(monkeypatch, tmpdir):
+     """Regression test for writing to a not-yet-existent GCS Parquet file."""
+-    from fsspec import (
+-        AbstractFileSystem,
+-        registry,
+-    )
++    from fsspec import AbstractFileSystem
+ 
+-    registry.target.clear()  # remove state
+     df1 = DataFrame(
+         {
+             "int": [1, 3],

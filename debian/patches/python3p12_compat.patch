@@ -1,0 +1,428 @@
+Description: Be compatible with Python 3.12
+
+Bug-Debian: https://bugs.debian.org/1055801
+Bug-Ubuntu: https://launchpad.net/ubuntu/+bug/2043895
+Origin: upstream commit c9a8f95f3ccfed00ba600aa8eb0789261854614c
+Author: Thomas Li, Matthew Roeschke, Rebecca N. Palmer
+Forwarded: not-needed
+
+--- a/pandas/compat/__init__.py
++++ b/pandas/compat/__init__.py
+@@ -37,6 +37,7 @@ if TYPE_CHECKING:
+ PY39 = sys.version_info >= (3, 9)
+ PY310 = sys.version_info >= (3, 10)
+ PY311 = sys.version_info >= (3, 11)
++PY312 = sys.version_info >= (3, 12)
+ PYPY = platform.python_implementation() == "PyPy"
+ IS64 = sys.maxsize > 2**32
+ 
+--- a/pandas/core/computation/expr.py
++++ b/pandas/core/computation/expr.py
+@@ -548,15 +548,18 @@ class BaseExprVisitor(ast.NodeVisitor):
+     def visit_Name(self, node, **kwargs):
+         return self.term_type(node.id, self.env, **kwargs)
+ 
++    # TODO(py314): deprecated since Python 3.8. Remove after Python 3.14 is min
+     def visit_NameConstant(self, node, **kwargs) -> Term:
+         return self.const_type(node.value, self.env)
+ 
++    # TODO(py314): deprecated since Python 3.8. Remove after Python 3.14 is min
+     def visit_Num(self, node, **kwargs) -> Term:
+-        return self.const_type(node.n, self.env)
++        return self.const_type(node.value, self.env)
+ 
+     def visit_Constant(self, node, **kwargs) -> Term:
+-        return self.const_type(node.n, self.env)
++        return self.const_type(node.value, self.env)
+ 
++    # TODO(py314): deprecated since Python 3.8. Remove after Python 3.14 is min
+     def visit_Str(self, node, **kwargs):
+         name = self.env.add_tmp(node.s)
+         return self.term_type(name, self.env)
+--- a/pandas/core/indexes/base.py
++++ b/pandas/core/indexes/base.py
+@@ -1,5 +1,6 @@
+ from __future__ import annotations
+ 
++from collections import abc
+ from datetime import datetime
+ import functools
+ from itertools import zip_longest
+@@ -3801,6 +3802,11 @@ class Index(IndexOpsMixin, PandasObject)
+             try:
+                 return self._engine.get_loc(casted_key)
+             except KeyError as err:
++                if isinstance(casted_key, slice) or (
++                    isinstance(casted_key, abc.Iterable)
++                    and any(isinstance(x, slice) for x in casted_key)
++                ):
++                    raise InvalidIndexError(key)
+                 raise KeyError(key) from err
+             except TypeError:
+                 # If we have a listlike key, _check_indexing_error will raise
+--- a/pandas/core/indexes/datetimelike.py
++++ b/pandas/core/indexes/datetimelike.py
+@@ -30,6 +30,7 @@ from pandas._libs.tslibs import (
+     to_offset,
+ )
+ from pandas.compat.numpy import function as nv
++from pandas.errors import InvalidIndexError
+ from pandas.util._decorators import (
+     Appender,
+     cache_readonly,
+@@ -139,7 +140,7 @@ class DatetimeIndexOpsMixin(NDArrayBacke
+         hash(key)
+         try:
+             self.get_loc(key)
+-        except (KeyError, TypeError, ValueError):
++        except (KeyError, TypeError, ValueError, InvalidIndexError):
+             return False
+         return True
+ 
+--- a/pandas/core/indexing.py
++++ b/pandas/core/indexing.py
+@@ -686,7 +686,12 @@ class _LocationIndexer(NDFrameIndexerBas
+ 
+         ax = self.obj._get_axis(0)
+ 
+-        if isinstance(ax, MultiIndex) and self.name != "iloc" and is_hashable(key):
++        if (
++            isinstance(ax, MultiIndex)
++            and self.name != "iloc"
++            and is_hashable(key)
++            and not isinstance(key, slice)
++        ):
+             with suppress(KeyError, InvalidIndexError):
+                 # TypeError e.g. passed a bool
+                 return ax.get_loc(key)
+@@ -997,6 +1002,14 @@ class _LocationIndexer(NDFrameIndexerBas
+         # we have a nested tuple so have at least 1 multi-index level
+         # we should be able to match up the dimensionality here
+ 
++        def _contains_slice(x: object) -> bool:
++            # Check if object is a slice or a tuple containing a slice
++            if isinstance(x, tuple):
++                return any(isinstance(v, slice) for v in x)
++            elif isinstance(x, slice):
++                return True
++            return False
++
+         for key in tup:
+             check_deprecated_indexers(key)
+ 
+@@ -1007,7 +1020,10 @@ class _LocationIndexer(NDFrameIndexerBas
+             if self.name != "loc":
+                 # This should never be reached, but let's be explicit about it
+                 raise ValueError("Too many indices")  # pragma: no cover
+-            if all(is_hashable(x) or com.is_null_slice(x) for x in tup):
++            if all(
++                (is_hashable(x) and not _contains_slice(x)) or com.is_null_slice(x)
++                for x in tup
++            ):
+                 # GH#10521 Series should reduce MultiIndex dimensions instead of
+                 #  DataFrame, IndexingError is not raised when slice(None,None,None)
+                 #  with one row.
+@@ -1358,7 +1374,15 @@ class _LocIndexer(_LocationIndexer):
+         ):
+             raise IndexingError("Too many indexers")
+ 
+-        if is_scalar(key) or (isinstance(labels, MultiIndex) and is_hashable(key)):
++        # Slices are not valid keys passed in by the user,
++        # even though they are hashable in Python 3.12
++        contains_slice = False
++        if isinstance(key, tuple):
++            contains_slice = any(isinstance(v, slice) for v in key)
++
++        if is_scalar(key) or (
++            isinstance(labels, MultiIndex) and is_hashable(key) and not contains_slice
++        ):
+             # Otherwise get_loc will raise InvalidIndexError
+ 
+             # if we are a label return me
+--- a/pandas/core/series.py
++++ b/pandas/core/series.py
+@@ -980,7 +980,12 @@ class Series(base.IndexOpsMixin, NDFrame
+         elif key_is_scalar:
+             return self._get_value(key)
+ 
+-        if is_hashable(key):
++        # Convert generator to list before going through hashable part
++        # (We will iterate through the generator there to check for slices)
++        if is_iterator(key):
++            key = list(key)
++
++        if is_hashable(key) and not isinstance(key, slice):
+             # Otherwise index.get_value will raise InvalidIndexError
+             try:
+                 # For labels that don't resolve as scalars like tuples and frozensets
+@@ -996,9 +1001,6 @@ class Series(base.IndexOpsMixin, NDFrame
+                     # in the first level of our MultiIndex
+                     return self._get_values_tuple(key)
+ 
+-        if is_iterator(key):
+-            key = list(key)
+-
+         if com.is_bool_indexer(key):
+             key = check_bool_indexer(self.index, key)
+             key = np.asarray(key, dtype=bool)
+--- a/pandas/io/sql.py
++++ b/pandas/io/sql.py
+@@ -1849,6 +1849,11 @@ class SQLiteTable(SQLTable):
+     """
+ 
+     def __init__(self, *args, **kwargs) -> None:
++        super().__init__(*args, **kwargs)
++
++        self._register_date_adapters()
++
++    def _register_date_adapters(self) -> None:
+         # GH 8341
+         # register an adapter callable for datetime.time object
+         import sqlite3
+@@ -1859,8 +1864,27 @@ class SQLiteTable(SQLTable):
+             # This is faster than strftime
+             return f"{t.hour:02d}:{t.minute:02d}:{t.second:02d}.{t.microsecond:06d}"
+ 
++        # Also register adapters for date/datetime and co
++        # xref https://docs.python.org/3.12/library/sqlite3.html#adapter-and-converter-recipes
++        # Python 3.12+ doesn't auto-register adapters for us anymore
++
++        adapt_date_iso = lambda val: val.isoformat()
++        adapt_datetime_iso = lambda val: val.isoformat()
++        adapt_datetime_epoch = lambda val: int(val.timestamp())
++
+         sqlite3.register_adapter(time, _adapt_time)
+-        super().__init__(*args, **kwargs)
++
++        sqlite3.register_adapter(date, adapt_date_iso)
++        sqlite3.register_adapter(datetime, adapt_datetime_iso)
++        sqlite3.register_adapter(datetime, adapt_datetime_epoch)
++
++        convert_date = lambda val: date.fromisoformat(val.decode())
++        convert_datetime = lambda val: datetime.fromisoformat(val.decode())
++        convert_timestamp = lambda val: datetime.fromtimestamp(int(val))
++
++        sqlite3.register_converter("date", convert_date)
++        sqlite3.register_converter("datetime", convert_datetime)
++        sqlite3.register_converter("timestamp", convert_timestamp)
+ 
+     def sql_schema(self) -> str:
+         return str(";\n".join(self.table))
+--- a/pandas/io/xml.py
++++ b/pandas/io/xml.py
+@@ -496,7 +496,7 @@ class _EtreeFrameParser(_XMLFrameParser)
+                 children = self.iterparse[next(iter(self.iterparse))]
+             else:
+                 parent = self.xml_doc.find(self.xpath, namespaces=self.namespaces)
+-                children = parent.findall("*") if parent else []
++                children = parent.findall("*") if parent is not None else []
+ 
+             if is_list_like(self.names):
+                 if len(self.names) < len(children):
+--- a/pandas/tests/computation/test_eval.py
++++ b/pandas/tests/computation/test_eval.py
+@@ -9,6 +9,7 @@ import warnings
+ import numpy as np
+ import pytest
+ 
++from pandas.compat import PY312
+ from pandas.errors import (
+     NumExprClobberingError,
+     PerformanceWarning,
+@@ -566,22 +567,16 @@ class TestEval:
+         # TODO: 2022-01-29: result return list with numexpr 2.7.3 in CI
+         # but cannot reproduce locally
+         result = np.array(
+-            pd.eval(
+-                "[-True, True, ~True, +True,"
+-                "-False, False, ~False, +False,"
+-                "-37, 37, ~37, +37]"
+-            ),
++            pd.eval("[-True, True, +True, -False, False, +False, -37, 37, ~37, +37]"),
+             dtype=np.object_,
+         )
+         expected = np.array(
+             [
+                 -True,
+                 True,
+-                ~True,
+                 +True,
+                 -False,
+                 False,
+-                ~False,
+                 +False,
+                 -37,
+                 37,
+@@ -696,9 +691,13 @@ class TestEval:
+ 
+     def test_true_false_logic(self):
+         # GH 25823
+-        assert pd.eval("not True") == -2
+-        assert pd.eval("not False") == -1
+-        assert pd.eval("True and not True") == 0
++        # This behavior is deprecated in Python 3.12
++        with tm.maybe_produces_warning(
++            DeprecationWarning, PY312, check_stacklevel=False
++        ):
++            assert pd.eval("not True") == -2
++            assert pd.eval("not False") == -1
++            assert pd.eval("True and not True") == 0
+ 
+     def test_and_logic_string_match(self):
+         # GH 25823
+--- a/pandas/tests/frame/indexing/test_where.py
++++ b/pandas/tests/frame/indexing/test_where.py
+@@ -144,6 +144,8 @@ class TestDataFrameIndexingWhere:
+         check_dtypes = all(not issubclass(s.type, np.integer) for s in df.dtypes)
+         _check_align(df, cond, np.nan, check_dtypes=check_dtypes)
+ 
++    # Ignore deprecation warning in Python 3.12 for inverting a bool
++    @pytest.mark.filterwarnings("ignore::DeprecationWarning")
+     def test_where_invalid(self):
+         # invalid conditions
+         df = DataFrame(np.random.randn(5, 3), columns=["A", "B", "C"])
+--- a/pandas/tests/indexes/test_indexing.py
++++ b/pandas/tests/indexes/test_indexing.py
+@@ -197,10 +197,8 @@ class TestGetValue:
+ 
+ class TestGetLoc:
+     def test_get_loc_non_hashable(self, index):
+-        # MultiIndex and Index raise TypeError, others InvalidIndexError
+-
+-        with pytest.raises((TypeError, InvalidIndexError), match="slice"):
+-            index.get_loc(slice(0, 1))
++        with pytest.raises(InvalidIndexError, match="[0, 1]"):
++            index.get_loc([0, 1])
+ 
+     def test_get_loc_generator(self, index):
+ 
+--- a/pandas/tests/io/parser/test_parse_dates.py
++++ b/pandas/tests/io/parser/test_parse_dates.py
+@@ -6,6 +6,7 @@ parsers defined in parsers.py
+ from datetime import (
+     date,
+     datetime,
++    timezone,
+ )
+ from io import StringIO
+ import warnings
+@@ -712,7 +713,11 @@ def test_date_parser_int_bug(all_parsers
+         StringIO(data),
+         index_col=0,
+         parse_dates=[0],
+-        date_parser=lambda x: datetime.utcfromtimestamp(int(x)),
++        # Note: we must pass tz and then drop the tz attribute
++        # (if we don't CI will flake out depending on the runner's local time)
++        date_parser=lambda x: datetime.fromtimestamp(int(x), tz=timezone.utc).replace(
++            tzinfo=None
++        ),
+     )
+     expected = DataFrame(
+         [
+--- a/pandas/tests/io/parser/test_quoting.py
++++ b/pandas/tests/io/parser/test_quoting.py
+@@ -40,7 +40,7 @@ def test_bad_quote_char(all_parsers, kwa
+     "quoting,msg",
+     [
+         ("foo", '"quoting" must be an integer|Argument'),
+-        (5, 'bad "quoting" value'),  # quoting must be in the range [0, 3]
++        (10, 'bad "quoting" value'),  # quoting must be in the range [0, 3]
+     ],
+ )
+ def test_bad_quoting(all_parsers, quoting, msg):
+--- a/pandas/tests/scalar/timestamp/test_arithmetic.py
++++ b/pandas/tests/scalar/timestamp/test_arithmetic.py
+@@ -227,7 +227,7 @@ class TestTimestampArithmetic:
+         ],
+     )
+     def test_timestamp_add_timedelta64_unit(self, other, expected_difference):
+-        ts = Timestamp(datetime.utcnow())
++        ts = Timestamp(datetime.now(timezone.utc))
+         result = ts + other
+         valdiff = result.value - ts.value
+         assert valdiff == expected_difference
+--- a/pandas/tests/scalar/timestamp/test_timestamp.py
++++ b/pandas/tests/scalar/timestamp/test_timestamp.py
+@@ -5,6 +5,7 @@ from datetime import (
+     datetime,
+     timedelta,
+ )
++from datetime import timezone as datetime_timezone
+ import locale
+ import pickle
+ import unicodedata
+@@ -286,7 +287,7 @@ class TestTimestamp:
+ 
+         compare(Timestamp.now(), datetime.now())
+         compare(Timestamp.now("UTC"), datetime.now(timezone("UTC")))
+-        compare(Timestamp.utcnow(), datetime.utcnow())
++        compare(Timestamp.utcnow(), datetime.now(datetime_timezone.utc))
+         compare(Timestamp.today(), datetime.today())
+         current_time = calendar.timegm(datetime.now().utctimetuple())
+         msg = "timezone-aware Timestamp with UTC"
+@@ -311,7 +312,7 @@ class TestTimestamp:
+             datetime.fromtimestamp(current_time, utc),
+         )
+ 
+-        date_component = datetime.utcnow()
++        date_component = datetime.now(datetime_timezone.utc)
+         time_component = (date_component + timedelta(minutes=10)).time()
+         compare(
+             Timestamp.combine(date_component, time_component),
+@@ -330,7 +331,7 @@ class TestTimestamp:
+ 
+         compare(Timestamp.now(), datetime.now())
+         compare(Timestamp.now("UTC"), datetime.now(tzutc()))
+-        compare(Timestamp.utcnow(), datetime.utcnow())
++        compare(Timestamp.utcnow(), datetime.now(datetime_timezone.utc))
+         compare(Timestamp.today(), datetime.today())
+         current_time = calendar.timegm(datetime.now().utctimetuple())
+ 
+@@ -347,7 +348,7 @@ class TestTimestamp:
+             Timestamp.fromtimestamp(current_time), datetime.fromtimestamp(current_time)
+         )
+ 
+-        date_component = datetime.utcnow()
++        date_component = datetime.now(datetime_timezone.utc)
+         time_component = (date_component + timedelta(minutes=10)).time()
+         compare(
+             Timestamp.combine(date_component, time_component),
+--- a/pandas/tests/series/indexing/test_indexing.py
++++ b/pandas/tests/series/indexing/test_indexing.py
+@@ -204,9 +204,9 @@ def test_basic_getitem_setitem_corner(da
+     # OK
+     msg = r"unhashable type(: 'slice')?"
+     with pytest.raises(TypeError, match=msg):
+-        datetime_series[[5, slice(None, None)]]
++        datetime_series[[5, [None, None]]]
+     with pytest.raises(TypeError, match=msg):
+-        datetime_series[[5, slice(None, None)]] = 2
++        datetime_series[[5, [None, None]]] = 2
+ 
+ 
+ def test_slice(string_series, object_series, using_copy_on_write):
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -5,7 +5,11 @@ requires = [
+     "setuptools>=51.0.0",
+     "wheel",
+     "Cython>=0.29.32,<3",  # Note: sync with setup.py, environment.yml and asv.conf.json
+-    "oldest-supported-numpy>=2022.8.16"
++    # Note: numpy 1.25 has a backwards compatible C API by default
++    # we don't want to force users to compile with 1.25 though
++    # (Ideally, in the future, though, oldest-supported-numpy can be dropped when our min numpy is 1.25.x)
++    "oldest-supported-numpy>=2022.8.16; python_version<'3.12'",
++    "numpy>=1.21.6; python_version>='3.12'"
+ ]
+ # uncomment to enable pep517 after versioneer problem is fixed.
+ # https://github.com/python-versioneer/python-versioneer/issues/193
+--- a/setup.py
++++ b/setup.py
+@@ -387,6 +387,7 @@ if linetrace:
+ # we can't do anything about these warnings because they stem from
+ # cython+numpy version mismatches.
+ macros.append(("NPY_NO_DEPRECATED_API", "0"))
++macros.append(("NPY_TARGET_VERSION", "NPY_1_21_API_VERSION"))
+ 
+ 
+ # ----------------------------------------------------------------------
