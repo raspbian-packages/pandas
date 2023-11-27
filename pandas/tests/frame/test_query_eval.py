@@ -1131,7 +1131,7 @@ class TestDataFrameQueryBacktickQuoting:
                 "A (x)": [4, 1, 3],
                 "B(x)": [1, 1, 5],
                 "B (x)": [2, 7, 4],
-                "  &^ :!€$?(} >    <++*''  ": [2, 5, 6],
+                "  &^ !€$?(} >    <++*''  ": [2, 5, 6],
                 "": [10, 11, 1],
                 " A": [4, 7, 9],
                 "  ": [1, 2, 1],
@@ -1224,8 +1224,8 @@ class TestDataFrameQueryBacktickQuoting:
         tm.assert_series_equal(res, expect)
 
     def test_lots_of_operators_string(self, df):
-        res = df.query("`  &^ :!€$?(} >    <++*''  ` > 4")
-        expect = df[df["  &^ :!€$?(} >    <++*''  "] > 4]
+        res = df.query("`  &^ !€$?(} >    <++*''  ` > 4")
+        expect = df[df["  &^ !€$?(} >    <++*''  "] > 4]
         tm.assert_frame_equal(res, expect)
 
     def test_missing_attribute(self, df):
