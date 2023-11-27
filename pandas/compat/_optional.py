@@ -4,6 +4,9 @@ import importlib
 import sys
 import types
 import warnings
+import platform
+import re
+warn_numba_platform = "Non-x86 system detected, Numba may give wrong results or crash" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
 
 from pandas.util._exceptions import find_stack_level
 
@@ -129,6 +132,8 @@ def import_optional_dependency(
     """
 
     assert errors in {"warn", "raise", "ignore"}
+    if name=='numba' and warn_numba_platform:
+        warnings.warn(warn_numba_platform)
 
     package_name = INSTALL_MAPPING.get(name)
     install_name = package_name if package_name is not None else name

@@ -22,6 +22,11 @@ pytestmark = pytest.mark.skipif(
     "and MacOS can timeout",
 )
 
+import sys
+try:
+    from numba.core.errors import UnsupportedParforsError
+except ImportError:
+    UnsupportedParforsError = ImportError
 
 @td.skip_if_no("numba")
 @pytest.mark.filterwarnings("ignore")
@@ -37,6 +42,7 @@ class TestEWM:
             online_ewm.mean(update=df.head(1))
 
     @pytest.mark.slow
+    @pytest.mark.xfail(condition=sys.maxsize<2**33, raises=UnsupportedParforsError, reason="some Numba functionality is not available on 32 bit systems", strict=False)
     @pytest.mark.parametrize(
         "obj", [DataFrame({"a": range(5), "b": range(5)}), Series(range(5), name="foo")]
     )
