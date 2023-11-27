@@ -57,7 +57,6 @@ extensions = [
     "numpydoc",
     "sphinx_copybutton",
     "sphinx_panels",
-    "sphinx_toggleprompt",
     "sphinx.ext.autodoc",
     "sphinx.ext.autosummary",
     "sphinx.ext.coverage",
