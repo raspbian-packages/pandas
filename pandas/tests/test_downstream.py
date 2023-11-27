@@ -40,6 +40,11 @@ def df():
 
 @pytest.mark.filterwarnings("ignore:.*64Index is deprecated:FutureWarning")
 def test_dask(df):
+    try:
+        from multiprocessing.pool import ThreadPool
+        ThreadPool()
+    except ImportError:
+        pytest.skip("multiprocessing not available")
 
     # dask sets "compute.use_numexpr" to False, so catch the current value
     # and ensure to reset it afterwards to avoid impacting other tests
