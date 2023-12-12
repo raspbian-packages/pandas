@@ -1019,6 +1019,7 @@ be passed, and when ``lag=1`` the plot is essentially ``data[:-1]`` vs.
    :suppress:
 
    np.random.seed(123456)
+   random.seed(123456) # for reproducibility - bootstrap_plot uses random.sample
 
 .. ipython:: python
 
