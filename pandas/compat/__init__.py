@@ -37,6 +37,7 @@ if TYPE_CHECKING:
 PY39 = sys.version_info >= (3, 9)
 PY310 = sys.version_info >= (3, 10)
 PY311 = sys.version_info >= (3, 11)
+PY312 = sys.version_info >= (3, 12)
 PYPY = platform.python_implementation() == "PyPy"
 IS64 = sys.maxsize > 2**32
 
