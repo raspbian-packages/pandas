@@ -1,0 +1,197 @@
+Source: pandas
+Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.org>
+Uploaders: Yaroslav Halchenko <debian@onerussian.com>,
+           Michael Hanke <michael.hanke@gmail.com>,
+           Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Section: python
+Priority: optional
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               locales-all,
+               python3-all-dev,
+               cython3-legacy (>= 0.29.32~),
+# we don't have this version               python3-blosc (>= 1.21.0~) <!nocheck> <!nodoc>,
+               python3-bottleneck (>= 1.3.2~) <!nocheck> <!nodoc>,
+               python3-bs4 (>= 4.9.3~) <!nocheck> <!nodoc>,
+               python3-dask (>= 2.10.1~) <!nocheck> <!nodoc>,
+               python3-dateutil,
+               python3-fsspec (>= 2021.07.0~) <!nocheck> <!nodoc>,
+               python3-html5lib (>= 1.1~) <!nocheck> <!nodoc>,
+               python3-hypothesis (>= 6.13.0~) <!nocheck> <!nodoc>,
+               python3-jinja2 (>= 3.0~) <!nocheck> <!nodoc>,
+               python3-lxml (>= 4.6.3~) <!nocheck> <!nodoc>,
+               python3-matplotlib (>= 3.3.2~) [!ia64 !sh4 !x32] <!nocheck> <!nodoc>,
+# numba may crash on non-x86 (#1033907)
+# temporarily disabled to unblock python3.12, #1047461 #1058468               python3-numba (>= 0.53.1~) [amd64 i386] <!nocheck> <!nodoc>,
+               python3-numexpr (>= 2.8.0~) <!nocheck> <!nodoc>,
+               python3-numpy (>= 1:1.18.5~),
+               python3-odf (>= 1.4.1~) <!nocheck> <!nodoc>,
+               python3-openpyxl (>= 3.0.7~) <!nocheck> <!nodoc>,
+# doesn't seem to work in this test environment               python3-psycopg2 (>= 2.8.6~) <!nocheck> <!nodoc>,
+# doesn't seem to work in this test environment               python3-pymysql (>= 1.0.2~) <!nocheck> <!nodoc>,
+               python3-pytest (>= 6.0~) <!nocheck> <!nodoc>,
+               python3-pytest-asyncio (>= 0.17~) <!nocheck> <!nodoc>,
+               python3-pytest-forked <!nocheck> <!nodoc>,
+               python3-pytest-xdist (>= 1.31~) <!nocheck> <!nodoc>,
+               python3-scipy,
+               python3-setuptools (>= 51~),
+# we don't have this version               python3-snappy (>= 0.6.0~) <!nocheck> <!nodoc>,
+               python3-sqlalchemy (>= 1.4.16~) <!nocheck> <!nodoc>,
+               python3-tables (>= 3.6.1~) <!nocheck> <!nodoc>,
+               python3-tabulate (>= 0.8.9~) <!nocheck> <!nodoc>,
+               python3-tk <!nocheck> <!nodoc>,
+               python3-tz (>= 2022.1~) <!nocheck> <!nodoc>,
+# we don't have this version               python3-xlrd (>= 2.0.1~) <!nocheck> <!nodoc>,
+               python3-xlsxwriter (>= 1.4.3~) <!nocheck> <!nodoc>,
+# having xlwt and not xlrd breaks tests/io/test_fsspec.py               python3-xlwt (>= 1.3.0~) <!nocheck> <!nodoc>,
+               python3-zstandard <!nocheck> <!nodoc>,
+               sphinx-common,
+# for tests/examples that use old-style timezone names
+               tzdata-legacy <!nocheck> <!nodoc>,
+               xvfb <!nocheck>,
+               xauth <!nocheck>,
+               xclip <!nocheck>
+Build-Depends-Indep: python3-sphinx <!nodoc>,
+                     python3-sphinx-copybutton <!nodoc>,
+                     python3-sphinx-panels <!nodoc>,
+                     python3-pydata-sphinx-theme <!nodoc>,
+                     python3-ipykernel <!nodoc>,
+                     python3-notebook (>= 6.0.3~) <!nodoc>,
+                     python3-nbconvert (>= 6.4.5~) <!nodoc>,
+                     python3-nbsphinx <!nodoc>,
+                     python3-numpydoc <!nodoc>,
+                     ipython3 (>= 7.11.1~) <!nodoc>,
+                     jdupes <!nodoc>,
+# for style.ipynb
+# broken by #1057309                     pandoc <!nodoc>,
+# for intersphinx inventories
+                     python3-doc <!nodoc>,
+# no longer exists                     python-numpy-doc <!nodoc>,
+                     python-scipy-doc <!nodoc>,
+# no longer exists                     python-matplotlib-doc <!nodoc>,
+                     python-statsmodels-doc <!nodoc>,
+# these are for not having (as many) exception messages in documentation examples
+# so may be temporarily removed if they are broken or to break bootstrap cycles
+# not in Debian (not to be confused with python3-arrow) python3-pyarrow <!nodoc>,
+#fails with KeyError 'state', possibly nbconvert bug 1731                     python3-ipywidgets <!nodoc>,
+                     python3-rpy2 <!nodoc>,
+                     python3-seaborn <!nodoc>,
+                     python3-sqlalchemy <!nodoc>,
+                     python3-statsmodels <!nodoc>,
+# temporarily disabled to unblock python3.12, #1055844                     python3-xarray (>= 0.19.0~) <!nodoc>,
+Standards-Version: 4.6.2
+Vcs-Browser: https://salsa.debian.org/science-team/pandas
+Vcs-Git: https://salsa.debian.org/science-team/pandas.git
+Homepage: https://pandas.pydata.org/
+Rules-Requires-Root: no
+
+Package: python3-pandas
+Architecture: all
+Depends: ${misc:Depends},
+         ${python3:Depends},
+         python3-numpy,
+         python3-dateutil,
+         python3-pandas-lib (>= ${source:Upstream-Version}),
+# should maybe have a python3-pandas-lib (<< ${source:Upstream-Version}.0), as well, but that leaves arch:all BD-Uninstallable if arch:amd64 builds first
+         python3-pkg-resources
+Recommends: python3-scipy,
+            python3-matplotlib,
+            python3-tz,
+# for faster processing
+# see -lib for python3-numba
+            python3-bottleneck,
+            python3-numexpr,
+# for spreadsheet I/O
+            python3-odf,
+            python3-openpyxl,
+# for HTML table I/O
+            python3-bs4,
+            python3-html5lib,
+            python3-lxml,
+# for HDF5 I/O
+            python3-tables,
+# for styled output
+            python3-jinja2
+Suggests: python-pandas-doc,
+          python3-statsmodels
+Breaks:
+# 0.23 -> 0.25 API breaks, #931557
+        cnvkit (<< 0.9.6-2~),
+# 0.25 -> 1.0 API breaks, #950430
+        python3-biom-format (<< 2.1.8+dfsg-3.1~),
+        python3-seaborn (<< 0.9.1~),
+# 1.0 -> 1.1 API breaks, #969650
+# 1.1 -> 1.3 API breaks, see #999415
+        python3-cfgrib (<= 0.9.9-1),
+        python3-joypy (<= 0.2.2-2),
+        python3-cooler (<= 0.8.8-1),
+# 1.3 -> 1.4 API breaks, see #1017809
+        python3-skbio (<= 0.5.6-6),
+        python3-ulmo (<= 0.8.8+dfsg1-1),
+# 1.4 -> 1.5 API breaks, see #1022571
+        python3-emperor (<= 1.0.3+ds-4),
+        python3-statsmodels (<< 0.13.5~),
+        q2templates (<= 2022.8.0+ds-1),
+        python3-dask (<= 2022.02.0+dfsg-2)
+Description: data structures for "relational" or "labeled" data
+ pandas is a Python package providing fast, flexible, and expressive
+ data structures designed to make working with "relational" or
+ "labeled" data both easy and intuitive. It aims to be the fundamental
+ high-level building block for doing practical, real world data
+ analysis in Python. pandas is well suited for many different kinds of
+ data:
+ .
+  - Tabular data with heterogeneously-typed columns, as in an SQL
+    table or Excel spreadsheet
+  - Ordered and unordered (not necessarily fixed-frequency) time
+    series data.
+  - Arbitrary matrix data (homogeneously typed or heterogeneous) with
+    row and column labels
+  - Any other form of observational / statistical data sets. The data
+    actually need not be labeled at all to be placed into a pandas
+    data structure
+ .
+ This package contains the Python 3 version.
+
+Package: python-pandas-doc
+Architecture: all
+Section: doc
+Depends: ${misc:Depends},
+         ${sphinxdoc:Depends},
+         libjs-mathjax
+Suggests: python3-pandas
+Multi-Arch: foreign
+Description: data structures for "relational" or "labeled" data - documentation
+ pandas is a Python package providing fast, flexible, and expressive
+ data structures designed to make working with "relational" or
+ "labeled" data both easy and intuitive. It aims to be the fundamental
+ high-level building block for doing practical, real world data
+ analysis in Python. pandas is well suited for many different kinds of
+ data:
+ .
+  - Tabular data with heterogeneously-typed columns, as in an SQL
+    table or Excel spreadsheet
+  - Ordered and unordered (not necessarily fixed-frequency) time
+    series data.
+  - Arbitrary matrix data (homogeneously typed or heterogeneous) with
+    row and column labels
+  - Any other form of observational / statistical data sets. The data
+    actually need not be labeled at all to be placed into a pandas
+    data structure
+ .
+ This package contains the documentation.
+
+Package: python3-pandas-lib
+Architecture: any
+Multi-Arch: same
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         ${python3:Depends},
+         python3-numpy
+# this is here to allow it to be arch-specific, to avoid numba bugs on other architectures
+Recommends: python3-numba [amd64]
+Description: low-level implementations and bindings for pandas
+ This is a low-level package for python3-pandas providing
+ architecture-dependent extensions.
+ .
+ Users should not need to install it directly.
