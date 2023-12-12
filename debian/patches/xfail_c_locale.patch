@@ -1,0 +1,15 @@
+Description: Xfail a test that doesn't work in the C locale
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/config/test_localization.py
++++ b/pandas/tests/config/test_localization.py
+@@ -132,6 +132,7 @@ def test_set_locale(lang, enc):
+     assert before_locale == after_locale
+ 
+ 
++@pytest.mark.xfail(strict=False,reason="fails in C locale")
+ def test_encoding_detected():
+     system_locale = os.environ.get("LC_ALL")
+     system_encoding = system_locale.split(".")[-1] if system_locale else "utf-8"

@@ -1,0 +1,286 @@
+Description: HDF5 and Stata I/O are broken on some architectures
+
+Fix some issues, warn on use and xfail tests for the remainder
+
+armhf TestHDF5Store::test*encoding only sometimes crashes
+(1.1.3+dfsg-1 passed on build but failed autopkgtest)
+
+HDF5 and Stata are known to fail on big-endian architectures
+Stata also fails on qemu-ppc64el, but not real ppc64el
+
+Author: Andreas Tille <tille@debian.org>, Graham Inggs <ginggs@debian.org>, Yaroslav Halchenko <debian@onerussian.com>, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/877419
+Forwarded: no
+
+--- a/pandas/io/pytables.py
++++ b/pandas/io/pytables.py
+@@ -27,6 +27,10 @@ from typing import (
+     overload,
+ )
+ import warnings
++import platform
++import re
++from pandas.compat import is_platform_little_endian
++warn_hdf_platform = "Non-x86 system detected, HDF(5) format I/O may give wrong results (particularly on files created with older versions) or crash - https://bugs.debian.org/877419" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
+ 
+ import numpy as np
+ 
+@@ -552,6 +556,8 @@ class HDFStore:
+         fletcher32: bool = False,
+         **kwargs,
+     ) -> None:
++        if warn_hdf_platform:
++            warnings.warn(warn_hdf_platform)
+ 
+         if "format" in kwargs:
+             raise ValueError("format is not a defined argument for HDFStore")
+@@ -773,7 +779,10 @@ class HDFStore:
+             self._handle.flush()
+             if fsync:
+                 with suppress(OSError):
+-                    os.fsync(self._handle.fileno())
++                    if is_platform_little_endian():
++                        os.fsync(self._handle.fileno())
++                    else:
++                        os.sync() # due to a pytables bad-cast bug, fileno is invalid on 64-bit big-endian#
+ 
+     def get(self, key: str):
+         """
+--- a/pandas/io/stata.py
++++ b/pandas/io/stata.py
+@@ -28,6 +28,9 @@ from typing import (
+     cast,
+ )
+ import warnings
++import platform
++import re
++warn_stata_platform = "Non-x86 system detected, Stata format I/O may give wrong results (particularly on strings) - https://bugs.debian.org/877419" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
+ 
+ from dateutil.relativedelta import relativedelta
+ import numpy as np
+@@ -970,6 +973,8 @@ class StataParser:
+         # NOTE: the byte type seems to be reserved for categorical variables
+         # with a label, but the underlying variable is -127 to 100
+         # we're going to drop the label and cast to int
++        if warn_stata_platform:
++            warnings.warn(warn_stata_platform)
+         self.DTYPE_MAP = dict(
+             list(zip(range(1, 245), [np.dtype("a" + str(i)) for i in range(1, 245)]))
+             + [
+--- a/pandas/tests/io/pytables/test_file_handling.py
++++ b/pandas/tests/io/pytables/test_file_handling.py
+@@ -22,6 +22,10 @@ from pandas.tests.io.pytables.common imp
+     ensure_clean_store,
+     tables,
+ )
++import platform
++import re
++import sys
++is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
+ 
+ from pandas.io import pytables as pytables
+ from pandas.io.pytables import Term
+@@ -263,6 +267,7 @@ def test_complibs(setup_path):
+             h5table.close()
+ 
+ 
++@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
+ @pytest.mark.skipif(
+     not is_platform_little_endian(), reason="reason platform is not little endian"
+ )
+@@ -296,6 +301,7 @@ def test_encoding(setup_path):
+     ],
+ )
+ @pytest.mark.parametrize("dtype", ["category", object])
++@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
+ def test_latin_encoding(setup_path, dtype, val):
+     enc = "latin-1"
+     nan_rep = ""
+--- a/pandas/tests/io/pytables/test_append.py
++++ b/pandas/tests/io/pytables/test_append.py
+@@ -23,6 +23,10 @@ from pandas.tests.io.pytables.common imp
+     ensure_clean_path,
+     ensure_clean_store,
+ )
++import platform
++import re
++import sys
++is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
+ 
+ pytestmark = pytest.mark.single_cpu
+ 
+@@ -276,6 +280,7 @@ def test_append_all_nans(setup_path):
+             tm.assert_frame_equal(store["df2"], df)
+ 
+ 
++@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
+ def test_append_frame_column_oriented(setup_path):
+     with ensure_clean_store(setup_path) as store:
+ 
+--- a/pandas/tests/io/pytables/test_store.py
++++ b/pandas/tests/io/pytables/test_store.py
+@@ -39,6 +39,10 @@ from pandas.io.pytables import (
+     HDFStore,
+     read_hdf,
+ )
++import platform
++import re
++import sys
++is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
+ 
+ pytestmark = pytest.mark.single_cpu
+ 
+@@ -790,6 +794,7 @@ def test_start_stop_fixed(setup_path):
+         df.iloc[8:10, -2] = np.nan
+ 
+ 
++@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
+ def test_select_filter_corner(setup_path):
+ 
+     df = DataFrame(np.random.randn(50, 100))
+--- a/pandas/tests/io/pytables/test_read.py
++++ b/pandas/tests/io/pytables/test_read.py
+@@ -5,7 +5,7 @@ import numpy as np
+ import pytest
+ 
+ from pandas._libs.tslibs import Timestamp
+-from pandas.compat import is_platform_windows
++from pandas.compat import is_platform_windows, is_platform_little_endian
+ 
+ import pandas as pd
+ from pandas import (
+@@ -155,6 +155,7 @@ def test_pytables_native2_read(datapath)
+         assert isinstance(d1, DataFrame)
+ 
+ 
++@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
+ def test_legacy_table_fixed_format_read_py2(datapath):
+     # GH 24510
+     # legacy table with fixed format written in Python 2
+@@ -170,6 +171,7 @@ def test_legacy_table_fixed_format_read_
+         tm.assert_frame_equal(expected, result)
+ 
+ 
++@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
+ def test_legacy_table_fixed_format_read_datetime_py2(datapath):
+     # GH 31750
+     # legacy table with fixed format and datetime64 column written in Python 2
+@@ -319,6 +321,7 @@ def test_read_hdf_series_mode_r(format,
+     tm.assert_series_equal(result, series)
+ 
+ 
++@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
+ def test_read_py2_hdf_file_in_py3(datapath):
+     # GH 16781
+ 
+--- a/pandas/tests/io/test_stata.py
++++ b/pandas/tests/io/test_stata.py
+@@ -36,6 +36,8 @@ from pandas.io.stata import (
+     read_stata,
+ )
+ 
++from pandas.compat import is_platform_little_endian
++pytestmark = pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of test_stata on non-little endian",strict=False)
+ 
+ @pytest.fixture
+ def mixed_frame():
+@@ -148,7 +150,7 @@ class TestStata:
+             # )
+ 
+             # Remove resource warnings
+-            w = [x for x in w if x.category is UserWarning]
++            w = [x for x in w if x.category is UserWarning and not "Non-x86 system detected" in str(x.message)]
+ 
+             # should get warning for each call to read_dta
+             assert len(w) == 3
+@@ -414,7 +416,7 @@ class TestStata:
+                 warnings.simplefilter("always", InvalidColumnName)
+                 original.to_stata(path, convert_dates=None, version=version)
+                 # should get a warning for that format.
+-                assert len(w) == 1
++                assert len([x for x in w if not "Non-x86 system detected" in str(x.message)]) == 1
+ 
+             written_and_read_again = self.read_dta(path)
+             tm.assert_frame_equal(written_and_read_again.set_index("index"), formatted)
+@@ -1759,8 +1761,9 @@ the string values returned are correct."
+             encoded = read_stata(
+                 datapath("io", "data", "stata", "stata1_encoding_118.dta")
+             )
+-            assert len(w) == 151
+-            assert w[0].message.args[0] == msg
++            w2 = [x for x in w if not "Non-x86 system detected" in str(x.message)]
++            assert len(w2) == 151
++            assert w2[0].message.args[0] == msg
+ 
+         expected = DataFrame([["Düsseldorf"]] * 151, columns=["kreis1849"])
+         tm.assert_frame_equal(encoded, expected)
+--- a/pandas/tests/io/pytables/test_timezones.py
++++ b/pandas/tests/io/pytables/test_timezones.py
+@@ -8,6 +8,7 @@ import pytest
+ 
+ from pandas._libs.tslibs.timezones import maybe_get_tz
+ import pandas.util._test_decorators as td
++from pandas.compat import is_platform_little_endian
+ 
+ import pandas as pd
+ from pandas import (
+@@ -304,6 +305,7 @@ def test_store_timezone(setup_path):
+         tm.assert_frame_equal(result, df)
+ 
+ 
++@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
+ def test_legacy_datetimetz_object(datapath):
+     # legacy from < 0.17.0
+     # 8260
+@@ -356,6 +358,7 @@ def test_read_with_where_tz_aware_index(
+         tm.assert_frame_equal(result, expected)
+ 
+ 
++@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
+ def test_py2_created_with_datetimez(datapath):
+     # The test HDF5 file was created in Python 2, but could not be read in
+     # Python 3.
+--- a/pandas/tests/io/test_common.py
++++ b/pandas/tests/io/test_common.py
+@@ -16,7 +16,7 @@ import tempfile
+ 
+ import pytest
+ 
+-from pandas.compat import is_platform_windows
++from pandas.compat import is_platform_windows, is_platform_little_endian
+ import pandas.util._test_decorators as td
+ 
+ import pandas as pd
+@@ -301,11 +301,11 @@ Look,a snake,🐍"""
+                 "pyarrow",
+                 ("io", "data", "feather", "feather-0_3_1.feather"),
+             ),
+-            (
++            pytest.param(
+                 pd.read_hdf,
+                 "tables",
+                 ("io", "data", "legacy_hdf", "datetimetz_object.h5"),
+-            ),
++            marks=pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)),
+             (pd.read_stata, "os", ("io", "data", "stata", "stata10_115.dta")),
+             (pd.read_sas, "os", ("io", "sas", "data", "test1.sas7bdat")),
+             (pd.read_json, "os", ("io", "json", "data", "tsframe_v012.json")),
+--- a/pandas/_testing/_warnings.py
++++ b/pandas/_testing/_warnings.py
+@@ -13,6 +13,7 @@ from typing import (
+     cast,
+ )
+ import warnings
++import platform
+ 
+ 
+ @contextmanager
+@@ -178,6 +179,8 @@ def _assert_caught_no_extra_warnings(
+                 # due to these open files.
+                 if any("matplotlib" in mod for mod in sys.modules):
+                     continue
++            if actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4])):
++                continue
+ 
+             extra_warnings.append(
+                 (

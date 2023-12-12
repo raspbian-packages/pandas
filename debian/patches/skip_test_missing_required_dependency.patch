@@ -1,0 +1,15 @@
+Description: Skip test that fails from outside the source tree
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- a/pandas/tests/test_downstream.py
++++ b/pandas/tests/test_downstream.py
+@@ -275,6 +275,7 @@ def test_yaml_dump(df):
+     tm.assert_frame_equal(df, loaded2)
+ 
+ 
++@pytest.mark.skip(reason="Fails in an installed package as it can't find pandas")
+ def test_missing_required_dependency():
+     # GH 23868
+     # To ensure proper isolation, we pass these flags
