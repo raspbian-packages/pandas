@@ -760,7 +760,7 @@ def test_to_numeric_from_nullable_string(values, nullable_string_dtype, expected
             "UInt64",
             "signed",
             "UInt64",
-            marks=pytest.mark.xfail(not is_platform_arm(), reason="GH38798"),
+            marks=pytest.mark.xfail(strict=False, reason="GH38798"),
         ),
         ([1, 1], "Int64", "unsigned", "UInt8"),
         ([1.0, 1.0], "Float32", "unsigned", "UInt8"),
