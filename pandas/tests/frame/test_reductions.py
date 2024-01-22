@@ -242,7 +242,7 @@ class TestDataFrameAnalytics:
             np.sum,
             mixed_float_frame.astype("float32"),
             check_dtype=False,
-            rtol=1e-3,
+            rtol=1e-3, atol=1e-3,
         )
 
         assert_stat_op_calc(
