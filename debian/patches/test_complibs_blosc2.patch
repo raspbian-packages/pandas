@@ -1,0 +1,19 @@
+Description: Allow blosc2 to report the type used
+
+e.g. the bug had blosc2:blosclz
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/1061043
+Forwarded: no - upstream just xfailed this, #55524
+
+--- a/pandas/tests/io/pytables/test_file_handling.py
++++ b/pandas/tests/io/pytables/test_file_handling.py
+@@ -263,7 +263,7 @@ def test_complibs(setup_path):
+                 if lvl == 0:
+                     assert node.filters.complib is None
+                 else:
+-                    assert node.filters.complib == lib
++                    assert ((node.filters.complib == lib) or (lib=='blosc2' and node.filters.complib.startswith('blosc2:')))
+             h5table.close()
+ 
+ 

@@ -1,0 +1,4 @@
+# these are test data, not user-facing text
+python3-pandas: national-encoding [usr/lib/python3/dist-packages/pandas/tests/io/data/xml/baby_names.xml]
+python3-pandas: package-contains-documentation-outside-usr-share-doc [usr/lib/python3/dist-packages/pandas/tests/io/data/gbq_fake_job.txt]
+python3-pandas: package-contains-documentation-outside-usr-share-doc [usr/lib/python3/dist-packages/pandas/tests/io/data/fixed_width/fixed_width_format.txt]
