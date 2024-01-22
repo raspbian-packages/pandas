@@ -1,0 +1,46 @@
+Description: Don't try to use git to find the version number
+
+Needed as Debian buildds use tarballs
+
+Author: Yaroslav Halchenko
+Forwarded: not-needed
+
+--- a/pandas/__init__.py
++++ b/pandas/__init__.py
+@@ -175,13 +175,7 @@ from pandas.io.json import _json_normali
+ 
+ from pandas.util._tester import test
+ 
+-# use the closest tagged version if possible
+-from pandas._version import get_versions
+-
+-v = get_versions()
+-__version__ = v.get("closest-tag", v["version"])
+-__git_version__ = v.get("full-revisionid")
+-del get_versions, v
++from .__version import version as __version__
+ 
+ # GH 27101
+ __deprecated_num_index_names = ["Float64Index", "Int64Index", "UInt64Index"]
+--- a/pandas/tests/api/test_api.py
++++ b/pandas/tests/api/test_api.py
+@@ -195,7 +195,7 @@ class TestPDApi(Base):
+         "_is_numpy_dev",
+         "_testing",
+         "_typing",
+-        "_version",
++# not in Debian        "_version",
+     ]
+ 
+     def test_api(self):
+--- a/pandas/tests/test_common.py
++++ b/pandas/tests/test_common.py
+@@ -156,7 +156,7 @@ def test_standardize_mapping():
+     dd = collections.defaultdict(list)
+     assert isinstance(com.standardize_mapping(dd), partial)
+ 
+-
++@pytest.mark.xfail(reason="deb_nonversioneer_version patch")
+ def test_git_version():
+     # GH 21295
+     git_version = pd.__git_version__
