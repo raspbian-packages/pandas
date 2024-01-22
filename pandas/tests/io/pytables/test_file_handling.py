@@ -263,7 +263,7 @@ def test_complibs(setup_path):
                 if lvl == 0:
                     assert node.filters.complib is None
                 else:
-                    assert node.filters.complib == lib
+                    assert ((node.filters.complib == lib) or (lib=='blosc2' and node.filters.complib.startswith('blosc2:')))
             h5table.close()
 
 
