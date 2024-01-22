@@ -7,6 +7,7 @@ import numpy as np
 import pytest
 
 import pandas.util._test_decorators as td
+from pandas.compat import is_platform_little_endian
 
 from pandas import (
     DataFrame,
@@ -98,7 +99,7 @@ def engine(request):
 
 @pytest.fixture(
     params=[
-        pytest.param(("numba", True), marks=td.skip_if_no("numba")),
+        pytest.param(("numba", True), marks=[pytest.mark.xfail(condition=not is_platform_little_endian(), reason="Numba may crash on s390x", run=False, strict=False),td.skip_if_no("numba")]),
         ("cython", True),
         ("cython", False),
     ]
