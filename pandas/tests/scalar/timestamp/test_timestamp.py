@@ -5,6 +5,7 @@ from datetime import (
     datetime,
     timedelta,
 )
+from datetime import timezone as datetime_timezone
 import locale
 import pickle
 import unicodedata
@@ -286,17 +287,11 @@ class TestTimestamp:
 
         compare(Timestamp.now(), datetime.now())
         compare(Timestamp.now("UTC"), datetime.now(timezone("UTC")))
-        compare(Timestamp.utcnow(), datetime.utcnow())
+        compare(Timestamp.utcnow(), datetime.now(datetime_timezone.utc))
         compare(Timestamp.today(), datetime.today())
         current_time = calendar.timegm(datetime.now().utctimetuple())
-        msg = "timezone-aware Timestamp with UTC"
-        with tm.assert_produces_warning(FutureWarning, match=msg):
-            # GH#22451
-            ts_utc = Timestamp.utcfromtimestamp(current_time)
-        compare(
-            ts_utc,
-            datetime.utcfromtimestamp(current_time),
-        )
+        ts_utc = Timestamp.utcfromtimestamp(current_time)
+        assert ts_utc.timestamp() == current_time
         compare(
             Timestamp.fromtimestamp(current_time), datetime.fromtimestamp(current_time)
         )
@@ -311,7 +306,7 @@ class TestTimestamp:
             datetime.fromtimestamp(current_time, utc),
         )
 
-        date_component = datetime.utcnow()
+        date_component = datetime.now(datetime_timezone.utc)
         time_component = (date_component + timedelta(minutes=10)).time()
         compare(
             Timestamp.combine(date_component, time_component),
@@ -330,19 +325,12 @@ class TestTimestamp:
 
         compare(Timestamp.now(), datetime.now())
         compare(Timestamp.now("UTC"), datetime.now(tzutc()))
-        compare(Timestamp.utcnow(), datetime.utcnow())
+        compare(Timestamp.utcnow(), datetime.now(datetime_timezone.utc))
         compare(Timestamp.today(), datetime.today())
         current_time = calendar.timegm(datetime.now().utctimetuple())
 
-        msg = "timezone-aware Timestamp with UTC"
-        with tm.assert_produces_warning(FutureWarning, match=msg):
-            # GH#22451
-            ts_utc = Timestamp.utcfromtimestamp(current_time)
-
-        compare(
-            ts_utc,
-            datetime.utcfromtimestamp(current_time),
-        )
+        ts_utc = Timestamp.utcfromtimestamp(current_time)
+        assert ts_utc.timestamp() == current_time
         compare(
             Timestamp.fromtimestamp(current_time), datetime.fromtimestamp(current_time)
         )

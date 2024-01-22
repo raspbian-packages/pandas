@@ -387,6 +387,7 @@ if linetrace:
 # we can't do anything about these warnings because they stem from
 # cython+numpy version mismatches.
 macros.append(("NPY_NO_DEPRECATED_API", "0"))
+macros.append(("NPY_TARGET_VERSION", "NPY_1_21_API_VERSION"))
 
 
 # ----------------------------------------------------------------------

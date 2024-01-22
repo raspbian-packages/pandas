@@ -71,7 +71,7 @@ def test_kwargs(ext, nan_inf_to_errors):
     kwargs = {"options": {"nan_inf_to_errors": nan_inf_to_errors}}
     with tm.ensure_clean(ext) as f:
         msg = re.escape("Use of **kwargs is deprecated")
-        with tm.assert_produces_warning(FutureWarning, match=msg):
+        with tm.assert_produces_warning(FutureWarning, match=msg, raise_on_extra_warnings=False):
             with ExcelWriter(f, engine="xlsxwriter", **kwargs) as writer:
                 assert writer.book.nan_inf_to_errors == nan_inf_to_errors
 

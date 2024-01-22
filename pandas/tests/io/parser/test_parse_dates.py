@@ -6,6 +6,7 @@ parsers defined in parsers.py
 from datetime import (
     date,
     datetime,
+    timezone,
 )
 from io import StringIO
 import warnings
@@ -712,7 +713,11 @@ def test_date_parser_int_bug(all_parsers):
         StringIO(data),
         index_col=0,
         parse_dates=[0],
-        date_parser=lambda x: datetime.utcfromtimestamp(int(x)),
+        # Note: we must pass tz and then drop the tz attribute
+        # (if we don't CI will flake out depending on the runner's local time)
+        date_parser=lambda x: datetime.fromtimestamp(int(x), tz=timezone.utc).replace(
+            tzinfo=None
+        ),
     )
     expected = DataFrame(
         [
