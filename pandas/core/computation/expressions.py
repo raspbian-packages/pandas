@@ -148,8 +148,9 @@ _op_str_mapping = {
     # so sticking with unaccelerated for now GH#36552
     operator.mod: None,
     roperator.rmod: None,
-    operator.pow: "**",
-    roperator.rpow: "**",
+    # disabled due to differing overflow behaviour GH#54546
+    operator.pow: None,
+    roperator.rpow: None,
     operator.eq: "==",
     operator.ne: "!=",
     operator.le: "<=",
