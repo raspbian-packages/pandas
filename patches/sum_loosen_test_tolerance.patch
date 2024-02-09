@@ -1,0 +1,19 @@
+Description: Don't fail sum test on near-cancelling inputs
+
+Failed in 1.5.3+dfsg-11 after it happened to select an input that
+cancelled to ~1e-5 (on i386, so x87 excess precision might be involved)
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/frame/test_reductions.py
++++ b/pandas/tests/frame/test_reductions.py
+@@ -258,7 +258,7 @@ class TestDataFrameAnalytics:
+             np.sum,
+             mixed_float_frame.astype("float32"),
+             check_dtype=False,
+-            rtol=1e-3,
++            rtol=1e-3, atol=1e-3,
+         )
+ 
+         assert_stat_op_calc(

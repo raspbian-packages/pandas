@@ -1,0 +1,21 @@
+#!/bin/bash
+# this intentionally doesn't actually fail (isn't set -e), as it exists to run known possibly-crashing tests to get a log of whether they still fail
+
+arch=$(dpkg --print-architecture)
+pys="$(py3versions -s 2>/dev/null)"
+sourcetestroot="$PWD/pandas/tests"
+
+cd "$AUTOPKGTEST_TMP"
+TEST_SUCCESS=true
+for py in $pys; do
+	echo "=== $py ==="
+	modpath=$($py -c 'import pandas as pd; print(pd.__path__[0])')
+	echo "tests that use numba (may crash on non-x86) - checked with grep -rl -e numba pandas/tests - -m not slow because there are enough to time out otherwise"
+    PANDAS_CI=1 LC_ALL=C.UTF-8 xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" $py -m pytest --forked --tb=long -s -v -m "not slow" --deb-data-root-dir=$sourcetestroot --confcutdir=$modpath $modpath/tests/frame/test_ufunc.py $modpath/tests/groupby/test_numba.py $modpath/tests/groupby/test_timegrouper.py $modpath/tests/groupby/transform/test_numba.py $modpath/tests/groupby/aggregate/test_numba.py $modpath/tests/util/test_numba.py $modpath/tests/window $TEST_SUBSET 2>&1
+    echo "tests with a run=False xfail for hdf5 crashes - see xfail_tests_nonintel_io.patch"
+    PANDAS_CI=1 LC_ALL=C.UTF-8 xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" $py -m pytest --forked --runxfail --tb=long -s -v --deb-data-root-dir=$sourcetestroot --confcutdir=$modpath $modpath/tests/io/pytables/test_file_handling.py $modpath/tests/io/pytables/test_append.py $modpath/tests/io/pytables/test_store.py
+    echo "pymysql/psycopg2 tests, which do not work in this test environment"
+    PANDAS_CI=1 LC_ALL=C.UTF-8 xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" $py -m pytest --forked --tb=long -s -v --deb-data-root-dir=$sourcetestroot --confcutdir=$modpath $modpath/tests/io/test_sql.py $modpath/tests/tools/test_to_datetime.py
+done
+# this intentionally doesn't actually fail, as it exists to run known possibly-crashing tests to get a log of whether they still fail
+true
