@@ -763,7 +763,8 @@ def test_start_stop_fixed(setup_path):
         df.iloc[8:10, -2] = np.nan
 
 
-@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
+from pandas.compat import PY312
+@pytest.mark.xfail(condition=PY312 or is_crashing_arch, reason="https://bugs.debian.org/1055801 and https://bugs.debian.org/790925",raises=ValueError,strict=False, run=not is_crashing_arch)
 def test_select_filter_corner(setup_path):
     df = DataFrame(np.random.default_rng(2).standard_normal((50, 100)))
     df.index = [f"{c:3d}" for c in df.index]
