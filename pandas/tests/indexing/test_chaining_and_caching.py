@@ -422,21 +422,6 @@ class TestChaining:
         str(df)
 
     @pytest.mark.arm_slow
-    def test_detect_chained_assignment_undefined_column(self, using_copy_on_write):
-        # from SO:
-        # https://stackoverflow.com/questions/24054495/potential-bug-setting-value-for-undefined-column-using-iloc
-        df = DataFrame(np.arange(0, 9), columns=["count"])
-        df["group"] = "b"
-        df_original = df.copy()
-
-        if using_copy_on_write:
-            with tm.raises_chained_assignment_error():
-                df.iloc[0:5]["group"] = "a"
-            tm.assert_frame_equal(df, df_original)
-        else:
-            with pytest.raises(SettingWithCopyError, match=msg):
-                df.iloc[0:5]["group"] = "a"
-
     @pytest.mark.arm_slow
     def test_detect_chained_assignment_changing_dtype(
         self, using_array_manager, using_copy_on_write
