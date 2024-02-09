@@ -21,6 +21,10 @@ from pandas.tests.io.pytables.common import (
     _maybe_remove,
     ensure_clean_store,
 )
+import platform
+import re
+import sys
+is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
 
 pytestmark = pytest.mark.single_cpu
 
@@ -275,6 +279,7 @@ def test_append_all_nans(setup_path):
             tm.assert_frame_equal(store["df2"], df, check_index_type=True)
 
 
+@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
 def test_append_frame_column_oriented(setup_path):
     with ensure_clean_store(setup_path) as store:
         # column oriented
