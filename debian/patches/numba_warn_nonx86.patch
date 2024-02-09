@@ -1,0 +1,30 @@
+Description: Warn that numba may not work on non-x86
+
+Currently known issues are crashes, not wrong answers, but because
+the test setup doesn't allow ignoring crashes but failing on
+wrong answers, it would be easy to not notice if this changed
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/compat/_optional.py
++++ b/pandas/compat/_optional.py
+@@ -4,6 +4,9 @@ import importlib
+ import sys
+ from typing import TYPE_CHECKING
+ import warnings
++import platform
++import re
++warn_numba_platform = "Non-x86 system detected, Numba may give wrong results or crash" if not bool(re.match('i.?86|x86',platform.uname()[4])) else False
+ 
+ from pandas.util._exceptions import find_stack_level
+ 
+@@ -120,6 +123,8 @@ def import_optional_dependency(
+     """
+ 
+     assert errors in {"warn", "raise", "ignore"}
++    if name=='numba' and warn_numba_platform:
++        warnings.warn(warn_numba_platform)
+ 
+     package_name = INSTALL_MAPPING.get(name)
+     install_name = package_name if package_name is not None else name

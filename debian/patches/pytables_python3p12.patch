@@ -1,0 +1,54 @@
+Description: Ignore pytables test failures with Python 3.12
+
+The combined xfails are because two separate xfails where only one
+has run=False may run, which is a problem when the run=False exists
+to avoid a crash - see 1.5.3+dfsg-8 armhf build log
+
+Bug-Debian: https://bugs.debian.org/1055801
+Bug-Ubuntu: https://launchpad.net/ubuntu/+bug/2043895
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/io/pytables/test_append.py
++++ b/pandas/tests/io/pytables/test_append.py
+@@ -279,7 +279,8 @@ def test_append_all_nans(setup_path):
+             tm.assert_frame_equal(store["df2"], df, check_index_type=True)
+ 
+ 
+-@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
++from pandas.compat import PY312
++@pytest.mark.xfail(condition=PY312 or is_crashing_arch, reason="https://bugs.debian.org/1055801 and https://bugs.debian.org/790925",raises=ValueError,strict=False, run=not is_crashing_arch)
+ def test_append_frame_column_oriented(setup_path):
+     with ensure_clean_store(setup_path) as store:
+         # column oriented
+--- a/pandas/tests/io/pytables/test_select.py
++++ b/pandas/tests/io/pytables/test_select.py
+@@ -164,6 +164,8 @@ def test_select(setup_path):
+         tm.assert_frame_equal(expected, result)
+ 
+ 
++from pandas.compat import PY312
++@pytest.mark.xfail(condition=PY312, reason="python3.12 https://bugs.debian.org/1055801",raises=ValueError,strict=False)
+ def test_select_dtypes(setup_path):
+     with ensure_clean_store(setup_path) as store:
+         # with a Timestamp data column (GH #2637)
+@@ -563,6 +565,7 @@ def test_select_iterator_many_empty_fram
+         assert len(results) == 0
+ 
+ 
++@pytest.mark.xfail(condition=PY312, reason="python3.12 https://bugs.debian.org/1055801",raises=TypeError,strict=False)
+ def test_frame_select(setup_path):
+     df = tm.makeTimeDataFrame()
+ 
+--- a/pandas/tests/io/pytables/test_store.py
++++ b/pandas/tests/io/pytables/test_store.py
+@@ -763,7 +763,8 @@ def test_start_stop_fixed(setup_path):
+         df.iloc[8:10, -2] = np.nan
+ 
+ 
+-@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
++from pandas.compat import PY312
++@pytest.mark.xfail(condition=PY312 or is_crashing_arch, reason="https://bugs.debian.org/1055801 and https://bugs.debian.org/790925",raises=ValueError,strict=False, run=not is_crashing_arch)
+ def test_select_filter_corner(setup_path):
+     df = DataFrame(np.random.default_rng(2).standard_normal((50, 100)))
+     df.index = [f"{c:3d}" for c in df.index]

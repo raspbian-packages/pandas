@@ -1,0 +1,19 @@
+Description: Allow blosc2 to report the type used
+
+e.g. the bug had blosc2:blosclz
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/1061043
+Forwarded: no - upstream 55524 xfailed some but not all cases
+
+--- a/pandas/tests/io/pytables/test_file_handling.py
++++ b/pandas/tests/io/pytables/test_file_handling.py
+@@ -268,7 +268,7 @@ def test_complibs(tmp_path, lvl, lib):
+             if lvl == 0:
+                 assert node.filters.complib is None
+             else:
+-                assert node.filters.complib == lib
++                assert ((node.filters.complib == lib) or (lib=='blosc2' and node.filters.complib.startswith('blosc2:')))
+ 
+ 
+ @pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
