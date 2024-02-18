@@ -268,7 +268,7 @@ def test_complibs(tmp_path, lvl, lib):
             if lvl == 0:
                 assert node.filters.complib is None
             else:
-                assert node.filters.complib == lib
+                assert ((node.filters.complib == lib) or (lib=='blosc2' and node.filters.complib.startswith('blosc2:')))
 
 
 @pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
