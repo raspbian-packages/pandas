@@ -117,7 +117,7 @@ def test_pickles(datapath):
         pytest.skip("known failure on non-little endian")
 
     # For loop for compat with --strict-data-files
-    for legacy_pickle in Path(__file__).parent.glob("data/legacy_pickle/*/*.p*kl*"):
+    for legacy_pickle in Path(datapath("io", "data", "legacy_pickle")).glob("*/*.p*kl*"):
         legacy_pickle = datapath(legacy_pickle)
 
         data = pd.read_pickle(legacy_pickle)
@@ -574,7 +574,7 @@ def test_pickle_big_dataframe_compression(protocol, compression):
 def test_pickle_frame_v124_unpickle_130(datapath):
     # GH#42345 DataFrame created in 1.2.x, unpickle in 1.3.x
     path = datapath(
-        Path(__file__).parent,
+        "io",
         "data",
         "legacy_pickle",
         "1.2.4",
