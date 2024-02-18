@@ -1,0 +1,74 @@
+Description: Fix arch-specific upstream xfails
+
+We test on more architectures, so upstream's xfails are not always
+correct everywhere.  On those known to fail:
+arm64 xfail -> all non-x86 xfail
+x86 or unconditional strict xfail -> unconditional nonstrict xfail
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug: https://github.com/pandas-dev/pandas/issues/38921, https://github.com/pandas-dev/pandas/issues/38798, https://github.com/pandas-dev/pandas/issues/41740, https://github.com/numpy/numpy/issues/19146
+Forwarded: no
+
+--- a/pandas/tests/io/parser/test_c_parser_only.py
++++ b/pandas/tests/io/parser/test_c_parser_only.py
+@@ -17,7 +17,7 @@ import tarfile
+ import numpy as np
+ import pytest
+ 
+-from pandas.compat import is_ci_environment
++from pandas.compat import is_ci_environment, IS64
+ from pandas.compat.numpy import np_version_gte1p24
+ from pandas.errors import ParserError
+ import pandas.util._test_decorators as td
+@@ -27,6 +27,9 @@ from pandas import (
+     concat,
+ )
+ import pandas._testing as tm
++import platform
++import re
++is_platform_x86 = bool(re.match("i.?86|x86",platform.uname()[4]))
+ 
+ 
+ @pytest.mark.parametrize(
+@@ -654,11 +657,13 @@ def test_float_precision_options(c_parse
+ 
+     tm.assert_frame_equal(df, df2)
+ 
+-    df3 = parser.read_csv(StringIO(s), float_precision="legacy")
+-
+-    assert not df.iloc[0, 0] == df3.iloc[0, 0]
+-
+     msg = "Unrecognized float_precision option: junk"
+ 
+     with pytest.raises(ValueError, match=msg):
+         parser.read_csv(StringIO(s), float_precision="junk")
++
++    df3 = parser.read_csv(StringIO(s), float_precision="legacy")
++    if is_platform_x86 and (not IS64) and (df.iloc[0, 0] == df3.iloc[0, 0]):
++        pytest.xfail(reason="maybe x87 extra precision")
++
++    assert not df.iloc[0, 0] == df3.iloc[0, 0]
+--- a/pandas/tests/window/test_rolling.py
++++ b/pandas/tests/window/test_rolling.py
+@@ -10,7 +10,11 @@ from pandas.compat import (
+     IS64,
+     is_platform_arm,
+     is_platform_power,
++    IS64,
+ )
++import platform
++import re
++is_platform_x86 = bool(re.match("i.?86|x86", platform.uname()[4]))
+ 
+ from pandas import (
+     DataFrame,
+@@ -1101,7 +1105,8 @@ def test_rolling_sem(frame_or_series):
+ 
+ 
+ @pytest.mark.xfail(
+-    is_platform_arm() or is_platform_power(),
++    not (is_platform_x86 and IS64),
++    strict=False,
+     reason="GH 38921",
+ )
+ @pytest.mark.parametrize(
