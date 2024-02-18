@@ -7,6 +7,11 @@ from pandas.core.groupby.base import (
     reduction_kernels,
     transformation_kernels,
 )
+from pandas.compat import IS64
+try:
+    from numba.core.errors import UnsupportedParforsError
+except ImportError:  # numba not installed
+    UnsupportedParforsError = ImportError
 
 
 @pytest.fixture(params=[True, False])
@@ -169,7 +174,22 @@ def groupby_func(request):
     return request.param
 
 
-@pytest.fixture(params=[True, False])
+# the xfail is because numba does not support this on 32-bit systems
+# https://github.com/numba/numba/blob/main/numba/parfors/parfors.py
+# strict=False because some tests are of error paths that
+# fail of something else before reaching this point
+@pytest.fixture(params=[
+                    pytest.param(
+                        True,
+                        marks=pytest.mark.xfail(
+                            condition=not IS64,
+                            reason="parfors not available on 32-bit",
+                            raises=UnsupportedParforsError,
+                            strict=False,
+                        )
+                    ),
+                    False,
+                ])
 def parallel(request):
     """parallel keyword argument for numba.jit"""
     return request.param
