@@ -1,0 +1,24 @@
+Description: Don't try to run matplotlib-using tests without it
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/io/formats/style/test_style.py
++++ b/pandas/tests/io/formats/style/test_style.py
+@@ -14,6 +14,7 @@ from pandas import (
+     option_context,
+ )
+ import pandas._testing as tm
++import pandas.util._test_decorators as td
+ 
+ jinja2 = pytest.importorskip("jinja2")
+ from pandas.io.formats.style import (  # isort:skip
+@@ -756,7 +757,7 @@ class TestStyler:
+         df.style.map(color_negative_red, subset=pct_subset)
+ 
+     @pytest.mark.parametrize(
+-        "stylefunc", ["background_gradient", "bar", "text_gradient"]
++        "stylefunc", [pytest.param("background_gradient", marks=td.skip_if_no("matplotlib")), "bar", pytest.param("text_gradient", marks=td.skip_if_no("matplotlib"))]
+     )
+     def test_subset_for_boolean_cols(self, stylefunc):
+         # GH47838
