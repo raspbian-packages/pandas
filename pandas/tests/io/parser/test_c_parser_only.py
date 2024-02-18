@@ -56,6 +56,12 @@ def test_delim_whitespace_custom_terminator(c_parser_only):
     expected = DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=["a", "b", "c"])
     tm.assert_frame_equal(df, expected)
 
+# armel numpy currently doesn't have some invalid warnings (see 2.0.3+dfsg-3 build log,
+# possibly the same underlying issue as statsmodels https://bugs.debian.org/956882)
+# using nullcontext() instead of warn=None to not start failing if this ever gets fixed
+import subprocess
+import contextlib
+debian_arch = subprocess.run(["dpkg","--print-architecture"],capture_output=True).stdout
 
 def test_dtype_and_names_error(c_parser_only):
     # see gh-8833: passing both dtype and names
@@ -91,7 +97,7 @@ nan 2
     # fallback casting, but not castable
     warning = RuntimeWarning if np_version_gte1p24 else None
     with pytest.raises(ValueError, match="cannot safely convert"):
-        with tm.assert_produces_warning(warning, check_stacklevel=False):
+        with (contextlib.nullcontext() if (debian_arch==b'armel\n') else tm.assert_produces_warning(warning, check_stacklevel=False)):
             parser.read_csv(
                 StringIO(data),
                 sep=r"\s+",

@@ -323,6 +323,12 @@ def test_transform_wont_agg_frame(axis, float_frame, func):
     with pytest.raises(ValueError, match=msg):
         float_frame.transform(func, axis=axis)
 
+# armel numpy currently doesn't have the invalid log/sqrt warning (see 1.4.3-1 build log,
+# possibly the same underlying issue as statsmodels https://bugs.debian.org/956882)
+# using nullcontext() instead of warn=None to not start failing if this ever gets fixed
+import subprocess
+import contextlib
+debian_arch = subprocess.run(["dpkg","--print-architecture"],capture_output=True).stdout
 
 @pytest.mark.parametrize("func", [["min", "max"], ["sqrt", "max"]])
 def test_transform_wont_agg_series(string_series, func):
@@ -333,7 +339,7 @@ def test_transform_wont_agg_series(string_series, func):
     warn = RuntimeWarning if func[0] == "sqrt" else None
     warn_msg = "invalid value encountered in sqrt"
     with pytest.raises(ValueError, match=msg):
-        with tm.assert_produces_warning(warn, match=warn_msg, check_stacklevel=False):
+        with (contextlib.nullcontext() if (debian_arch==b'armel\n') else tm.assert_produces_warning(warn, match=warn_msg, check_stacklevel=False)):
             string_series.transform(func)
 
 
