@@ -24,6 +24,10 @@ from typing import (
     overload,
 )
 import warnings
+import platform
+import sys
+from pandas.compat import is_platform_little_endian
+warn_hdf_platform = "Non-x86 system detected, HDF(5) format I/O may give wrong results (particularly on files created with older versions) or crash - https://bugs.debian.org/877419" if (((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) or not is_platform_little_endian()) else False
 
 import numpy as np
 
@@ -559,6 +563,8 @@ class HDFStore:
         fletcher32: bool = False,
         **kwargs,
     ) -> None:
+        if warn_hdf_platform:
+            warnings.warn(warn_hdf_platform)
         if "format" in kwargs:
             raise ValueError("format is not a defined argument for HDFStore")
 
@@ -780,7 +786,10 @@ class HDFStore:
             self._handle.flush()
             if fsync:
                 with suppress(OSError):
-                    os.fsync(self._handle.fileno())
+                    if is_platform_little_endian():
+                        os.fsync(self._handle.fileno())
+                    else:
+                        os.sync() # due to a pytables bad-cast bug, fileno is invalid on 64-bit big-endian#
 
     def get(self, key: str):
         """

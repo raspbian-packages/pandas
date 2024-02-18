@@ -6,7 +6,7 @@ import numpy as np
 import pytest
 
 from pandas._libs.tslibs import Timestamp
-from pandas.compat import is_platform_windows
+from pandas.compat import is_platform_windows, is_platform_little_endian
 
 import pandas as pd
 from pandas import (
@@ -167,6 +167,7 @@ def test_pytables_native2_read(datapath):
         assert isinstance(d1, DataFrame)
 
 
+@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
 def test_legacy_table_fixed_format_read_py2(datapath):
     # GH 24510
     # legacy table with fixed format written in Python 2
@@ -182,6 +183,7 @@ def test_legacy_table_fixed_format_read_py2(datapath):
         tm.assert_frame_equal(expected, result)
 
 
+@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
 def test_legacy_table_fixed_format_read_datetime_py2(datapath):
     # GH 31750
     # legacy table with fixed format and datetime64 column written in Python 2
@@ -364,6 +366,7 @@ def test_read_hdf_series_mode_r(tmp_path, format, setup_path):
 
 @pytest.mark.filterwarnings(r"ignore:Period with BDay freq is deprecated:FutureWarning")
 @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
+@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
 def test_read_py2_hdf_file_in_py3(datapath):
     # GH 16781
 
