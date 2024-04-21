@@ -1,0 +1,168 @@
+Description: Allow some numba errors on 32-bit
+
+Specifying the exception type allows only explicit errors,
+not silently wrong answers
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/groupby/conftest.py
++++ b/pandas/tests/groupby/conftest.py
+@@ -7,6 +7,11 @@ from pandas.core.groupby.base import (
+     reduction_kernels,
+     transformation_kernels,
+ )
++from pandas.compat import IS64
++try:
++    from numba.core.errors import UnsupportedParforsError
++except ImportError:  # numba not installed
++    UnsupportedParforsError = ImportError
+ 
+ 
+ @pytest.fixture(params=[True, False])
+@@ -169,7 +174,22 @@ def groupby_func(request):
+     return request.param
+ 
+ 
+-@pytest.fixture(params=[True, False])
++# the xfail is because numba does not support this on 32-bit systems
++# https://github.com/numba/numba/blob/main/numba/parfors/parfors.py
++# strict=False because some tests are of error paths that
++# fail of something else before reaching this point
++@pytest.fixture(params=[
++                    pytest.param(
++                        True,
++                        marks=pytest.mark.xfail(
++                            condition=not IS64,
++                            reason="parfors not available on 32-bit",
++                            raises=UnsupportedParforsError,
++                            strict=False,
++                        )
++                    ),
++                    False,
++                ])
+ def parallel(request):
+     """parallel keyword argument for numba.jit"""
+     return request.param
+--- a/pandas/tests/window/conftest.py
++++ b/pandas/tests/window/conftest.py
+@@ -13,6 +13,12 @@ from pandas import (
+     Series,
+     bdate_range,
+ )
++from pandas.compat import IS64
++try:
++    from numba.core.errors import UnsupportedParforsError, TypingError
++except ImportError:  # numba not installed
++    UnsupportedParforsError = ImportError
++    TypingError = ImportError
+ 
+ 
+ @pytest.fixture(params=[True, False])
+@@ -50,7 +56,22 @@ def min_periods(request):
+     return request.param
+ 
+ 
+-@pytest.fixture(params=[True, False])
++# the xfail is because numba does not support this on 32-bit systems
++# https://github.com/numba/numba/blob/main/numba/parfors/parfors.py
++# strict=False because some tests are of error paths that
++# fail of something else before reaching this point
++@pytest.fixture(params=[
++                    pytest.param(
++                        True,
++                        marks=pytest.mark.xfail(
++                            condition=not IS64,
++                            reason="parfors not available on 32-bit",
++                            raises=(UnsupportedParforsError, TypingError),
++                            strict=False,
++                        )
++                    ),
++                    False,
++                ])
+ def parallel(request):
+     """parallel keyword argument for numba.jit"""
+     return request.param
+--- a/pandas/tests/window/test_numba.py
++++ b/pandas/tests/window/test_numba.py
+@@ -5,7 +5,13 @@ from pandas.compat import (
+     is_ci_environment,
+     is_platform_mac,
+     is_platform_windows,
++    IS64,
+ )
++try:
++    from numba.core.errors import UnsupportedParforsError, TypingError
++except ImportError:  # numba not installed
++    UnsupportedParforsError = ImportError
++    TypingError = ImportError
+ from pandas.errors import NumbaUtilError
+ import pandas.util._test_decorators as td
+ 
+@@ -199,6 +205,12 @@ class TestEngine:
+         expected = DataFrame({"value": [2.0, 2.0, 2.0]})
+         tm.assert_frame_equal(result, expected)
+ 
++    @pytest.mark.xfail(
++        condition=not IS64,
++        reason="parfors not available on 32-bit",
++        raises=UnsupportedParforsError,
++        strict=False,
++    )
+     def test_dont_cache_engine_kwargs(self):
+         # If the user passes a different set of engine_kwargs don't return the same
+         # jitted function
+@@ -339,6 +351,12 @@ class TestTableMethod:
+                 f, engine="numba", raw=True
+             )
+ 
++    @pytest.mark.xfail(
++        condition=not IS64,
++        reason="parfors not available on 32-bit",
++        raises=(UnsupportedParforsError, TypingError),
++        strict=False,
++    )
+     def test_table_method_rolling_methods(
+         self,
+         axis,
+@@ -421,6 +439,12 @@ class TestTableMethod:
+         )
+         tm.assert_frame_equal(result, expected)
+ 
++    @pytest.mark.xfail(
++        condition=not IS64,
++        reason="parfors not available on 32-bit",
++        raises=(UnsupportedParforsError, TypingError),
++        strict=False,
++    )
+     def test_table_method_expanding_methods(
+         self, axis, nogil, parallel, nopython, arithmetic_numba_supported_operators
+     ):
+--- a/pandas/tests/groupby/aggregate/test_numba.py
++++ b/pandas/tests/groupby/aggregate/test_numba.py
+@@ -11,6 +11,12 @@ from pandas import (
+     option_context,
+ )
+ import pandas._testing as tm
++from pandas.compat import IS64
++try:
++    from numba.core.errors import UnsupportedParforsError, TypingError
++except ImportError:  # numba not installed
++    UnsupportedParforsError = ImportError
++    TypingError = ImportError
+ 
+ pytestmark = pytest.mark.single_cpu
+ 
+@@ -252,6 +258,12 @@ def test_multifunc_numba_vs_cython_serie
+         ),
+     ],
+ )
++@pytest.mark.xfail(
++    condition=not IS64,
++    reason="parfors not available on 32-bit",
++    raises=UnsupportedParforsError,
++    strict=False,
++)
+ def test_multifunc_numba_kwarg_propagation(data, agg_kwargs):
+     pytest.importorskip("numba")
+     labels = ["a", "a", "b", "b", "a"]

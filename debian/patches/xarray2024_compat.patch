@@ -1,0 +1,38 @@
+Description: Avoid test-failing xarray warning
+
+Author: Luke Manley
+Origin: upstream https://github.com/pandas-dev/pandas/pull/56949
+Bug-Debian: https://bugs.debian.org/1066801
+Forwarded: not-needed
+
+--- a/pandas/tests/generic/test_to_xarray.py
++++ b/pandas/tests/generic/test_to_xarray.py
+@@ -41,7 +41,7 @@ class TestDataFrameToXArray:
+         df.index.name = "foo"
+         df.columns.name = "bar"
+         result = df.to_xarray()
+-        assert result.dims["foo"] == 3
++        assert result.sizes["foo"] == 3
+         assert len(result.coords) == 1
+         assert len(result.data_vars) == 8
+         tm.assert_almost_equal(list(result.coords.keys()), ["foo"])
+@@ -60,7 +60,7 @@ class TestDataFrameToXArray:
+ 
+         df.index.name = "foo"
+         result = df[0:0].to_xarray()
+-        assert result.dims["foo"] == 0
++        assert result.sizes["foo"] == 0
+         assert isinstance(result, Dataset)
+ 
+     def test_to_xarray_with_multiindex(self, df):
+@@ -69,8 +69,8 @@ class TestDataFrameToXArray:
+         # MultiIndex
+         df.index = MultiIndex.from_product([["a"], range(3)], names=["one", "two"])
+         result = df.to_xarray()
+-        assert result.dims["one"] == 1
+-        assert result.dims["two"] == 3
++        assert result.sizes["one"] == 1
++        assert result.sizes["two"] == 3
+         assert len(result.coords) == 2
+         assert len(result.data_vars) == 8
+         tm.assert_almost_equal(list(result.coords.keys()), ["one", "two"])

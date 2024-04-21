@@ -1,0 +1,77 @@
+Description: Don't require a warning armel numpy doesn't have
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no (this version requires dpkg)
+
+--- a/pandas/tests/apply/test_str.py
++++ b/pandas/tests/apply/test_str.py
+@@ -70,6 +70,12 @@ def test_apply_np_reducer(op, how):
+ @pytest.mark.parametrize("how", ["transform", "apply"])
+ def test_apply_np_transformer(float_frame, op, how):
+     # GH 39116
++    # armel numpy currently doesn't have the invalid log/sqrt warning (see 1.4.3-1 build log,
++    # possibly the same underlying issue as statsmodels https://bugs.debian.org/956882)
++    # using nullcontext() instead of warn=None to not start failing if this ever gets fixed
++    import subprocess
++    import contextlib
++    debian_arch = subprocess.run(["dpkg","--print-architecture"],capture_output=True).stdout
+ 
+     # float_frame will _usually_ have negative values, which will
+     #  trigger the warning here, but let's put one in just to be sure
+@@ -78,7 +84,7 @@ def test_apply_np_transformer(float_fram
+     if op in ["log", "sqrt"]:
+         warn = RuntimeWarning
+ 
+-    with tm.assert_produces_warning(warn, check_stacklevel=False):
++    with (contextlib.nullcontext() if (debian_arch==b'armel\n') else tm.assert_produces_warning(warn, check_stacklevel=False)):
+         # float_frame fixture is defined in conftest.py, so we don't check the
+         # stacklevel as otherwise the test would fail.
+         result = getattr(float_frame, how)(op)
+--- a/pandas/tests/apply/test_invalid_arg.py
++++ b/pandas/tests/apply/test_invalid_arg.py
+@@ -323,6 +323,12 @@ def test_transform_wont_agg_frame(axis,
+     with pytest.raises(ValueError, match=msg):
+         float_frame.transform(func, axis=axis)
+ 
++# armel numpy currently doesn't have the invalid log/sqrt warning (see 1.4.3-1 build log,
++# possibly the same underlying issue as statsmodels https://bugs.debian.org/956882)
++# using nullcontext() instead of warn=None to not start failing if this ever gets fixed
++import subprocess
++import contextlib
++debian_arch = subprocess.run(["dpkg","--print-architecture"],capture_output=True).stdout
+ 
+ @pytest.mark.parametrize("func", [["min", "max"], ["sqrt", "max"]])
+ def test_transform_wont_agg_series(string_series, func):
+@@ -333,7 +339,7 @@ def test_transform_wont_agg_series(strin
+     warn = RuntimeWarning if func[0] == "sqrt" else None
+     warn_msg = "invalid value encountered in sqrt"
+     with pytest.raises(ValueError, match=msg):
+-        with tm.assert_produces_warning(warn, match=warn_msg, check_stacklevel=False):
++        with (contextlib.nullcontext() if (debian_arch==b'armel\n') else tm.assert_produces_warning(warn, match=warn_msg, check_stacklevel=False)):
+             string_series.transform(func)
+ 
+ 
+--- a/pandas/tests/io/parser/test_c_parser_only.py
++++ b/pandas/tests/io/parser/test_c_parser_only.py
+@@ -56,6 +56,12 @@ def test_delim_whitespace_custom_termina
+     expected = DataFrame([[1, 2, 3], [4, 5, 6], [7, 8, 9]], columns=["a", "b", "c"])
+     tm.assert_frame_equal(df, expected)
+ 
++# armel numpy currently doesn't have some invalid warnings (see 2.0.3+dfsg-3 build log,
++# possibly the same underlying issue as statsmodels https://bugs.debian.org/956882)
++# using nullcontext() instead of warn=None to not start failing if this ever gets fixed
++import subprocess
++import contextlib
++debian_arch = subprocess.run(["dpkg","--print-architecture"],capture_output=True).stdout
+ 
+ def test_dtype_and_names_error(c_parser_only):
+     # see gh-8833: passing both dtype and names
+@@ -91,7 +97,7 @@ nan 2
+     # fallback casting, but not castable
+     warning = RuntimeWarning if np_version_gte1p24 else None
+     with pytest.raises(ValueError, match="cannot safely convert"):
+-        with tm.assert_produces_warning(warning, check_stacklevel=False):
++        with (contextlib.nullcontext() if (debian_arch==b'armel\n') else tm.assert_produces_warning(warning, check_stacklevel=False)):
+             parser.read_csv(
+                 StringIO(data),
+                 sep=r"\s+",
