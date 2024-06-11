@@ -143,7 +143,7 @@ def test_apply_out_of_range(request, tz_naive_fixture, _offset):
             # If we hit OutOfBoundsDatetime on non-64 bit machines
             # we'll drop out of the try clause before the next test
             request.node.add_marker(
-                pytest.mark.xfail(reason="OverflowError inside tzlocal past 2038")
+                pytest.mark.xfail(reason="OverflowError inside tzlocal past 2038", strict=False)
             )
         elif (
             isinstance(tz, tzlocal)
