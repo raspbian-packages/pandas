@@ -19,6 +19,7 @@ from pandas import (
     TimedeltaIndex,
 )
 import pandas._testing as tm
+from pandas.compat import IS64
 from pandas.core.arrays import (
     DatetimeArray,
     TimedeltaArray,
@@ -236,6 +237,11 @@ def test_missing_required_dependency():
         assert name in output
 
 
+@pytest.mark.xfail(
+    condition=not IS64,
+    reason="dask has different nativesize-int vs int64 type rules",
+    strict=False,
+)
 def test_frame_setitem_dask_array_into_new_col():
     # GH#47128
 
