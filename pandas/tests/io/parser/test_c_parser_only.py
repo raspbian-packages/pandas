@@ -17,7 +17,7 @@ import tarfile
 import numpy as np
 import pytest
 
-from pandas.compat import is_ci_environment
+from pandas.compat import is_ci_environment, IS64
 from pandas.compat.numpy import np_version_gte1p24
 from pandas.errors import ParserError
 import pandas.util._test_decorators as td
@@ -27,6 +27,9 @@ from pandas import (
     concat,
 )
 import pandas._testing as tm
+import platform
+import re
+is_platform_x86 = bool(re.match("i.?86|x86",platform.uname()[4]))
 
 
 @pytest.mark.parametrize(
@@ -654,11 +657,13 @@ def test_float_precision_options(c_parser_only):
 
     tm.assert_frame_equal(df, df2)
 
-    df3 = parser.read_csv(StringIO(s), float_precision="legacy")
-
-    assert not df.iloc[0, 0] == df3.iloc[0, 0]
-
     msg = "Unrecognized float_precision option: junk"
 
     with pytest.raises(ValueError, match=msg):
         parser.read_csv(StringIO(s), float_precision="junk")
+
+    df3 = parser.read_csv(StringIO(s), float_precision="legacy")
+    if is_platform_x86 and (not IS64) and (df.iloc[0, 0] == df3.iloc[0, 0]):
+        pytest.xfail(reason="maybe x87 extra precision")
+
+    assert not df.iloc[0, 0] == df3.iloc[0, 0]
