@@ -8,6 +8,7 @@ import pytest
 
 from pandas._libs.tslibs.timezones import maybe_get_tz
 import pandas.util._test_decorators as td
+from pandas.compat import is_platform_little_endian
 
 import pandas as pd
 from pandas import (
@@ -308,6 +309,7 @@ def test_store_timezone(setup_path):
         tm.assert_frame_equal(result, df)
 
 
+@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
 def test_legacy_datetimetz_object(datapath):
     # legacy from < 0.17.0
     # 8260
@@ -360,6 +362,7 @@ def test_read_with_where_tz_aware_index(tmp_path, setup_path):
     tm.assert_frame_equal(result, expected)
 
 
+@pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)
 def test_py2_created_with_datetimez(datapath):
     # The test HDF5 file was created in Python 2, but could not be read in
     # Python 3.
