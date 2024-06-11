@@ -1,0 +1,18 @@
+Description: Ignore exceptions in documentation examples
+
+Some examples download data, and/or depend on
+packages Debian doesn't have, so can't run in a Debian build
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -460,6 +460,7 @@ extlinks = {
+ }
+ 
+ 
++ipython_warning_is_error = False
+ ipython_execlines = [
+     "import numpy as np",
+     "import pandas as pd",

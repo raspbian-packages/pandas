@@ -1,0 +1,37 @@
+#!/bin/bash
+set -eu
+set -x
+
+arch=$(dpkg --print-architecture)
+pys="$(py3versions -s 2>/dev/null)"
+sourcetestroot="$PWD/pandas/tests"
+
+# Debian: Enable "slow" tests on x86 to keep the code coverage.
+# Ubuntu: Disable "slow" tests on ALL architectures.
+if (echo amd64 i386 | grep $arch >/dev/null) && [ "Debian" = $(dpkg-vendor --query vendor) ]; then
+	marker=''
+else
+	marker='not slow'
+fi
+# mips/hppa may have unusual NaN behaviour
+# https://en.wikipedia.org/wiki/NaN#Encoding
+if (echo $arch | grep -E "mips|hppa" >/dev/null) ; then
+	PYTEST_WARN_IGNORE="-W ignore:invalid value encountered:RuntimeWarning"
+else
+	PYTEST_WARN_IGNORE=
+fi
+
+cd "$AUTOPKGTEST_TMP"
+# Run in sections to avoid out-of-memory crash (#943732)
+# exit code 5 means no tests in this file
+# the grep -q is because trying to test __pycache__ is an error in pytest 8+, #1063959
+TEST_SUCCESS=true
+for py in $pys; do
+	echo "=== $py ==="
+	modpath=$($py -c 'import pandas as pd; print(pd.__path__[0])')
+	for TEST_SUBSET in $modpath/tests/* ; do
+        echo $TEST_SUBSET | grep -q -e __pycache__ || PANDAS_CI=1 LC_ALL=C.UTF-8 xvfb-run --auto-servernum --server-args="-screen 0 1024x768x24" \
+        $py -m pytest --tb=long -s -m "$marker" $PYTEST_WARN_IGNORE --deb-data-root-dir=$sourcetestroot --confcutdir=$modpath $TEST_SUBSET 2>&1 || test $? == 5 || TEST_SUCCESS=false && echo "rdjoqkol test state = $TEST_SUCCESS"
+    done
+done
+$TEST_SUCCESS

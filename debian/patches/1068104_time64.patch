@@ -1,0 +1,30 @@
+Description: Don't require 32-bit to be time32
+
+Debian armhf/armel (but not i386) are now time64
+
+Author: Graham Inggs
+Bug-Debian: https://bugs.debian.org/1068104
+Forwarded: no
+
+--- a/pandas/tests/indexes/datetimes/test_ops.py
++++ b/pandas/tests/indexes/datetimes/test_ops.py
+@@ -35,7 +35,7 @@ class TestDatetimeIndexOps:
+         tz = tz_naive_fixture
+         if freq == "A" and not IS64 and isinstance(tz, tzlocal):
+             request.node.add_marker(
+-                pytest.mark.xfail(reason="OverflowError inside tzlocal past 2038")
++                pytest.mark.xfail(reason="OverflowError inside tzlocal past 2038", strict=False)
+             )
+ 
+         idx = date_range(start="2013-04-01", periods=30, freq=freq, tz=tz)
+--- a/pandas/tests/tseries/offsets/test_common.py
++++ b/pandas/tests/tseries/offsets/test_common.py
+@@ -143,7 +143,7 @@ def test_apply_out_of_range(request, tz_
+             # If we hit OutOfBoundsDatetime on non-64 bit machines
+             # we'll drop out of the try clause before the next test
+             request.node.add_marker(
+-                pytest.mark.xfail(reason="OverflowError inside tzlocal past 2038")
++                pytest.mark.xfail(reason="OverflowError inside tzlocal past 2038", strict=False)
+             )
+         elif (
+             isinstance(tz, tzlocal)
