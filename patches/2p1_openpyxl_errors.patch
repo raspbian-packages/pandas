@@ -1,0 +1,34 @@
+Description: Fix test failures when xlsxwriter is not installed
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/io/excel/test_openpyxl.py
++++ b/pandas/tests/io/excel/test_openpyxl.py
+@@ -115,13 +115,13 @@ def test_engine_kwargs_append_invalid(ex
+                 DataFrame(["good"]).to_excel(writer, sheet_name="Sheet2")
+ 
+ 
+-@pytest.mark.parametrize("data_only, expected", [(True, 0), (False, "=1+1")])
++@pytest.mark.parametrize("data_only, expected", [(True, None), (False, "=1+1")])
+ def test_engine_kwargs_append_data_only(ext, data_only, expected):
+     # GH 43445
+     # tests whether the data_only engine_kwarg actually works well for
+     # openpyxl's load_workbook
+     with tm.ensure_clean(ext) as f:
+-        DataFrame(["=1+1"]).to_excel(f)
++        DataFrame(["=1+1"]).to_excel(f, engine="openpyxl")
+         with ExcelWriter(
+             f, engine="openpyxl", mode="a", engine_kwargs={"data_only": data_only}
+         ) as writer:
+--- a/pandas/tests/io/excel/test_writers.py
++++ b/pandas/tests/io/excel/test_writers.py
+@@ -1308,6 +1308,8 @@ class TestExcelWriterEngineTests:
+                     assert isinstance(writer, _XlsxWriter)
+                 else:
+                     assert isinstance(writer, klass)
++                    # openpyxl raises on closing if no sheets are written
++                    DataFrame().to_excel(writer, sheet_name="Sheet1")
+ 
+     def test_ExcelWriter_dispatch_raises(self):
+         with pytest.raises(ValueError, match="No engine"):

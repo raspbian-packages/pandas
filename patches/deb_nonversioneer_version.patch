@@ -1,0 +1,57 @@
+Description: Don't try to use git to find the version number
+
+Needed as Debian buildds use tarballs
+
+Author: Yaroslav Halchenko
+Forwarded: not-needed
+
+--- a/pandas/__init__.py
++++ b/pandas/__init__.py
+@@ -183,12 +183,7 @@ try:
+ 
+     _built_with_meson = True
+ except ImportError:
+-    from pandas._version import get_versions
+-
+-    v = get_versions()
+-    __version__ = v.get("closest-tag", v["version"])
+-    __git_version__ = v.get("full-revisionid")
+-    del get_versions, v
++    from .__version import version as __version__
+ 
+ 
+ # module level doc-string
+--- a/pandas/tests/api/test_api.py
++++ b/pandas/tests/api/test_api.py
+@@ -193,8 +193,6 @@ class TestPDApi(Base):
+         "_testing",
+         "_typing",
+     ]
+-    if not pd._built_with_meson:
+-        private_modules.append("_version")
+ 
+     def test_api(self):
+         checkthese = (
+--- a/pandas/tests/test_common.py
++++ b/pandas/tests/test_common.py
+@@ -159,7 +159,7 @@ def test_standardize_mapping():
+     dd = collections.defaultdict(list)
+     assert isinstance(com.standardize_mapping(dd), partial)
+ 
+-
++@pytest.mark.xfail(reason="deb_nonversioneer_version patch")
+ def test_git_version():
+     # GH 21295
+     git_version = pd.__git_version__
+--- a/pandas/tests/util/test_show_versions.py
++++ b/pandas/tests/util/test_show_versions.py
+@@ -55,9 +55,6 @@ def test_show_versions_console(capsys):
+     # check header
+     assert "INSTALLED VERSIONS" in result
+ 
+-    # check full commit hash
+-    assert re.search(r"commit\s*:\s[0-9a-f]{40}\n", result)
+-
+     # check required dependency
+     # 2020-12-09 npdev has "dirty" in the tag
+     # 2022-05-25 npdev released with RC wo/ "dirty".

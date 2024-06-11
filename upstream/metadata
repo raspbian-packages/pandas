@@ -1,0 +1,14 @@
+Bug-Submit: https://github.com/pydata/pandas/issues/new
+Repository: https://github.com/pydata/pandas.git
+Documentation: https://pandas.pydata.org/pandas-docs/stable
+Bug-Database: https://github.com/pydata/pandas/issues
+Contact: https://pandas.pydata.org/community.html
+Reference:
+  Title: "pandas: a Foundational Python Library for Data Analysis and Statistics"
+  Eprint: https://www.scribd.com/doc/71048089/pandas-a-Foundational-Python-Library-for-Data-Analysis-and-Statistics
+  Author: McKinney, Wes
+  Booktitle: presented at PyHPC
+  Year: 2011
+Other-References: https://pandas.pydata.org/talks.html
+Repository-Browse: https://github.com/pydata/pandas
+Security-Contact: https://github.com/pydata/pandas/tree/HEAD/.github/SECURITY.md

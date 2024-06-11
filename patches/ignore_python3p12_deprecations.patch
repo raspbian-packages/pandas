@@ -1,0 +1,32 @@
+Description: Ignore DeprecationWarnings from Python 3.12
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -506,6 +506,8 @@ filterwarnings = [
+   "ignore:distutils Version classes are deprecated:DeprecationWarning:fsspec",
+   # Can be removed once https://github.com/numpy/numpy/pull/24794 is merged
+   "ignore:.*In the future `np.long` will be defined as.*:FutureWarning",
++  "ignore:Pickle, copy, and deepcopy support will be removed from itertools.*:DeprecationWarning",
++  "ignore:Bitwise inversion.*on bool.*:DeprecationWarning",
+ ]
+ junit_family = "xunit2"
+ markers = [
+--- a/pandas/tests/computation/test_eval.py
++++ b/pandas/tests/computation/test_eval.py
+@@ -554,11 +554,11 @@ class TestEval:
+         assert pd.eval("-1", parser=parser, engine=engine) == -1
+         assert pd.eval("+1", parser=parser, engine=engine) == +1
+         with tm.assert_produces_warning(
+-            warn, match="Bitwise inversion", check_stacklevel=False
++            warn, match="Bitwise inversion", check_stacklevel=False, raise_on_extra_warnings=False
+         ):
+             assert pd.eval("~True", parser=parser, engine=engine) == ~True
+         with tm.assert_produces_warning(
+-            warn, match="Bitwise inversion", check_stacklevel=False
++            warn, match="Bitwise inversion", check_stacklevel=False, raise_on_extra_warnings=False
+         ):
+             assert pd.eval("~False", parser=parser, engine=engine) == ~False
+         assert pd.eval("-True", parser=parser, engine=engine) == -True
