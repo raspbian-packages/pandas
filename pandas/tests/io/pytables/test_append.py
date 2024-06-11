@@ -279,7 +279,8 @@ def test_append_all_nans(setup_path):
             tm.assert_frame_equal(store["df2"], df, check_index_type=True)
 
 
-@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
+from pandas.compat import PY312
+@pytest.mark.xfail(condition=PY312 or is_crashing_arch, reason="https://bugs.debian.org/1055801 and https://bugs.debian.org/790925",raises=ValueError,strict=False, run=not is_crashing_arch)
 def test_append_frame_column_oriented(setup_path):
     with ensure_clean_store(setup_path) as store:
         # column oriented
