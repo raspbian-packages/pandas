@@ -244,7 +244,7 @@ class TestTimedeltas:
         actual = to_timedelta([val])
         assert actual[0]._value == np.timedelta64("NaT").astype("int64")
 
-    @pytest.mark.xfail(not IS64, reason="Floating point error")
+    @pytest.mark.xfail(not IS64, reason="Floating point error", strict=False)
     def test_to_timedelta_float(self):
         # https://github.com/pandas-dev/pandas/issues/25077
         arr = np.arange(0, 1, 1e-6)[-10:]
