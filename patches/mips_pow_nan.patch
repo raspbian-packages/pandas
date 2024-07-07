@@ -1,0 +1,85 @@
+Description: On mips, 1**np.nan and np.nan**0 may be NaN not 1
+
+Done this way not a plain xfail to allow only this difference,
+not clearly wrong answers
+
+(The same hardware's "invalid value encountered" warnings,
+probably from sNaN/qNaN being reversed, are ignored elsewhere:
+d/rules and xfail_tests_nonintel_io.patch)
+
+https://en.wikipedia.org/wiki/NaN#Encoding
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/arrays/floating/test_arithmetic.py
++++ b/pandas/tests/arrays/floating/test_arithmetic.py
+@@ -1,4 +1,5 @@
+ import operator
++import platform
+ 
+ import numpy as np
+ import pytest
+@@ -69,6 +70,11 @@ def test_pow_scalar(dtype):
+         np.array([np.nan, np.nan, 1, np.nan, np.nan], dtype=dtype.numpy_dtype),
+         mask=a._mask,
+     )
++    if 'mips' in platform.uname()[4] and np.isnan(result[2]):
++        expected = FloatingArray(
++            np.array([np.nan, np.nan, np.nan, np.nan, np.nan], dtype=dtype.numpy_dtype),
++            mask=a._mask,
++        )
+     tm.assert_extension_array_equal(result, expected)
+ 
+     # reversed
+@@ -80,6 +86,12 @@ def test_pow_scalar(dtype):
+ 
+     result = 1**a
+     expected = pd.array([1, 1, 1, 1], dtype=dtype)
++    if 'mips' in platform.uname()[4] and np.isnan(result[2]):
++        expected = FloatingArray(
++            np.array([1, 1, np.nan, 1], dtype=dtype.numpy_dtype),
++            mask=expected._mask,
++        )
++
+     tm.assert_extension_array_equal(result, expected)
+ 
+     result = pd.NA**a
+@@ -90,6 +102,11 @@ def test_pow_scalar(dtype):
+     expected = FloatingArray(
+         np.array([1, np.nan, np.nan, np.nan], dtype=dtype.numpy_dtype), mask=a._mask
+     )
++    if 'mips' in platform.uname()[4] and np.isnan(result[0]):
++        expected = FloatingArray(
++            np.array([np.nan, np.nan, np.nan, np.nan], dtype=dtype.numpy_dtype),
++            mask=a._mask,
++        )
+     tm.assert_extension_array_equal(result, expected)
+ 
+ 
+@@ -98,6 +115,8 @@ def test_pow_array(dtype):
+     b = pd.array([0, 1, None, 0, 1, None, 0, 1, None], dtype=dtype)
+     result = a**b
+     expected = pd.array([1, 0, None, 1, 1, 1, 1, None, None], dtype=dtype)
++    if 'mips' in platform.uname()[4] and np.isnan(result[5]):
++        expected = FloatingArray(np.array([1, 0, np.nan, 1, 1, np.nan, np.nan, np.nan, np.nan], dtype=dtype.numpy_dtype), mask=expected._mask)
+     tm.assert_extension_array_equal(result, expected)
+ 
+ 
+--- a/pandas/tests/arrays/sparse/test_arithmetics.py
++++ b/pandas/tests/arrays/sparse/test_arithmetics.py
+@@ -1,4 +1,5 @@
+ import operator
++import platform
+ 
+ import numpy as np
+ import pytest
+@@ -44,6 +45,8 @@ class TestSparseArrayArithmetics:
+                 result = op(a, b_dense).to_dense()
+             else:
+                 result = op(a, b).to_dense()
++        if 'mips' in platform.uname()[4] and op==operator.pow and a[1]==1 and np.isnan(b if np.isscalar(b) else b[1]) and np.isnan(expected[1]) and result[1]==1:
++            expected[1]=1
+ 
+         self._assert(result, expected)
+ 
