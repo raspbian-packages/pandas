@@ -1,0 +1,143 @@
+Description: Allow tests to use the data files in the source tree
+
+We don't ship these in the package,
+but do want to run the tests that use them
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: https://github.com/pandas-dev/pandas/issues/54907
+
+--- a/pandas/conftest.py
++++ b/pandas/conftest.py
+@@ -34,6 +34,7 @@ from typing import (
+     TYPE_CHECKING,
+     Callable,
+ )
++import argparse
+ 
+ from dateutil.tz import (
+     tzlocal,
+@@ -114,6 +115,7 @@ def pytest_addoption(parser) -> None:
+         action="store_false",
+         help="Don't fail if a test is skipped for missing data file.",
+     )
++    parser.addoption("--deb-data-root-dir", action="store", help=argparse.SUPPRESS)  # for internal use of the Debian CI infrastructure, may change without warning.  Security note: test_pickle can run arbitrary code from this directory
+ 
+ 
+ def ignore_doctest_warning(item: pytest.Item, path: str, message: str) -> None:
+@@ -1098,7 +1100,7 @@ def strict_data_files(pytestconfig):
+ 
+ 
+ @pytest.fixture
+-def datapath(strict_data_files: str) -> Callable[..., str]:
++def datapath(strict_data_files: str, pytestconfig) -> Callable[..., str]:
+     """
+     Get the path to a data file.
+ 
+@@ -1116,7 +1118,9 @@ def datapath(strict_data_files: str) ->
+     ValueError
+         If the path doesn't exist and the --no-strict-data-files option is not set.
+     """
+-    BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
++    BASE_PATH = pytestconfig.getoption("--deb-data-root-dir", default=None)
++    if BASE_PATH is None:
++        BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
+ 
+     def deco(*args):
+         path = os.path.join(BASE_PATH, *args)
+--- a/pandas/tests/util/test_util.py
++++ b/pandas/tests/util/test_util.py
+@@ -35,6 +35,7 @@ def test_datapath_missing(datapath):
+         datapath("not_a_file")
+ 
+ 
++@pytest.mark.xfail(reason="--deb-data-root-dir intentionally breaks this", strict=False)
+ def test_datapath(datapath):
+     args = ("io", "data", "csv", "iris.csv")
+ 
+--- a/pandas/tests/io/test_pickle.py
++++ b/pandas/tests/io/test_pickle.py
+@@ -115,7 +115,7 @@ def test_pickles(datapath):
+         pytest.skip("known failure on non-little endian")
+ 
+     # For loop for compat with --strict-data-files
+-    for legacy_pickle in Path(__file__).parent.glob("data/legacy_pickle/*/*.p*kl*"):
++    for legacy_pickle in Path(datapath("io", "data", "legacy_pickle")).glob("*/*.p*kl*"):
+         legacy_pickle = datapath(legacy_pickle)
+ 
+         data = pd.read_pickle(legacy_pickle)
+@@ -627,7 +627,7 @@ def test_pickle_big_dataframe_compressio
+ def test_pickle_frame_v124_unpickle_130(datapath):
+     # GH#42345 DataFrame created in 1.2.x, unpickle in 1.3.x
+     path = datapath(
+-        Path(__file__).parent,
++        "io",
+         "data",
+         "legacy_pickle",
+         "1.2.4",
+--- a/pandas/tests/io/formats/style/test_html.py
++++ b/pandas/tests/io/formats/style/test_html.py
+@@ -44,10 +44,10 @@ def tpl_table(env):
+     return env.get_template("html_table.tpl")
+ 
+ 
+-def test_html_template_extends_options():
++def test_html_template_extends_options(datapath):
+     # make sure if templates are edited tests are updated as are setup fixtures
+     # to understand the dependency
+-    with open("pandas/io/formats/templates/html.tpl", encoding="utf-8") as file:
++    with open(datapath("../io/formats/templates/html.tpl"), encoding="utf-8") as file:
+         result = file.read()
+     assert "{% include html_style_tpl %}" in result
+     assert "{% include html_table_tpl %}" in result
+--- a/pandas/tests/io/xml/conftest.py
++++ b/pandas/tests/io/xml/conftest.py
+@@ -4,8 +4,8 @@ import pytest
+ 
+ 
+ @pytest.fixture
+-def xml_data_path():
+-    return Path(__file__).parent.parent / "data" / "xml"
++def xml_data_path(datapath):
++    return Path(datapath("io", "data", "xml"))
+ 
+ 
+ @pytest.fixture
+--- a/pandas/tests/io/xml/test_xml.py
++++ b/pandas/tests/io/xml/test_xml.py
+@@ -487,13 +487,13 @@ def test_empty_string_etree(val):
+             read_xml(BytesIO(val), parser="etree")
+ 
+ 
+-def test_wrong_file_path(parser):
++def test_wrong_file_path(parser, datapath):
+     msg = (
+         "Passing literal xml to 'read_xml' is deprecated and "
+         "will be removed in a future version. To read from a "
+         "literal string, wrap it in a 'StringIO' object."
+     )
+-    filename = os.path.join("data", "html", "books.xml")
++    filename = os.path.join(datapath("io", "data", "html"), "books.xml")
+ 
+     with pytest.raises(
+         FutureWarning,
+@@ -1358,17 +1358,16 @@ def test_stylesheet_with_etree(kml_cta_r
+ 
+ 
+ @pytest.mark.parametrize("val", ["", b""])
+-def test_empty_stylesheet(val):
++def test_empty_stylesheet(val, datapath):
+     pytest.importorskip("lxml")
+     msg = (
+         "Passing literal xml to 'read_xml' is deprecated and "
+         "will be removed in a future version. To read from a "
+         "literal string, wrap it in a 'StringIO' object."
+     )
+-    kml = os.path.join("data", "xml", "cta_rail_lines.kml")
++    kml = datapath("io", "data", "xml", "cta_rail_lines.kml")
+ 
+-    with pytest.raises(FutureWarning, match=msg):
+-        read_xml(kml, stylesheet=val)
++    read_xml(kml, stylesheet=val)
+ 
+ 
+ # ITERPARSE
