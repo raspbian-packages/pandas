@@ -456,11 +456,11 @@ latex_documents = [
 if include_api:
     intersphinx_mapping = {
         "dateutil": ("https://dateutil.readthedocs.io/en/latest/", None),
-        "matplotlib": ("https://matplotlib.org/stable/", None),
-        "numpy": ("https://numpy.org/doc/stable/", None),
-        "py": ("https://pylib.readthedocs.io/en/latest/", None),
-        "python": ("https://docs.python.org/3/", None),
-        "scipy": ("https://docs.scipy.org/doc/scipy/", None),
+        "matplotlib": ("https://matplotlib.org/stable/", None), # no longer has a -doc in Debian "/usr/share/doc/python-matplotlib-doc/html/objects.inv"
+        "numpy": ("https://numpy.org/doc/stable/", None), # no longer has a -doc in Debian "/usr/share/doc/python-numpy-doc/html/objects.inv"
+        "py": ("https://pylib.readthedocs.io/en/latest/", None), # no -doc in Debian
+        "python": ("https://docs.python.org/3/", "/usr/share/doc/python3-doc/html/objects.inv"),
+        "scipy": ("https://docs.scipy.org/doc/scipy/", ("/usr/share/doc/python-scipy-doc/html/objects.inv","/usr/share/doc/python-scipy/html/objects.inv")),
         "pyarrow": ("https://arrow.apache.org/docs/", None),
     }
 
