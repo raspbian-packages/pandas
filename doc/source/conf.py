@@ -245,14 +245,7 @@ html_theme_options = {
     "footer_start": ["pandas_footer", "sphinx-version"],
     "github_url": "https://github.com/pandas-dev/pandas",
     "twitter_url": "https://twitter.com/pandas_dev",
-    "logo": {"image_dark": "https://pandas.pydata.org/static/img/pandas_white.svg"},
-    "navbar_align": "left",
-    "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
-    "switcher": {
-        "json_url": "https://pandas.pydata.org/versions.json",
-        "version_match": switcher_version,
-    },
-    "show_version_warning_banner": True,
+    "navbar_end": ["navbar-icon-links"],
     "icon_links": [
         {
             "name": "Mastodon",
