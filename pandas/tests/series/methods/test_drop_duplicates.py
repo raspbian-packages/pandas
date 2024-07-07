@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     Categorical,
@@ -252,7 +253,7 @@ class TestSeriesDropDuplicates:
         tm.assert_series_equal(result, expected)
 
     def test_duplicated_arrow_dtype(self):
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         ser = Series([True, False, None, False], dtype="bool[pyarrow]")
         result = ser.drop_duplicates()
         expected = Series([True, False, None], dtype="bool[pyarrow]")
@@ -260,7 +261,7 @@ class TestSeriesDropDuplicates:
 
     def test_drop_duplicates_arrow_strings(self):
         # GH#54904
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         ser = Series(["a", "a"], dtype=pd.ArrowDtype(pa.string()))
         result = ser.drop_duplicates()
         expecetd = Series(["a"], dtype=pd.ArrowDtype(pa.string()))

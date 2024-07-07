@@ -1285,7 +1285,7 @@ class TestIndex:
 
     def test_tab_complete_warning(self, ip):
         # https://github.com/pandas-dev/pandas/issues/16409
-        pytest.importorskip("IPython", minversion="6.0.0")
+        td.versioned_importorskip("IPython", min_version="6.0.0")
         from IPython.core.completer import provisionalcompleter
 
         code = "import pandas as pd; idx = pd.Index([1, 2])"

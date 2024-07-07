@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import (
     ParserError,
     ParserWarning,
@@ -167,7 +168,7 @@ def test_decompression_regex_sep(python_parser_only, csv1, compression, klass):
     data = data.replace(b",", b"::")
     expected = parser.read_csv(csv1)
 
-    module = pytest.importorskip(compression)
+    module = td.versioned_importorskip(compression)
     klass = getattr(module, klass)
 
     with tm.ensure_clean() as path:

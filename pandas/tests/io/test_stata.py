@@ -2045,11 +2045,11 @@ def test_compression(compression, version, use_dict, infer, compression_to_exten
             with bz2.open(path, "rb") as comp:
                 fp = io.BytesIO(comp.read())
         elif compression == "zstd":
-            zstd = pytest.importorskip("zstandard")
+            zstd = td.versioned_importorskip("zstandard")
             with zstd.open(path, "rb") as comp:
                 fp = io.BytesIO(comp.read())
         elif compression == "xz":
-            lzma = pytest.importorskip("lzma")
+            lzma = td.versioned_importorskip("lzma")
             with lzma.open(path, "rb") as comp:
                 fp = io.BytesIO(comp.read())
         elif compression is None:

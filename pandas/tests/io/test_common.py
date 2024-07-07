@@ -100,7 +100,7 @@ bar2,12,13,14,15
 
     def test_stringify_file_and_path_like(self):
         # GH 38125: do not stringify file objects that are also path-like
-        fsspec = pytest.importorskip("fsspec")
+        fsspec = td.versioned_importorskip("fsspec")
         with tm.ensure_clean() as path:
             with fsspec.open(f"file://{path}", mode="wb") as fsspec_obj:
                 assert fsspec_obj == icom.stringify_path(fsspec_obj)
@@ -153,7 +153,7 @@ Look,a snake,🐍"""
 
     # Test that pyarrow can handle a file opened with get_handle
     def test_get_handle_pyarrow_compat(self):
-        pa_csv = pytest.importorskip("pyarrow.csv")
+        pa_csv = td.versioned_importorskip("pyarrow.csv")
 
         # Test latin1, ucs-2, and ucs-4 chars
         data = """a,b,c
@@ -196,7 +196,7 @@ Look,a snake,🐍"""
         ],
     )
     def test_read_non_existent(self, reader, module, error_class, fn_ext):
-        pytest.importorskip(module)
+        td.versioned_importorskip(module)
 
         path = os.path.join(HERE, "data", "does_not_exist." + fn_ext)
         msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
@@ -234,7 +234,7 @@ Look,a snake,🐍"""
     )
     # NOTE: Missing parent directory for pd.DataFrame.to_hdf is handled by PyTables
     def test_write_missing_parent_directory(self, method, module, error_class, fn_ext):
-        pytest.importorskip(module)
+        td.versioned_importorskip(module)
 
         dummy_frame = pd.DataFrame({"a": [1, 2, 3], "b": [2, 3, 4], "c": [3, 4, 5]})
 
@@ -264,7 +264,7 @@ Look,a snake,🐍"""
     def test_read_expands_user_home_dir(
         self, reader, module, error_class, fn_ext, monkeypatch
     ):
-        pytest.importorskip(module)
+        td.versioned_importorskip(module)
 
         path = os.path.join("~", "does_not_exist." + fn_ext)
         monkeypatch.setattr(icom, "_expand_user", lambda x: os.path.join("foo", x))
@@ -321,7 +321,7 @@ Look,a snake,🐍"""
         ],
     )
     def test_read_fspath_all(self, reader, module, path, datapath):
-        pytest.importorskip(module)
+        td.versioned_importorskip(module)
         path = datapath(*path)
 
         mypath = CustomFSPath(path)
@@ -349,13 +349,13 @@ Look,a snake,🐍"""
     )
     def test_write_fspath_all(self, writer_name, writer_kwargs, module):
         if writer_name in ["to_latex"]:  # uses Styler implementation
-            pytest.importorskip("jinja2")
+            td.versioned_importorskip("jinja2")
         p1 = tm.ensure_clean("string")
         p2 = tm.ensure_clean("fspath")
         df = pd.DataFrame({"A": [1, 2]})
 
         with p1 as string, p2 as fspath:
-            pytest.importorskip(module)
+            td.versioned_importorskip(module)
             mypath = CustomFSPath(fspath)
             writer = getattr(df, writer_name)
 
@@ -377,7 +377,7 @@ Look,a snake,🐍"""
         # Same test as write_fspath_all, except HDF5 files aren't
         # necessarily byte-for-byte identical for a given dataframe, so we'll
         # have to read and compare equality
-        pytest.importorskip("tables")
+        td.versioned_importorskip("tables")
 
         df = pd.DataFrame({"A": [1, 2]})
         p1 = tm.ensure_clean("string")

@@ -1,5 +1,6 @@
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat.pyarrow import pa_version_under10p1
 
 from pandas.core.dtypes.dtypes import PeriodDtype
@@ -16,7 +17,7 @@ pytestmark = pytest.mark.filterwarnings(
 )
 
 
-pa = pytest.importorskip("pyarrow")
+pa = td.versioned_importorskip("pyarrow")
 
 
 def test_arrow_extension_type():

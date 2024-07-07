@@ -3,6 +3,7 @@ import types
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat._optional import (
     VERSIONS,
     import_optional_dependency,
@@ -23,7 +24,7 @@ def test_import_optional():
 
 
 def test_xlrd_version_fallback():
-    pytest.importorskip("xlrd")
+    td.versioned_importorskip("xlrd")
     import_optional_dependency("xlrd")
 
 

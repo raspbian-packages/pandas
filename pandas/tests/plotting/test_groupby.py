@@ -4,6 +4,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Index,
@@ -14,7 +15,7 @@ from pandas.tests.plotting.common import (
     _check_legend_labels,
 )
 
-pytest.importorskip("matplotlib")
+td.versioned_importorskip("matplotlib")
 
 
 class TestDataFrameGroupByPlots:

@@ -105,7 +105,7 @@ class TestDataFrameCorr:
 
     @pytest.mark.parametrize("method", ["pearson", "kendall", "spearman"])
     def test_corr_scipy_method(self, float_frame, method):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         float_frame.loc[float_frame.index[:5], "A"] = np.nan
         float_frame.loc[float_frame.index[5:10], "B"] = np.nan
         float_frame.loc[float_frame.index[:10], "A"] = float_frame["A"][10:20].copy()
@@ -126,7 +126,7 @@ class TestDataFrameCorr:
     @pytest.mark.parametrize("meth", ["pearson", "kendall", "spearman"])
     def test_corr_nooverlap(self, meth):
         # nothing in common
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(
             {
                 "A": [1, 1.5, 1, np.nan, np.nan, np.nan],
@@ -159,7 +159,7 @@ class TestDataFrameCorr:
         # when dtypes of pandas series are different
         # then ndarray will have dtype=object,
         # so it need to be properly handled
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame({"a": [True, False], "b": [1, 0]})
 
         expected = DataFrame(np.ones((2, 2)), index=["a", "b"], columns=["a", "b"])
@@ -201,7 +201,7 @@ class TestDataFrameCorr:
     @pytest.mark.parametrize("method", ["pearson", "spearman", "kendall"])
     def test_corr_nullable_integer(self, nullable_column, other_column, method):
         # https://github.com/pandas-dev/pandas/issues/33803
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         data = DataFrame({"a": nullable_column, "b": other_column})
         result = data.corr(method=method)
         expected = DataFrame(np.ones((2, 2)), columns=["a", "b"], index=["a", "b"])
@@ -250,7 +250,7 @@ class TestDataFrameCorr:
 
     @pytest.mark.parametrize("method", ["pearson", "spearman", "kendall"])
     def test_corr_min_periods_greater_than_length(self, method):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame({"A": [1, 2], "B": [1, 2]})
         result = df.corr(method=method, min_periods=3)
         expected = DataFrame(
@@ -264,7 +264,7 @@ class TestDataFrameCorr:
         # when dtypes of pandas series are different
         # then ndarray will have dtype=object,
         # so it need to be properly handled
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame({"a": [1, 0], "b": [1, 0], "c": ["x", "y"]})
         expected = DataFrame(np.ones((2, 2)), index=["a", "b"], columns=["a", "b"])
         if numeric_only:
@@ -433,7 +433,7 @@ class TestDataFrameCorrWith:
 
     def test_corrwith_spearman(self):
         # GH#21925
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).random(size=(100, 3)))
         result = df.corrwith(df**2, method="spearman")
         expected = Series(np.ones(len(result)))
@@ -441,7 +441,7 @@ class TestDataFrameCorrWith:
 
     def test_corrwith_kendall(self):
         # GH#21925
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).random(size=(100, 3)))
         result = df.corrwith(df**2, method="kendall")
         expected = Series(np.ones(len(result)))
@@ -449,7 +449,7 @@ class TestDataFrameCorrWith:
 
     def test_corrwith_spearman_with_tied_data(self):
         # GH#48826
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df1 = DataFrame(
             {
                 "A": [1, np.nan, 7, 8],

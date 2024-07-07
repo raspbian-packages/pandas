@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     Index,
@@ -47,7 +48,7 @@ class TestIndexConstructor:
 
     def test_index_string_inference(self):
         # GH#54430
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         dtype = "string[pyarrow_numpy]"
         expected = Index(["a", "b"], dtype=dtype)
         with pd.option_context("future.infer_string", True):

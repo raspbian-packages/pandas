@@ -7,6 +7,7 @@ from io import StringIO
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_pyarrow_string_dtype
 
 from pandas import (
@@ -287,7 +288,7 @@ NaT   4"""
             assert "StringCol" in repr(df)
 
     def test_latex_repr(self):
-        pytest.importorskip("jinja2")
+        td.versioned_importorskip("jinja2")
         expected = r"""\begin{tabular}{llll}
 \toprule
  & 0 & 1 & 2 \\
@@ -475,7 +476,7 @@ NaT   4"""
 
     def test_repr_ea_columns(self, any_string_dtype):
         # GH#54797
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = DataFrame({"long_column_name": [1, 2, 3], "col2": [4, 5, 6]})
         df.columns = df.columns.astype(any_string_dtype)
         expected = """   long_column_name  col2

@@ -27,8 +27,8 @@ pytestmark = pytest.mark.filterwarnings(
 @pytest.fixture
 def gcs_buffer():
     """Emulate GCS using a binary buffer."""
-    pytest.importorskip("gcsfs")
-    fsspec = pytest.importorskip("fsspec")
+    td.versioned_importorskip("gcsfs")
+    fsspec = td.versioned_importorskip("fsspec")
 
     gcs_buffer = BytesIO()
     gcs_buffer.close = lambda: True
@@ -81,8 +81,8 @@ def test_to_read_gcs(gcs_buffer, format, monkeypatch, capsys):
         df1.to_json(path)
         df2 = read_json(path, convert_dates=["dt"])
     elif format == "parquet":
-        pytest.importorskip("pyarrow")
-        pa_fs = pytest.importorskip("pyarrow.fs")
+        td.versioned_importorskip("pyarrow")
+        pa_fs = td.versioned_importorskip("pyarrow.fs")
 
         class MockFileSystem(pa_fs.FileSystem):
             @staticmethod
@@ -98,7 +98,7 @@ def test_to_read_gcs(gcs_buffer, format, monkeypatch, capsys):
         captured = capsys.readouterr()
         assert captured.out == "Using pyarrow filesystem\nUsing pyarrow filesystem\n"
     elif format == "markdown":
-        pytest.importorskip("tabulate")
+        td.versioned_importorskip("tabulate")
         df1.to_markdown(path)
         df2 = df1
 
@@ -187,8 +187,8 @@ def test_to_csv_compression_encoding_gcs(
 
 def test_to_parquet_gcs_new_file(monkeypatch, tmpdir):
     """Regression test for writing to a not-yet-existent GCS Parquet file."""
-    pytest.importorskip("fastparquet")
-    pytest.importorskip("gcsfs")
+    td.versioned_importorskip("fastparquet")
+    td.versioned_importorskip("gcsfs")
 
     from fsspec import AbstractFileSystem
 

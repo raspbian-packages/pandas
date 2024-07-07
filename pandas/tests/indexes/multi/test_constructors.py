@@ -7,6 +7,7 @@ import itertools
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.core.dtypes.cast import construct_1d_object_array_from_listlike
 
 import pandas as pd
@@ -648,7 +649,7 @@ def test_from_frame():
 
 def test_from_frame_missing_values_multiIndex():
     # GH 39984
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     df = pd.DataFrame(
         {

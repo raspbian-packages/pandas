@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs.sparse import IntIndex
 
 import pandas as pd
@@ -188,7 +189,7 @@ class TestConstructors:
     @pytest.mark.parametrize("format", ["coo", "csc", "csr"])
     @pytest.mark.parametrize("size", [0, 10])
     def test_from_spmatrix(self, size, format):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         mat = sp_sparse.random(size, 1, density=0.5, format=format)
         result = SparseArray.from_spmatrix(mat)
@@ -199,7 +200,7 @@ class TestConstructors:
 
     @pytest.mark.parametrize("format", ["coo", "csc", "csr"])
     def test_from_spmatrix_including_explicit_zero(self, format):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         mat = sp_sparse.random(10, 1, density=0.5, format=format)
         mat.data[0] = 0
@@ -210,7 +211,7 @@ class TestConstructors:
         tm.assert_numpy_array_equal(result, expected)
 
     def test_from_spmatrix_raises(self):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         mat = sp_sparse.eye(5, 4, format="csc")
 

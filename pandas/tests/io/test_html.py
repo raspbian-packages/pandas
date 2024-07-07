@@ -71,8 +71,8 @@ def assert_framelist_equal(list1, list2, *args, **kwargs):
 
 
 def test_bs4_version_fails(monkeypatch, datapath):
-    bs4 = pytest.importorskip("bs4")
-    pytest.importorskip("html5lib")
+    bs4 = td.versioned_importorskip("bs4")
+    td.versioned_importorskip("html5lib")
 
     monkeypatch.setattr(bs4, "__version__", "4.2")
     with pytest.raises(ImportError, match="Pandas requires version"):
@@ -89,9 +89,9 @@ def test_invalid_flavor():
 
 
 def test_same_ordering(datapath):
-    pytest.importorskip("bs4")
-    pytest.importorskip("lxml")
-    pytest.importorskip("html5lib")
+    td.versioned_importorskip("bs4")
+    td.versioned_importorskip("lxml")
+    td.versioned_importorskip("html5lib")
 
     filename = datapath("io", "data", "html", "valid_markup.html")
     dfs_lxml = read_html(filename, index_col=0, flavor=["lxml"])
@@ -184,13 +184,13 @@ class TestReadHtml:
             string_array = StringArray(np.array(["a", "b", "c"], dtype=np.object_))
             string_array_na = StringArray(np.array(["a", "b", NA], dtype=np.object_))
         elif dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             from pandas.arrays import ArrowExtensionArray
 
             string_array = ArrowExtensionArray(pa.array(["a", "b", "c"]))
             string_array_na = ArrowExtensionArray(pa.array(["a", "b", None]))
         else:
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             string_array = ArrowStringArray(pa.array(["a", "b", "c"]))
             string_array_na = ArrowStringArray(pa.array(["a", "b", None]))
 

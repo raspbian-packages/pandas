@@ -4,6 +4,7 @@ import os
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat._optional import VERSIONS
 
 from pandas import (
@@ -135,7 +136,7 @@ def all_parsers(request):
     """
     parser = request.param()
     if parser.engine == "pyarrow":
-        pytest.importorskip("pyarrow", VERSIONS["pyarrow"])
+        td.versioned_importorskip("pyarrow", VERSIONS["pyarrow"])
         # Try finding a way to disable threads all together
         # for more stable CI runs
         import pyarrow

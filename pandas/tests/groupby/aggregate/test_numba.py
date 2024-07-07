@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import NumbaUtilError
 
 from pandas import (
@@ -22,7 +23,7 @@ pytestmark = pytest.mark.single_cpu
 
 
 def test_correct_function_signature():
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def incorrect_function(x):
         return sum(x) * 2.7
@@ -39,7 +40,7 @@ def test_correct_function_signature():
 
 
 def test_check_nopython_kwargs():
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def incorrect_function(values, index):
         return sum(values) * 2.7
@@ -61,7 +62,7 @@ def test_check_nopython_kwargs():
 @pytest.mark.parametrize("pandas_obj", ["Series", "DataFrame"])
 @pytest.mark.parametrize("as_index", [True, False])
 def test_numba_vs_cython(jit, pandas_obj, nogil, parallel, nopython, as_index):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def func_numba(values, index):
         return np.mean(values) * 2.7
@@ -92,7 +93,7 @@ def test_numba_vs_cython(jit, pandas_obj, nogil, parallel, nopython, as_index):
 @pytest.mark.parametrize("pandas_obj", ["Series", "DataFrame"])
 def test_cache(jit, pandas_obj, nogil, parallel, nopython):
     # Test that the functions are cached correctly if we switch functions
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def func_1(values, index):
         return np.mean(values) - 3.4
@@ -130,7 +131,7 @@ def test_cache(jit, pandas_obj, nogil, parallel, nopython):
 
 
 def test_use_global_config():
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def func_1(values, index):
         return np.mean(values) - 3.4
@@ -155,7 +156,7 @@ def test_use_global_config():
     ],
 )
 def test_multifunc_numba_vs_cython_frame(agg_kwargs):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     data = DataFrame(
         {
             0: ["a", "a", "b", "b", "a"],
@@ -190,7 +191,7 @@ def test_multifunc_numba_vs_cython_frame(agg_kwargs):
     ],
 )
 def test_multifunc_numba_udf_frame(agg_kwargs, expected_func):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     data = DataFrame(
         {
             0: ["a", "a", "b", "b", "a"],
@@ -212,7 +213,7 @@ def test_multifunc_numba_udf_frame(agg_kwargs, expected_func):
     [{"func": ["min", "max"]}, {"func": "min"}, {"min_val": "min", "max_val": "max"}],
 )
 def test_multifunc_numba_vs_cython_series(agg_kwargs):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     labels = ["a", "a", "b", "b", "a"]
     data = Series([1.0, 2.0, 3.0, 4.0, 5.0])
     grouped = data.groupby(labels)
@@ -265,7 +266,7 @@ def test_multifunc_numba_vs_cython_series(agg_kwargs):
     strict=False,
 )
 def test_multifunc_numba_kwarg_propagation(data, agg_kwargs):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     labels = ["a", "a", "b", "b", "a"]
     grouped = data.groupby(labels)
     result = grouped.agg(**agg_kwargs, engine="numba", engine_kwargs={"parallel": True})
@@ -278,7 +279,7 @@ def test_multifunc_numba_kwarg_propagation(data, agg_kwargs):
 
 def test_args_not_cached():
     # GH 41647
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def sum_last(values, index, n):
         return values[-n:].sum()
@@ -296,7 +297,7 @@ def test_args_not_cached():
 
 def test_index_data_correctly_passed():
     # GH 43133
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def f(values, index):
         return np.mean(index)
@@ -312,7 +313,7 @@ def test_index_data_correctly_passed():
 def test_engine_kwargs_not_cached():
     # If the user passes a different set of engine_kwargs don't return the same
     # jitted function
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     nogil = True
     parallel = False
     nopython = True
@@ -339,7 +340,7 @@ def test_engine_kwargs_not_cached():
 
 @pytest.mark.filterwarnings("ignore")
 def test_multiindex_one_key(nogil, parallel, nopython):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def numba_func(values, index):
         return 1
@@ -354,7 +355,7 @@ def test_multiindex_one_key(nogil, parallel, nopython):
 
 
 def test_multiindex_multi_key_not_supported(nogil, parallel, nopython):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
 
     def numba_func(values, index):
         return 1
@@ -368,7 +369,7 @@ def test_multiindex_multi_key_not_supported(nogil, parallel, nopython):
 
 
 def test_multilabel_numba_vs_cython(numba_supported_reductions):
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     reduction, kwargs = numba_supported_reductions
     df = DataFrame(
         {
@@ -389,7 +390,7 @@ def test_multilabel_numba_vs_cython(numba_supported_reductions):
 
 
 def test_multilabel_udf_numba_vs_cython():
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     df = DataFrame(
         {
             "A": ["foo", "bar", "foo", "bar", "foo", "bar", "foo", "foo"],

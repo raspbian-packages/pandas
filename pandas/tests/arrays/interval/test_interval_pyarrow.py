@@ -1,13 +1,14 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 from pandas.core.arrays import IntervalArray
 
 
 def test_arrow_extension_type():
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     from pandas.core.arrays.arrow.extension_types import ArrowIntervalType
 
@@ -23,7 +24,7 @@ def test_arrow_extension_type():
 
 
 def test_arrow_array():
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     from pandas.core.arrays.arrow.extension_types import ArrowIntervalType
 
@@ -52,7 +53,7 @@ def test_arrow_array():
 
 
 def test_arrow_array_missing():
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     from pandas.core.arrays.arrow.extension_types import ArrowIntervalType
 
@@ -89,7 +90,7 @@ def test_arrow_array_missing():
     ids=["float", "datetime64[ns]"],
 )
 def test_arrow_table_roundtrip(breaks):
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     from pandas.core.arrays.arrow.extension_types import ArrowIntervalType
 
@@ -125,7 +126,7 @@ def test_arrow_table_roundtrip(breaks):
     ids=["float", "datetime64[ns]"],
 )
 def test_arrow_table_roundtrip_without_metadata(breaks):
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     arr = IntervalArray.from_breaks(breaks)
     arr[1] = None
@@ -145,7 +146,7 @@ def test_from_arrow_from_raw_struct_array():
     # in case pyarrow lost the Interval extension type (eg on parquet roundtrip
     # with datetime64[ns] subtype, see GH-45881), still allow conversion
     # from arrow to IntervalArray
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     arr = pa.array([{"left": 0, "right": 1}, {"left": 1, "right": 2}])
     dtype = pd.IntervalDtype(np.dtype("int64"), closed="neither")

@@ -1308,7 +1308,7 @@ class TestLocBaseIndependent:
     @pytest.mark.parametrize("spmatrix_t", ["coo_matrix", "csc_matrix", "csr_matrix"])
     @pytest.mark.parametrize("dtype", [np.int64, np.float64, complex])
     def test_loc_getitem_range_from_spmatrix(self, spmatrix_t, dtype):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         spmatrix_t = getattr(sp_sparse, spmatrix_t)
 
@@ -1337,7 +1337,7 @@ class TestLocBaseIndependent:
 
     def test_loc_getitem_sparse_frame(self):
         # GH34687
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         df = DataFrame.sparse.from_spmatrix(sp_sparse.eye(5))
         result = df.loc[range(2)]
@@ -3078,7 +3078,7 @@ def test_loc_periodindex_3_levels():
 
 def test_loc_setitem_pyarrow_strings():
     # GH#52319
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         {
             "strings": Series(["A", "B", "C"], dtype="string[pyarrow]"),

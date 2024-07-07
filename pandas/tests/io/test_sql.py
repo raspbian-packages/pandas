@@ -601,8 +601,8 @@ def drop_view(
 
 @pytest.fixture
 def mysql_pymysql_engine():
-    sqlalchemy = pytest.importorskip("sqlalchemy")
-    pymysql = pytest.importorskip("pymysql")
+    sqlalchemy = td.versioned_importorskip("sqlalchemy")
+    pymysql = td.versioned_importorskip("pymysql")
     engine = sqlalchemy.create_engine(
         "mysql+pymysql://root@localhost:3306/pandas",
         connect_args={"client_flag": pymysql.constants.CLIENT.MULTI_STATEMENTS},
@@ -649,8 +649,8 @@ def mysql_pymysql_conn_types(mysql_pymysql_engine_types):
 
 @pytest.fixture
 def postgresql_psycopg2_engine():
-    sqlalchemy = pytest.importorskip("sqlalchemy")
-    pytest.importorskip("psycopg2")
+    sqlalchemy = td.versioned_importorskip("sqlalchemy")
+    td.versioned_importorskip("psycopg2")
     engine = sqlalchemy.create_engine(
         "postgresql+psycopg2://postgres:postgres@localhost:5432/pandas",
         poolclass=sqlalchemy.pool.NullPool,
@@ -684,7 +684,7 @@ def postgresql_psycopg2_conn(postgresql_psycopg2_engine):
 
 @pytest.fixture
 def postgresql_adbc_conn():
-    pytest.importorskip("adbc_driver_postgresql")
+    td.versioned_importorskip("adbc_driver_postgresql")
     from adbc_driver_postgresql import dbapi
 
     uri = "postgresql://postgres:postgres@localhost:5432/pandas"
@@ -747,14 +747,14 @@ def postgresql_psycopg2_conn_types(postgresql_psycopg2_engine_types):
 
 @pytest.fixture
 def sqlite_str():
-    pytest.importorskip("sqlalchemy")
+    td.versioned_importorskip("sqlalchemy")
     with tm.ensure_clean() as name:
         yield f"sqlite:///{name}"
 
 
 @pytest.fixture
 def sqlite_engine(sqlite_str):
-    sqlalchemy = pytest.importorskip("sqlalchemy")
+    sqlalchemy = td.versioned_importorskip("sqlalchemy")
     engine = sqlalchemy.create_engine(sqlite_str, poolclass=sqlalchemy.pool.NullPool)
     yield engine
     for view in get_all_views(engine):
@@ -772,7 +772,7 @@ def sqlite_conn(sqlite_engine):
 
 @pytest.fixture
 def sqlite_str_iris(sqlite_str, iris_path):
-    sqlalchemy = pytest.importorskip("sqlalchemy")
+    sqlalchemy = td.versioned_importorskip("sqlalchemy")
     engine = sqlalchemy.create_engine(sqlite_str)
     create_and_load_iris(engine, iris_path)
     create_and_load_iris_view(engine)
@@ -795,7 +795,7 @@ def sqlite_conn_iris(sqlite_engine_iris):
 
 @pytest.fixture
 def sqlite_str_types(sqlite_str, types_data):
-    sqlalchemy = pytest.importorskip("sqlalchemy")
+    sqlalchemy = td.versioned_importorskip("sqlalchemy")
     engine = sqlalchemy.create_engine(sqlite_str)
     create_and_load_types(engine, types_data, "sqlite")
     engine.dispose()
@@ -816,7 +816,7 @@ def sqlite_conn_types(sqlite_engine_types):
 
 @pytest.fixture
 def sqlite_adbc_conn():
-    pytest.importorskip("adbc_driver_sqlite")
+    td.versioned_importorskip("adbc_driver_sqlite")
     from adbc_driver_sqlite import dbapi
 
     with tm.ensure_clean() as name:
@@ -1001,7 +1001,7 @@ def test_dataframe_to_sql_empty(conn, test_frame1, request):
 @pytest.mark.parametrize("conn", all_connectable)
 def test_dataframe_to_sql_arrow_dtypes(conn, request):
     # GH 52046
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         {
             "int": pd.array([1], dtype="int8[pyarrow]"),
@@ -1035,7 +1035,7 @@ def test_dataframe_to_sql_arrow_dtypes(conn, request):
 @pytest.mark.parametrize("conn", all_connectable)
 def test_dataframe_to_sql_arrow_dtypes_missing(conn, request, nulls_fixture):
     # GH 52046
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         {
             "datetime": pd.array(
@@ -2508,7 +2508,7 @@ def test_sqlalchemy_integer_overload_mapping(conn, request, integer):
 
 @pytest.mark.parametrize("conn", all_connectable)
 def test_database_uri_string(conn, request, test_frame1):
-    pytest.importorskip("sqlalchemy")
+    td.versioned_importorskip("sqlalchemy")
     conn = request.getfixturevalue(conn)
     # Test read_sql and .to_sql method with a database URI (GH10654)
     # db_uri = 'sqlite:///:memory:' # raises
@@ -2530,7 +2530,7 @@ def test_database_uri_string(conn, request, test_frame1):
 @td.skip_if_installed("pg8000")
 @pytest.mark.parametrize("conn", all_connectable)
 def test_pg8000_sqlalchemy_passthrough_error(conn, request):
-    pytest.importorskip("sqlalchemy")
+    td.versioned_importorskip("sqlalchemy")
     conn = request.getfixturevalue(conn)
     # using driver that will not be installed on CI to trigger error
     # in sqlalchemy.create_engine -> test passing of this error to user
@@ -3407,7 +3407,7 @@ def test_to_sql_with_negative_npinf(conn, request, input):
         # The input {"foo": [-np.inf], "infe0": ["bar"]} does not raise any error
         # for pymysql version >= 0.10
         # TODO(GH#36465): remove this version check after GH 36465 is fixed
-        pymysql = pytest.importorskip("pymysql")
+        pymysql = td.versioned_importorskip("pymysql")
 
         if Version(pymysql.__version__) < Version("1.0.3") and "infe0" in df.columns:
             mark = pytest.mark.xfail(reason="GH 36465")
@@ -3522,7 +3522,7 @@ def test_options_auto(conn, request, test_frame1):
 
 
 def test_options_get_engine():
-    pytest.importorskip("sqlalchemy")
+    td.versioned_importorskip("sqlalchemy")
     assert isinstance(get_engine("sqlalchemy"), SQLAlchemyEngine)
 
     with pd.option_context("io.sql.engine", "sqlalchemy"):
@@ -3674,14 +3674,14 @@ def dtype_backend_expected():
             string_array_na = StringArray(np.array(["a", "b", pd.NA], dtype=np.object_))
 
         elif dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             from pandas.arrays import ArrowExtensionArray
 
             string_array = ArrowExtensionArray(pa.array(["a", "b", "c"]))  # type: ignore[assignment]
             string_array_na = ArrowExtensionArray(pa.array(["a", "b", None]))  # type: ignore[assignment]
 
         else:
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             string_array = ArrowStringArray(pa.array(["a", "b", "c"]))
             string_array_na = ArrowStringArray(pa.array(["a", "b", None]))
 
@@ -3698,7 +3698,7 @@ def dtype_backend_expected():
             }
         )
         if dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
 
             from pandas.arrays import ArrowExtensionArray
 
@@ -3843,7 +3843,7 @@ def test_row_object_is_named_tuple(sqlite_engine):
 def test_read_sql_string_inference(sqlite_engine):
     conn = sqlite_engine
     # GH#54430
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     table = "test"
     df = DataFrame({"a": ["x", "y"]})
     df.to_sql(table, con=conn, index=False, if_exists="replace")

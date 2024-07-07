@@ -1,6 +1,7 @@
 import pytest
 
-jinja2 = pytest.importorskip("jinja2")
+import pandas.util._test_decorators as td
+jinja2 = td.versioned_importorskip("jinja2")
 
 from pandas import (
     DataFrame,

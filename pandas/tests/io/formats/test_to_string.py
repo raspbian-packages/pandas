@@ -10,6 +10,7 @@ from textwrap import dedent
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_pyarrow_string_dtype
 
 from pandas import (
@@ -748,7 +749,7 @@ class TestDataFrameToString:
 
     def test_to_string_string_dtype(self):
         # GH#50099
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = DataFrame(
             {"x": ["foo", "bar", "baz"], "y": ["a", "b", "c"], "z": [1, 2, 3]}
         )

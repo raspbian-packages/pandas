@@ -1801,7 +1801,7 @@ def ip():
 
     Will raise a skip if IPython is not installed.
     """
-    pytest.importorskip("IPython", minversion="6.0.0")
+    td.versioned_importorskip("IPython", min_version="6.0.0")
     from IPython.core.interactiveshell import InteractiveShell
 
     # GH#35711 make sure sqlite history file handle is not leaked
@@ -1818,7 +1818,7 @@ def spmatrix(request):
     """
     Yields scipy sparse matrix classes.
     """
-    sparse = pytest.importorskip("scipy.sparse")
+    sparse = td.versioned_importorskip("scipy.sparse")
 
     return getattr(sparse, request.param + "_matrix")
 
