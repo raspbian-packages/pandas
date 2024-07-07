@@ -31,6 +31,7 @@ def df():
     return DataFrame({"A": [1, 2, 3]})
 
 
+@pytest.mark.xfail(reason="dask https://bugs.debian.org/1068422",raises=TypeError,strict=False)
 def test_dask(df):
     try:
         from multiprocessing.pool import ThreadPool
@@ -53,6 +54,7 @@ def test_dask(df):
         pd.set_option("compute.use_numexpr", olduse)
 
 
+@pytest.mark.xfail(reason="dask https://bugs.debian.org/1068422",raises=TypeError,strict=False)
 def test_dask_ufunc():
     # dask sets "compute.use_numexpr" to False, so catch the current value
     # and ensure to reset it afterwards to avoid impacting other tests
@@ -72,6 +74,7 @@ def test_dask_ufunc():
         pd.set_option("compute.use_numexpr", olduse)
 
 
+@pytest.mark.xfail(reason="dask https://bugs.debian.org/1068422",raises=TypeError,strict=False)
 def test_construct_dask_float_array_int_dtype_match_ndarray():
     # GH#40110 make sure we treat a float-dtype dask array with the same
     #  rules we would for an ndarray
