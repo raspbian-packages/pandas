@@ -1,0 +1,55 @@
+Description: Skip tests when dependencies are missing
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/io/parser/conftest.py
++++ b/pandas/tests/io/parser/conftest.py
+@@ -12,6 +12,7 @@ from pandas import (
+     read_table,
+ )
+ import pandas._testing as tm
++import pandas.util._test_decorators as td
+ 
+ 
+ class BaseParser:
+@@ -118,7 +119,7 @@ _pyarrowParser = PyArrowParser
+ 
+ _py_parsers_only = [_pythonParser]
+ _c_parsers_only = [_cParserHighMemory, _cParserLowMemory]
+-_pyarrow_parsers_only = [pytest.param(_pyarrowParser, marks=pytest.mark.single_cpu)]
++_pyarrow_parsers_only = [pytest.param(_pyarrowParser, marks=[pytest.mark.single_cpu, td.skip_if_no("pyarrow")])]
+ 
+ _all_parsers = [*_c_parsers_only, *_py_parsers_only, *_pyarrow_parsers_only]
+ 
+@@ -182,8 +183,8 @@ def _get_all_parser_float_precision_comb
+             parser = parser.values[0]
+         for precision in parser.float_precision_choices:
+             # Re-wrap in pytest.param for pyarrow
+-            mark = pytest.mark.single_cpu if parser.engine == "pyarrow" else ()
+-            param = pytest.param((parser(), precision), marks=mark)
++            marks = [pytest.mark.single_cpu, td.skip_if_no("pyarrow")] if parser.engine == "pyarrow" else ()
++            param = pytest.param((parser(), precision), marks=marks)
+             params.append(param)
+             ids.append(f"{parser_id}-{precision}")
+ 
+--- a/pandas/tests/io/formats/style/test_bar.py
++++ b/pandas/tests/io/formats/style/test_bar.py
+@@ -347,6 +347,7 @@ def test_styler_bar_with_NA_values():
+     assert expected_substring in html_output2
+ 
+ 
++@td.skip_if_no("pyarrow")
+ def test_style_bar_with_pyarrow_NA_values():
+     data = """name,age,test1,test2,teacher
+         Adam,15,95.0,80,Ashby
+--- a/pandas/tests/series/test_api.py
++++ b/pandas/tests/series/test_api.py
+@@ -171,6 +171,7 @@ class TestSeriesMisc:
+     def test_inspect_getmembers(self):
+         # GH38782
+         td.versioned_importorskip("jinja2")
++        td.versioned_importorskip("pyarrow")
+         ser = Series(dtype=object)
+         msg = "Series._data is deprecated"
+         with tm.assert_produces_warning(
