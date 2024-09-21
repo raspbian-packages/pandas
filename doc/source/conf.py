@@ -463,6 +463,7 @@ extlinks = {
 }
 
 
+ipython_warning_is_error = False
 ipython_execlines = [
     "import numpy as np",
     "import pandas as pd",
