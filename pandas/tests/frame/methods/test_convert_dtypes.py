@@ -3,6 +3,7 @@ import datetime
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 
@@ -49,7 +50,7 @@ class TestConvertDtypes:
         assert result.columns.name == "cols"
 
     def test_pyarrow_dtype_backend(self):
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         df = pd.DataFrame(
             {
                 "a": pd.Series([1, 2, 3], dtype=np.dtype("int32")),
@@ -105,13 +106,13 @@ class TestConvertDtypes:
         tm.assert_frame_equal(result, expected)
 
     def test_pyarrow_dtype_backend_already_pyarrow(self):
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         expected = pd.DataFrame([1, 2, 3], dtype="int64[pyarrow]")
         result = expected.convert_dtypes(dtype_backend="pyarrow")
         tm.assert_frame_equal(result, expected)
 
     def test_pyarrow_dtype_backend_from_pandas_nullable(self):
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         df = pd.DataFrame(
             {
                 "a": pd.Series([1, 2, None], dtype="Int32"),
@@ -135,7 +136,7 @@ class TestConvertDtypes:
 
     def test_pyarrow_dtype_empty_object(self):
         # GH 50970
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         expected = pd.DataFrame(columns=[0])
         result = expected.convert_dtypes(dtype_backend="pyarrow")
         tm.assert_frame_equal(result, expected)
@@ -152,7 +153,7 @@ class TestConvertDtypes:
 
     def test_pyarrow_backend_no_conversion(self):
         # GH#52872
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = pd.DataFrame({"a": [1, 2], "b": 1.5, "c": True, "d": "x"})
         expected = df.copy()
         result = df.convert_dtypes(
@@ -166,7 +167,7 @@ class TestConvertDtypes:
 
     def test_convert_dtypes_pyarrow_to_np_nullable(self):
         # GH 53648
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         ser = pd.DataFrame(range(2), dtype="int32[pyarrow]")
         result = ser.convert_dtypes(dtype_backend="numpy_nullable")
         expected = pd.DataFrame(range(2), dtype="Int32")
@@ -174,7 +175,7 @@ class TestConvertDtypes:
 
     def test_convert_dtypes_pyarrow_timestamp(self):
         # GH 54191
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         ser = pd.Series(pd.date_range("2020-01-01", "2020-01-02", freq="1min"))
         expected = ser.astype("timestamp[ms][pyarrow]")
         result = expected.convert_dtypes(dtype_backend="pyarrow")

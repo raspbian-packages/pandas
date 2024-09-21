@@ -1945,7 +1945,7 @@ def test_adding_new_conditional_column() -> None:
 )
 def test_adding_new_conditional_column_with_string(dtype, infer_string) -> None:
     # https://github.com/pandas-dev/pandas/issues/56204
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     df = DataFrame({"a": [1, 2], "b": [3, 4]})
     with pd.option_context("future.infer_string", infer_string):
@@ -1958,7 +1958,7 @@ def test_adding_new_conditional_column_with_string(dtype, infer_string) -> None:
 
 def test_add_new_column_infer_string():
     # GH#55366
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame({"x": [1]})
     with pd.option_context("future.infer_string", True):
         df.loc[df["x"] == 1, "y"] = "1"

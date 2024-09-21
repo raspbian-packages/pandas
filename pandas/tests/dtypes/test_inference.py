@@ -28,6 +28,7 @@ import numpy as np
 import pytest
 import pytz
 
+import pandas.util._test_decorators as td
 from pandas._libs import (
     lib,
     missing as libmissing,
@@ -1984,7 +1985,7 @@ def test_nan_to_nat_conversions():
 
 @pytest.mark.filterwarnings("ignore::PendingDeprecationWarning")
 def test_is_scipy_sparse(spmatrix):
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     assert is_scipy_sparse(spmatrix([[0, 1]]))
     assert not is_scipy_sparse(np.array([1]))
 

@@ -701,7 +701,7 @@ def test_groupby_min_max_categorical(func):
 @pytest.mark.parametrize("func", ["min", "max"])
 def test_min_empty_string_dtype(func):
     # GH#55619
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     dtype = "string[pyarrow_numpy]"
     df = DataFrame({"a": ["a"], "b": "a", "c": "a"}, dtype=dtype).iloc[:0]
     result = getattr(df.groupby("a"), func)()

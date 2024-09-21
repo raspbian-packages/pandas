@@ -3,6 +3,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import DataFrame
 import pandas._testing as tm
 from pandas.tests.plotting.common import (
@@ -12,7 +13,7 @@ from pandas.tests.plotting.common import (
     get_y_axis,
 )
 
-pytest.importorskip("matplotlib")
+td.versioned_importorskip("matplotlib")
 
 
 @pytest.fixture

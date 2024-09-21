@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Series,
@@ -144,7 +145,7 @@ class TestDataFrameDot(DotSharedTests):
     [("Float32", "Float64"), ("Int16", "Int32"), ("float[pyarrow]", "double[pyarrow]")],
 )
 def test_arrow_dtype(dtype, exp_dtype):
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     cols = ["a", "b"]
     df_a = DataFrame([[1, 2], [3, 4], [5, 6]], columns=cols, dtype="int32")

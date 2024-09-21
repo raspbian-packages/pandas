@@ -29,7 +29,7 @@ is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()
 
 pytestmark = pytest.mark.single_cpu
 
-tables = pytest.importorskip("tables")
+tables = td.versioned_importorskip("tables")
 
 
 @pytest.mark.filterwarnings("ignore::tables.NaturalNameWarning")

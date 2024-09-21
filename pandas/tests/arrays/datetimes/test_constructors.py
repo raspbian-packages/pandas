@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs import iNaT
 
 from pandas.core.dtypes.dtypes import DatetimeTZDtype
@@ -226,7 +227,7 @@ COARSE_TO_FINE_SAFE = [123, None, -123]
 def test_from_arrow_with_different_units_and_timezones_with(
     pa_unit, pd_unit, pa_tz, pd_tz, data
 ):
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     pa_type = pa.timestamp(pa_unit, tz=pa_tz)
     arr = pa.array(data, type=pa_type)
@@ -253,7 +254,7 @@ def test_from_arrow_with_different_units_and_timezones_with(
     ],
 )
 def test_from_arrow_from_empty(unit, tz):
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     data = []
     arr = pa.array(data)
@@ -269,7 +270,7 @@ def test_from_arrow_from_empty(unit, tz):
 
 
 def test_from_arrow_from_integers():
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     data = [0, 123456789, None, 2**63 - 1, iNaT, -123456789]
     arr = pa.array(data)

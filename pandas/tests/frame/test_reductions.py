@@ -369,7 +369,7 @@ class TestDataFrameAnalytics:
         )
 
     def test_stat_op_calc_skew_kurtosis(self, float_frame_with_na):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         def skewness(x):
             if len(x) < 3:
@@ -1162,7 +1162,7 @@ class TestDataFrameAnalytics:
 
     def test_idxmax_arrow_types(self):
         # GH#55368
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
 
         df = DataFrame({"a": [2, 3, 1], "b": [2, 1, 1]}, dtype="int64[pyarrow]")
         result = df.idxmax()
@@ -2020,7 +2020,7 @@ def test_reduction_axis_none_returns_scalar(method, numeric_only, dtype):
     result = getattr(df, method)(axis=None, numeric_only=numeric_only)
     np_arr = df.to_numpy(dtype=np.float64)
     if method in {"skew", "kurt"}:
-        comp_mod = pytest.importorskip("scipy.stats")
+        comp_mod = td.versioned_importorskip("scipy.stats")
         if method == "kurt":
             method = "kurtosis"
         expected = getattr(comp_mod, method)(np_arr, bias=False, axis=None)

@@ -249,7 +249,7 @@ df_kml = DataFrame(
 
 def test_literal_xml_deprecation():
     # GH 53809
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     msg = (
         "Passing literal xml to 'read_xml' is deprecated and "
         "will be removed in a future version. To read from a "
@@ -289,7 +289,7 @@ def read_xml_iterparse_comp(comp_path, compression_only, **kwargs):
 
 
 def test_parser_consistency_file(xml_books):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     df_file_lxml = read_xml(xml_books, parser="lxml")
     df_file_etree = read_xml(xml_books, parser="etree")
 
@@ -462,7 +462,7 @@ def test_file_handle_close(xml_books, parser):
 
 @pytest.mark.parametrize("val", ["", b""])
 def test_empty_string_lxml(val):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     msg = "|".join(
         [
@@ -505,7 +505,7 @@ def test_wrong_file_path(parser, datapath):
 @pytest.mark.network
 @pytest.mark.single_cpu
 def test_url(httpserver, xml_file):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with open(xml_file, encoding="utf-8") as f:
         httpserver.serve_content(content=f.read())
         df_url = read_xml(httpserver.url, xpath=".//book[count(*)=4]")
@@ -587,7 +587,7 @@ def test_whitespace(parser):
 
 
 def test_empty_xpath_lxml(xml_books):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with pytest.raises(ValueError, match=("xpath does not return any nodes")):
         read_xml(xml_books, xpath=".//python", parser="lxml")
 
@@ -600,7 +600,7 @@ def test_bad_xpath_etree(xml_books):
 
 
 def test_bad_xpath_lxml(xml_books):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     with pytest.raises(lxml_etree.XPathEvalError, match=("Invalid expression")):
         read_xml(xml_books, xpath=".//[book]", parser="lxml")
@@ -659,7 +659,7 @@ def test_prefix_namespace(parser):
 
 
 def test_consistency_default_namespace():
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     df_lxml = read_xml(
         StringIO(xml_default_nmsp),
         xpath=".//ns:row",
@@ -678,7 +678,7 @@ def test_consistency_default_namespace():
 
 
 def test_consistency_prefix_namespace():
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     df_lxml = read_xml(
         StringIO(xml_prefix_nmsp),
         xpath=".//doc:row",
@@ -710,7 +710,7 @@ def test_missing_prefix_definition_etree(kml_cta_rail_lines):
 
 
 def test_missing_prefix_definition_lxml(kml_cta_rail_lines):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     with pytest.raises(lxml_etree.XPathEvalError, match=("Undefined namespace prefix")):
         read_xml(kml_cta_rail_lines, xpath=".//kml:Placemark", parser="lxml")
@@ -718,7 +718,7 @@ def test_missing_prefix_definition_lxml(kml_cta_rail_lines):
 
 @pytest.mark.parametrize("key", ["", None])
 def test_none_namespace_prefix(key):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with pytest.raises(
         TypeError, match=("empty namespace prefix is not supported in XPath")
     ):
@@ -831,7 +831,7 @@ def test_empty_elems_only(parser):
 
 
 def test_attribute_centric_xml():
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xml = """\
 <?xml version="1.0" encoding="UTF-8"?>
 <TrainSchedule>
@@ -1061,7 +1061,7 @@ def test_ascii_encoding(xml_baby_names, parser):
 
 
 def test_parser_consistency_with_encoding(xml_baby_names):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     df_xpath_lxml = read_xml(xml_baby_names, parser="lxml", encoding="ISO-8859-1")
     df_xpath_etree = read_xml(xml_baby_names, parser="etree", encoding="iso-8859-1")
 
@@ -1084,7 +1084,7 @@ def test_parser_consistency_with_encoding(xml_baby_names):
 
 
 def test_wrong_encoding_for_lxml():
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     # GH#45133
     data = """<data>
   <row>
@@ -1131,7 +1131,7 @@ def test_wrong_parser(xml_books):
 
 
 def test_stylesheet_file(kml_cta_rail_lines, xsl_flatten_doc):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     df_style = read_xml(
         kml_cta_rail_lines,
         xpath=".//k:Placemark",
@@ -1158,7 +1158,7 @@ def test_stylesheet_file(kml_cta_rail_lines, xsl_flatten_doc):
 
 
 def test_stylesheet_file_like(kml_cta_rail_lines, xsl_flatten_doc, mode):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
         df_style = read_xml(
             kml_cta_rail_lines,
@@ -1173,7 +1173,7 @@ def test_stylesheet_file_like(kml_cta_rail_lines, xsl_flatten_doc, mode):
 def test_stylesheet_io(kml_cta_rail_lines, xsl_flatten_doc, mode):
     # note: By default the bodies of untyped functions are not checked,
     # consider using --check-untyped-defs
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xsl_obj: BytesIO | StringIO  # type: ignore[annotation-unchecked]
 
     with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
@@ -1193,7 +1193,7 @@ def test_stylesheet_io(kml_cta_rail_lines, xsl_flatten_doc, mode):
 
 
 def test_stylesheet_buffered_reader(kml_cta_rail_lines, xsl_flatten_doc, mode):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
         xsl_obj = f.read()
 
@@ -1208,7 +1208,7 @@ def test_stylesheet_buffered_reader(kml_cta_rail_lines, xsl_flatten_doc, mode):
 
 
 def test_style_charset():
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xml = "<中文標籤><row><c1>1</c1><c2>2</c2></row></中文標籤>"
 
     xsl = """\
@@ -1237,7 +1237,7 @@ def test_style_charset():
 
 
 def test_not_stylesheet(kml_cta_rail_lines, xml_books):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     with pytest.raises(
         lxml_etree.XSLTParseError, match=("document is not a stylesheet")
@@ -1246,7 +1246,7 @@ def test_not_stylesheet(kml_cta_rail_lines, xml_books):
 
 
 def test_incorrect_xsl_syntax(kml_cta_rail_lines):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -1275,7 +1275,7 @@ def test_incorrect_xsl_syntax(kml_cta_rail_lines):
 
 
 def test_incorrect_xsl_eval(kml_cta_rail_lines):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -1302,7 +1302,7 @@ def test_incorrect_xsl_eval(kml_cta_rail_lines):
 
 
 def test_incorrect_xsl_apply(kml_cta_rail_lines):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1321,7 +1321,7 @@ def test_incorrect_xsl_apply(kml_cta_rail_lines):
 
 
 def test_wrong_stylesheet(kml_cta_rail_lines, xml_data_path):
-    xml_etree = pytest.importorskip("lxml.etree")
+    xml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = xml_data_path / "flatten.xsl"
 
@@ -1335,7 +1335,7 @@ def test_wrong_stylesheet(kml_cta_rail_lines, xml_data_path):
 def test_stylesheet_file_close(kml_cta_rail_lines, xsl_flatten_doc, mode):
     # note: By default the bodies of untyped functions are not checked,
     # consider using --check-untyped-defs
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xsl_obj: BytesIO | StringIO  # type: ignore[annotation-unchecked]
 
     with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
@@ -1350,7 +1350,7 @@ def test_stylesheet_file_close(kml_cta_rail_lines, xsl_flatten_doc, mode):
 
 
 def test_stylesheet_with_etree(kml_cta_rail_lines, xsl_flatten_doc):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with pytest.raises(
         ValueError, match=("To use stylesheet, you need lxml installed")
     ):
@@ -1359,7 +1359,7 @@ def test_stylesheet_with_etree(kml_cta_rail_lines, xsl_flatten_doc):
 
 @pytest.mark.parametrize("val", ["", b""])
 def test_empty_stylesheet(val, datapath):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     msg = (
         "Passing literal xml to 'read_xml' is deprecated and "
         "will be removed in a future version. To read from a "
@@ -1662,7 +1662,7 @@ def test_empty_data(xml_books, parser):
 
 
 def test_online_stylesheet():
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xml = """\
 <?xml version="1.0" encoding="UTF-8"?>
 <catalog>
@@ -1993,8 +1993,8 @@ def test_unsuported_compression(parser):
 @pytest.mark.network
 @pytest.mark.single_cpu
 def test_s3_parser_consistency(s3_public_bucket_with_data, s3so):
-    pytest.importorskip("s3fs")
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("s3fs")
+    td.versioned_importorskip("lxml")
     s3 = f"s3://{s3_public_bucket_with_data.name}/books.xml"
 
     df_lxml = read_xml(s3, parser="lxml", storage_options=s3so)
@@ -2035,7 +2035,7 @@ def test_read_xml_nullable_dtypes(
 </data>"""
 
     if using_infer_string:
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         string_array = ArrowStringArrayNumpySemantics(pa.array(["x", "y"]))
         string_array_na = ArrowStringArrayNumpySemantics(pa.array(["x", None]))
 
@@ -2044,14 +2044,14 @@ def test_read_xml_nullable_dtypes(
         string_array_na = StringArray(np.array(["x", NA], dtype=np.object_))
 
     elif dtype_backend == "pyarrow":
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         from pandas.arrays import ArrowExtensionArray
 
         string_array = ArrowExtensionArray(pa.array(["x", "y"]))
         string_array_na = ArrowExtensionArray(pa.array(["x", None]))
 
     else:
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         string_array = ArrowStringArray(pa.array(["x", "y"]))
         string_array_na = ArrowStringArray(pa.array(["x", None]))
 
@@ -2073,7 +2073,7 @@ def test_read_xml_nullable_dtypes(
     )
 
     if dtype_backend == "pyarrow":
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         from pandas.arrays import ArrowExtensionArray
 
         expected = DataFrame(

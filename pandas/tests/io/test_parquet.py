@@ -8,6 +8,7 @@ import pathlib
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_copy_on_write
 from pandas._config.config import _get_option
 
@@ -389,7 +390,7 @@ class Base:
     @pytest.mark.single_cpu
     def test_parquet_read_from_url(self, httpserver, datapath, df_compat, engine):
         if engine != "auto":
-            pytest.importorskip(engine)
+            td.versioned_importorskip(engine)
         with open(datapath("io", "data", "parquet", "simple.parquet"), mode="rb") as f:
             httpserver.serve_content(content=f.read())
             df = read_parquet(httpserver.url)
@@ -611,7 +612,7 @@ class TestBasic(Base):
             check_round_trip(df, engine)
 
     def test_dtype_backend(self, engine, request):
-        pq = pytest.importorskip("pyarrow.parquet")
+        pq = td.versioned_importorskip("pyarrow.parquet")
 
         if engine == "fastparquet":
             # We are manually disabling fastparquet's
@@ -799,7 +800,7 @@ class TestParquetPyArrow(Base):
 
     @pytest.mark.single_cpu
     def test_s3_roundtrip_explicit_fs(self, df_compat, s3_public_bucket, pa, s3so):
-        s3fs = pytest.importorskip("s3fs")
+        s3fs = td.versioned_importorskip("s3fs")
         s3 = s3fs.S3FileSystem(**s3so)
         kw = {"filesystem": s3}
         check_round_trip(
@@ -833,7 +834,7 @@ class TestParquetPyArrow(Base):
     def test_s3_roundtrip_for_dir(
         self, df_compat, s3_public_bucket, pa, partition_col, s3so
     ):
-        pytest.importorskip("s3fs")
+        td.versioned_importorskip("s3fs")
         # GH #26388
         expected_df = df_compat.copy()
 
@@ -862,14 +863,14 @@ class TestParquetPyArrow(Base):
         )
 
     def test_read_file_like_obj_support(self, df_compat):
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         buffer = BytesIO()
         df_compat.to_parquet(buffer)
         df_from_buf = read_parquet(buffer)
         tm.assert_frame_equal(df_compat, df_from_buf)
 
     def test_expand_user(self, df_compat, monkeypatch):
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         monkeypatch.setenv("HOME", "TestingUser")
         monkeypatch.setenv("USERPROFILE", "TestingUser")
         with pytest.raises(OSError, match=r".*TestingUser.*"):
@@ -924,7 +925,7 @@ class TestParquetPyArrow(Base):
     def test_additional_extension_arrays(self, pa):
         # test additional ExtensionArrays that are supported through the
         # __arrow_array__ protocol
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = pd.DataFrame(
             {
                 "a": pd.Series([1, 2, 3], dtype="Int64"),
@@ -939,7 +940,7 @@ class TestParquetPyArrow(Base):
 
     def test_pyarrow_backed_string_array(self, pa, string_storage):
         # test ArrowStringArray supported through the __arrow_array__ protocol
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = pd.DataFrame({"a": pd.Series(["a", None, "c"], dtype="string[pyarrow]")})
         with pd.option_context("string_storage", string_storage):
             check_round_trip(df, pa, expected=df.astype(f"string[{string_storage}]"))
@@ -947,7 +948,7 @@ class TestParquetPyArrow(Base):
     def test_additional_extension_types(self, pa):
         # test additional ExtensionArrays that are supported through the
         # __arrow_array__ protocol + by defining a custom ExtensionType
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = pd.DataFrame(
             {
                 "c": pd.IntervalIndex.from_tuples([(0, 1), (1, 2), (3, 4)]),
@@ -992,7 +993,7 @@ class TestParquetPyArrow(Base):
 
     def test_filter_row_groups(self, pa):
         # https://github.com/pandas-dev/pandas/issues/26551
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = pd.DataFrame({"a": list(range(3))})
         with tm.ensure_clean() as path:
             df.to_parquet(path, engine=pa)
@@ -1349,7 +1350,7 @@ class TestParquetFastParquet(Base):
         tm.assert_frame_equal(result, df)
 
     def test_filesystem_notimplemented(self):
-        pytest.importorskip("fastparquet")
+        td.versioned_importorskip("fastparquet")
         df = pd.DataFrame(data={"A": [0, 1], "B": [1, 0]})
         with tm.ensure_clean() as path:
             with pytest.raises(
@@ -1365,7 +1366,7 @@ class TestParquetFastParquet(Base):
                 read_parquet(path, engine="fastparquet", filesystem="foo")
 
     def test_invalid_filesystem(self):
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = pd.DataFrame(data={"A": [0, 1], "B": [1, 0]})
         with tm.ensure_clean() as path:
             with pytest.raises(
@@ -1381,7 +1382,7 @@ class TestParquetFastParquet(Base):
                 read_parquet(path, engine="pyarrow", filesystem="foo")
 
     def test_unsupported_pa_filesystem_storage_options(self):
-        pa_fs = pytest.importorskip("pyarrow.fs")
+        pa_fs = td.versioned_importorskip("pyarrow.fs")
         df = pd.DataFrame(data={"A": [0, 1], "B": [1, 0]})
         with tm.ensure_clean() as path:
             with pytest.raises(

@@ -1002,7 +1002,7 @@ class TestToDatetime:
     @pytest.mark.parametrize("utc", [True, False])
     @pytest.mark.parametrize("tz", [None, "US/Central"])
     def test_to_datetime_arrow(self, tz, utc, arg_class):
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
 
         dti = date_range("1965-04-03", periods=19, freq="2W", tz=tz)
         dti = arg_class(dti)
@@ -1357,7 +1357,7 @@ class TestToDatetime:
 
     def test_to_datetime_tz_psycopg2(self, request, cache):
         # xref 8260
-        psycopg2_tz = pytest.importorskip("psycopg2.tz")
+        psycopg2_tz = td.versioned_importorskip("psycopg2.tz")
 
         # misc cases
         tz1 = psycopg2_tz.FixedOffsetTimezone(offset=-300, name=None)
@@ -3742,7 +3742,7 @@ def test_ignoring_unknown_tz_deprecated():
 
 def test_from_numeric_arrow_dtype(any_numeric_ea_dtype):
     # GH 52425
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     ser = Series([1, 2], dtype=f"{any_numeric_ea_dtype.lower()}[pyarrow]")
     result = to_datetime(ser)
     expected = Series([1, 2], dtype="datetime64[ns]")
