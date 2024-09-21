@@ -1,0 +1,19 @@
+Description: Use nonstrict xfail
+
+Upstream strict-xfailed this instead of changing the expected message,
+which doesn't work here because it only fails in build, not autopkgtest
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/io/pytables/test_file_handling.py
++++ b/pandas/tests/io/pytables/test_file_handling.py
+@@ -270,7 +270,7 @@ def test_complibs(tmp_path, lvl, lib, re
+     # GH14478
+     if PY311 and is_platform_linux() and lib == "blosc2" and lvl != 0:
+         request.applymarker(
+-            pytest.mark.xfail(reason=f"Fails for {lib} on Linux and PY > 3.11")
++            pytest.mark.xfail(reason=f"Fails for {lib} on Linux and PY > 3.11", strict=False)
+         )
+     df = DataFrame(
+         np.ones((30, 4)), columns=list("ABCD"), index=np.arange(30).astype(np.str_)
