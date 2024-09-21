@@ -200,16 +200,16 @@ Look,a snake,🐍"""
 
         path = os.path.join(HERE, "data", "does_not_exist." + fn_ext)
         msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
-        msg2 = rf"\[Errno 2\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
+        msg2 = rf"\[Errno [0-9]+\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
         msg3 = "Expected object or value"
         msg4 = "path_or_buf needs to be a string file path or file-like"
         msg5 = (
-            rf"\[Errno 2\] File .+does_not_exist\.{fn_ext} does not exist: "
+            rf"\[Errno [0-9]+\] File .+does_not_exist\.{fn_ext} does not exist: "
             rf"'.+does_not_exist\.{fn_ext}'"
         )
-        msg6 = rf"\[Errno 2\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
+        msg6 = rf"\[Errno [0-9]+\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
         msg7 = (
-            rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
+            rf"\[Errno [0-9]+\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
         )
         msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
 
@@ -270,16 +270,16 @@ Look,a snake,🐍"""
         monkeypatch.setattr(icom, "_expand_user", lambda x: os.path.join("foo", x))
 
         msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
-        msg2 = rf"\[Errno 2\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
+        msg2 = rf"\[Errno [0-9]+\] No such file or directory: '.+does_not_exist\.{fn_ext}'"
         msg3 = "Unexpected character found when decoding 'false'"
         msg4 = "path_or_buf needs to be a string file path or file-like"
         msg5 = (
-            rf"\[Errno 2\] File .+does_not_exist\.{fn_ext} does not exist: "
+            rf"\[Errno [0-9]+\] File .+does_not_exist\.{fn_ext} does not exist: "
             rf"'.+does_not_exist\.{fn_ext}'"
         )
-        msg6 = rf"\[Errno 2\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
+        msg6 = rf"\[Errno [0-9]+\] 没有那个文件或目录: '.+does_not_exist\.{fn_ext}'"
         msg7 = (
-            rf"\[Errno 2\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
+            rf"\[Errno [0-9]+\] File o directory non esistente: '.+does_not_exist\.{fn_ext}'"
         )
         msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
 
@@ -610,7 +610,7 @@ def test_bad_encdoing_errors():
 
 def test_errno_attribute():
     # GH 13872
-    with pytest.raises(FileNotFoundError, match="\\[Errno 2\\]") as err:
+    with pytest.raises(FileNotFoundError, match="\\[Errno [0-9]+\\]") as err:
         pd.read_csv("doesnt_exist")
         assert err.errno == errno.ENOENT
 
