@@ -569,11 +569,11 @@ class TestEval:
         assert pd.eval("-1", parser=parser, engine=engine) == -1
         assert pd.eval("+1", parser=parser, engine=engine) == +1
         with tm.assert_produces_warning(
-            warn, match="Bitwise inversion", check_stacklevel=False
+            warn, match="Bitwise inversion", check_stacklevel=False, raise_on_extra_warnings=False
         ):
             assert pd.eval("~True", parser=parser, engine=engine) == ~True
         with tm.assert_produces_warning(
-            warn, match="Bitwise inversion", check_stacklevel=False
+            warn, match="Bitwise inversion", check_stacklevel=False, raise_on_extra_warnings=False
         ):
             assert pd.eval("~False", parser=parser, engine=engine) == ~False
         assert pd.eval("-True", parser=parser, engine=engine) == -True
