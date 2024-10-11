@@ -272,7 +272,8 @@ def test_array_copy():
     assert tm.shares_memory(a, b)
 
 
-cet = pytz.timezone("CET")
+cetfixed = pytz.timezone("Etc/GMT-1") # the wrong-looking sign is because Etc/* use posix convention, as described in the tzdata source
+cetwithdst = pytz.timezone("Europe/Brussels")
 
 
 @pytest.mark.parametrize(
@@ -313,11 +314,20 @@ cet = pytz.timezone("CET")
         ),
         (
             [
-                datetime.datetime(2000, 1, 1, tzinfo=cet),
-                datetime.datetime(2001, 1, 1, tzinfo=cet),
+                datetime.datetime(2000, 1, 1, tzinfo=cetfixed),
+                datetime.datetime(2001, 1, 1, tzinfo=cetfixed),
             ],
             DatetimeArray._from_sequence(
-                ["2000", "2001"], dtype=pd.DatetimeTZDtype(tz=cet, unit="ns")
+                ["2000", "2001"], dtype=pd.DatetimeTZDtype(tz=cetfixed, unit="ns")
+            ),
+        ),
+        (
+            [
+                cetwithdst.localize(datetime.datetime(2000, 1, 1)),
+                cetwithdst.localize(datetime.datetime(2001, 1, 1)),
+            ],
+            DatetimeArray._from_sequence(
+                ["2000", "2001"], dtype=pd.DatetimeTZDtype(tz=cetwithdst, unit="ns")
             ),
         ),
         # timedelta
