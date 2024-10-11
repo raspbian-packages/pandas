@@ -171,6 +171,7 @@ class TestSeriesMisc:
     def test_inspect_getmembers(self):
         # GH38782
         td.versioned_importorskip("jinja2")
+        td.versioned_importorskip("pyarrow")
         ser = Series(dtype=object)
         msg = "Series._data is deprecated"
         with tm.assert_produces_warning(
