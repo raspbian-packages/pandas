@@ -28,6 +28,7 @@ import pandas._testing as tm
 from pandas.api.types import CategoricalDtype
 from pandas.core.reshape import reshape as reshape_lib
 from pandas.core.reshape.pivot import pivot_table
+from pandas.compat import IS64
 
 
 @pytest.fixture(params=[True, False])
@@ -2092,6 +2093,7 @@ class TestPivotTable:
         tm.assert_frame_equal(result, expected)
 
     @pytest.mark.slow
+    @pytest.mark.xfail(condition=not IS64, reason="assumes default int is int64")
     def test_pivot_number_of_levels_larger_than_int32(self, monkeypatch):
         # GH 20601
         # GH 26314: Change ValueError to PerformanceWarning
