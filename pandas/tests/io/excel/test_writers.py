@@ -1420,6 +1420,8 @@ class TestExcelWriterEngineTests:
                     assert isinstance(writer, _XlsxWriter)
                 else:
                     assert isinstance(writer, klass)
+                    # openpyxl raises on closing if no sheets are written
+                    DataFrame().to_excel(writer, sheet_name="Sheet1")
 
     def test_ExcelWriter_dispatch_raises(self):
         with pytest.raises(ValueError, match="No engine"):
