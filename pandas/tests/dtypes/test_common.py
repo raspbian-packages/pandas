@@ -214,7 +214,7 @@ def test_is_sparse(check_scipy):
 
 
 def test_is_scipy_sparse():
-    sp_sparse = pytest.importorskip("scipy.sparse")
+    sp_sparse = td.versioned_importorskip("scipy.sparse")
 
     assert com.is_scipy_sparse(sp_sparse.bsr_matrix([1, 2, 3]))
 

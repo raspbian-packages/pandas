@@ -6,6 +6,7 @@ from datetime import (
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_pyarrow_string_dtype
 
 import pandas as pd
@@ -227,7 +228,7 @@ class TestSeriesRepr:
         repr(ts2).splitlines()[-1]
 
     def test_latex_repr(self):
-        pytest.importorskip("jinja2")  # uses Styler implementation
+        td.versioned_importorskip("jinja2")  # uses Styler implementation
         result = r"""\begin{tabular}{ll}
 \toprule
  & 0 \\

@@ -565,7 +565,7 @@ def test_round_trip_equals(tmp_path, setup_path):
 
 def test_infer_string_columns(tmp_path, setup_path):
     # GH#
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     path = tmp_path / setup_path
     with pd.option_context("future.infer_string", True):
         df = DataFrame(1, columns=list("ABCD"), index=list(range(10))).set_index(

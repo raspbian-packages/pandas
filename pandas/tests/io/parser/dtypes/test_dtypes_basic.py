@@ -8,6 +8,7 @@ from io import StringIO
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import ParserWarning
 
 import pandas as pd
@@ -460,7 +461,7 @@ def test_dtype_backend_and_dtype(all_parsers):
 
 def test_dtype_backend_string(all_parsers, string_storage):
     # GH#36712
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     with pd.option_context("mode.string_storage", string_storage):
         parser = all_parsers
@@ -503,7 +504,7 @@ def test_dtype_backend_ea_dtype_specified(all_parsers):
 
 def test_dtype_backend_pyarrow(all_parsers, request):
     # GH#36712
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     parser = all_parsers
 
     data = """a,b,c,d,e,f,g,h,i,j
@@ -556,7 +557,7 @@ def test_ea_int_avoid_overflow(all_parsers):
 
 def test_string_inference(all_parsers):
     # GH#54430
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     dtype = "string[pyarrow_numpy]"
 
     data = """a,b
@@ -577,7 +578,7 @@ y,2
 @pytest.mark.parametrize("dtype", ["O", object, "object", np.object_, str, np.str_])
 def test_string_inference_object_dtype(all_parsers, dtype):
     # GH#56047
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     data = """a,b
 x,a

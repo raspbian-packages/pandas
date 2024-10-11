@@ -56,7 +56,7 @@ def dtype(request):
 
 class TestSeriesRank:
     def test_rank(self, datetime_series):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         datetime_series[::2] = np.nan
         datetime_series[:10:3] = 4.0
@@ -269,7 +269,7 @@ class TestSeriesRank:
     def test_rank_tie_methods_on_infs_nans(
         self, method, na_option, ascending, dtype, na_value, pos_inf, neg_inf
     ):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         if dtype == "float64[pyarrow]":
             if method == "average":
                 exp_dtype = "float64[pyarrow]"
@@ -318,7 +318,7 @@ class TestSeriesRank:
         ],
     )
     def test_rank_methods_series(self, method, op, value):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         xs = np.random.default_rng(2).standard_normal(9)
         xs = np.concatenate([xs[i:] for i in range(0, 9, 2)])  # add duplicates

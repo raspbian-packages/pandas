@@ -1,5 +1,6 @@
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import DataFrame
 from pandas.tests.plotting.common import (
     _check_plot_works,
@@ -7,7 +8,7 @@ from pandas.tests.plotting.common import (
     _gen_two_subplots,
 )
 
-plt = pytest.importorskip("matplotlib.pyplot")
+plt = td.versioned_importorskip("matplotlib.pyplot")
 
 
 class TestCommon:

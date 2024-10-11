@@ -3,6 +3,7 @@ from textwrap import dedent
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     MultiIndex,
@@ -10,7 +11,7 @@ from pandas import (
     option_context,
 )
 
-pytest.importorskip("jinja2")
+td.versioned_importorskip("jinja2")
 from pandas.io.formats.style import Styler
 from pandas.io.formats.style_render import (
     _parse_latex_cell_styles,

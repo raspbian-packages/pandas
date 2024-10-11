@@ -4,6 +4,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Index,
@@ -25,7 +26,7 @@ from pandas.tests.plotting.common import (
     get_y_axis,
 )
 
-mpl = pytest.importorskip("matplotlib")
+mpl = td.versioned_importorskip("matplotlib")
 
 
 @pytest.fixture
@@ -206,7 +207,7 @@ class TestSeriesPlots:
 
     @pytest.mark.xfail(reason="Api changed in 3.6.0")
     def test_hist_kde(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _, ax = mpl.pyplot.subplots()
         ax = ts.plot.hist(logy=True, ax=ax)
         _check_ax_scales(ax, yaxis="log")
@@ -217,16 +218,16 @@ class TestSeriesPlots:
         _check_text_labels(ylabels, [""] * len(ylabels))
 
     def test_hist_kde_plot_works(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _check_plot_works(ts.plot.kde)
 
     def test_hist_kde_density_works(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _check_plot_works(ts.plot.density)
 
     @pytest.mark.xfail(reason="Api changed in 3.6.0")
     def test_hist_kde_logy(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _, ax = mpl.pyplot.subplots()
         ax = ts.plot.kde(logy=True, ax=ax)
         _check_ax_scales(ax, yaxis="log")
@@ -236,7 +237,7 @@ class TestSeriesPlots:
         _check_text_labels(ylabels, [""] * len(ylabels))
 
     def test_hist_kde_color_bins(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _, ax = mpl.pyplot.subplots()
         ax = ts.plot.hist(logy=True, bins=10, color="b", ax=ax)
         _check_ax_scales(ax, yaxis="log")
@@ -244,7 +245,7 @@ class TestSeriesPlots:
         _check_colors(ax.patches, facecolors=["b"] * 10)
 
     def test_hist_kde_color(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _, ax = mpl.pyplot.subplots()
         ax = ts.plot.kde(logy=True, color="r", ax=ax)
         _check_ax_scales(ax, yaxis="log")
@@ -631,7 +632,7 @@ class TestDataFramePlots:
 
     def test_hist_with_nans_and_weights(self):
         # GH 48884
-        mpl_patches = pytest.importorskip("matplotlib.patches")
+        mpl_patches = td.versioned_importorskip("matplotlib.patches")
         df = DataFrame(
             [[np.nan, 0.2, 0.3], [0.4, np.nan, np.nan], [0.7, 0.8, 0.9]],
             columns=list("abc"),

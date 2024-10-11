@@ -1,12 +1,13 @@
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas._testing as tm
 
 
 class TestCategoricalWarnings:
     def test_tab_complete_warning(self, ip):
         # https://github.com/pandas-dev/pandas/issues/16409
-        pytest.importorskip("IPython", minversion="6.0.0")
+        td.versioned_importorskip("IPython", min_version="6.0.0")
         from IPython.core.completer import provisionalcompleter
 
         code = "import pandas as pd; c = pd.Categorical([])"

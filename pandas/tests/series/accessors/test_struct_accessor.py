@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat.pyarrow import (
     pa_version_under11p0,
     pa_version_under13p0,
@@ -15,8 +16,8 @@ from pandas import (
 )
 import pandas._testing as tm
 
-pa = pytest.importorskip("pyarrow")
-pc = pytest.importorskip("pyarrow.compute")
+pa = td.versioned_importorskip("pyarrow")
+pc = td.versioned_importorskip("pyarrow.compute")
 
 
 def test_struct_accessor_dtypes():

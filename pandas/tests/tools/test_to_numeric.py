@@ -867,7 +867,7 @@ def test_to_numeric_dtype_backend(val, dtype):
 def test_to_numeric_dtype_backend_na(val, dtype):
     # GH#50505
     if "pyarrow" in dtype:
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         dtype_backend = "pyarrow"
     else:
         dtype_backend = "numpy_nullable"
@@ -891,7 +891,7 @@ def test_to_numeric_dtype_backend_na(val, dtype):
 def test_to_numeric_dtype_backend_downcasting(val, dtype, downcast):
     # GH#50505
     if "pyarrow" in dtype:
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         dtype_backend = "pyarrow"
     else:
         dtype_backend = "numpy_nullable"
@@ -908,7 +908,7 @@ def test_to_numeric_dtype_backend_downcasting(val, dtype, downcast):
 def test_to_numeric_dtype_backend_downcasting_uint(smaller, dtype_backend):
     # GH#50505
     if dtype_backend == "pyarrow":
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
     ser = Series([1, pd.NA], dtype="UInt64")
     result = to_numeric(ser, dtype_backend=dtype_backend, downcast="unsigned")
     expected = Series([1, pd.NA], dtype=smaller)
@@ -931,7 +931,7 @@ def test_to_numeric_dtype_backend_downcasting_uint(smaller, dtype_backend):
 def test_to_numeric_dtype_backend_already_nullable(dtype):
     # GH#50505
     if "pyarrow" in dtype:
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
     ser = Series([1, pd.NA], dtype=dtype)
     result = to_numeric(ser, dtype_backend="numpy_nullable")
     expected = Series([1, pd.NA], dtype=dtype)
@@ -971,7 +971,7 @@ def test_invalid_dtype_backend():
 
 def test_coerce_pyarrow_backend():
     # GH 52588
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     ser = Series(list("12x"), dtype=ArrowDtype(pa.string()))
     result = to_numeric(ser, errors="coerce", dtype_backend="pyarrow")
     expected = Series([1, 2, None], dtype=ArrowDtype(pa.int64()))

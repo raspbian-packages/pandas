@@ -6,6 +6,7 @@ from datetime import (
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs.tslibs import iNaT
 from pandas.compat import (
     is_ci_environment,
@@ -67,7 +68,7 @@ def test_categorical_dtype(data, data_categorical):
 
 def test_categorical_pyarrow():
     # GH 49889
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
 
     arr = ["Mon", "Tue", "Mon", "Wed", "Mon", "Thu", "Fri", "Sat", "Sun"]
     table = pa.table({"weekday": pa.array(arr).dictionary_encode()})
@@ -82,7 +83,7 @@ def test_categorical_pyarrow():
 
 def test_empty_categorical_pyarrow():
     # https://github.com/pandas-dev/pandas/issues/53077
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
 
     arr = [None]
     table = pa.table({"arr": pa.array(arr, "float64").dictionary_encode()})
@@ -94,7 +95,7 @@ def test_empty_categorical_pyarrow():
 
 def test_large_string_pyarrow():
     # GH 52795
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
 
     arr = ["Mon", "Tue"]
     table = pa.table({"weekday": pa.array(arr, "large_string")})
@@ -120,7 +121,7 @@ def test_large_string_pyarrow():
 )
 def test_bitmasks_pyarrow(offset, length, expected_values):
     # GH 52795
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
 
     arr = [3.3, None, 2.1]
     table = pa.table({"arr": arr}).slice(offset, length)
@@ -282,7 +283,7 @@ def test_categorical_to_numpy_dlpack():
 @pytest.mark.parametrize("data", [{}, {"a": []}])
 def test_empty_pyarrow(data):
     # GH 53155
-    pytest.importorskip("pyarrow", "11.0.0")
+    td.versioned_importorskip("pyarrow", "11.0.0")
     from pyarrow.interchange import from_dataframe as pa_from_dataframe
 
     expected = pd.DataFrame(data)
@@ -292,7 +293,7 @@ def test_empty_pyarrow(data):
 
 
 def test_multi_chunk_pyarrow() -> None:
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
     n_legs = pa.chunked_array([[2, 2, 4], [4, 5, 100]])
     names = ["n_legs"]
     table = pa.table([n_legs], names=names)
@@ -305,7 +306,7 @@ def test_multi_chunk_pyarrow() -> None:
 
 
 def test_multi_chunk_column() -> None:
-    pytest.importorskip("pyarrow", "11.0.0")
+    td.versioned_importorskip("pyarrow", "11.0.0")
     ser = pd.Series([1, 2, None], dtype="Int64[pyarrow]")
     df = pd.concat([ser, ser], ignore_index=True).to_frame("a")
     df_orig = df.copy()
@@ -327,7 +328,7 @@ def test_multi_chunk_column() -> None:
 
 def test_timestamp_ns_pyarrow():
     # GH 56712
-    pytest.importorskip("pyarrow", "11.0.0")
+    td.versioned_importorskip("pyarrow", "11.0.0")
     timestamp_args = {
         "year": 2000,
         "month": 1,
@@ -362,7 +363,7 @@ def test_datetimetzdtype(tz, unit):
 
 def test_interchange_from_non_pandas_tz_aware(request):
     # GH 54239, 54287
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
     import pyarrow.compute as pc
 
     if is_platform_windows() and is_ci_environment():
@@ -420,7 +421,7 @@ def test_empty_string_column():
 
 def test_large_string():
     # GH#56702
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = pd.DataFrame({"a": ["x"]}, dtype="large_string[pyarrow]")
     result = pd.api.interchange.from_dataframe(df.__dataframe__())
     expected = pd.DataFrame({"a": ["x"]}, dtype="object")
@@ -500,7 +501,7 @@ def test_pandas_nullable_with_missing_values(
 ) -> None:
     # https://github.com/pandas-dev/pandas/issues/57643
     # https://github.com/pandas-dev/pandas/issues/57664
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
     import pyarrow.interchange as pai
 
     if expected_dtype == "timestamp[us, tz=Asia/Kathmandu]":
@@ -562,7 +563,7 @@ def test_pandas_nullable_without_missing_values(
     data: list, dtype: str, expected_dtype: str
 ) -> None:
     # https://github.com/pandas-dev/pandas/issues/57643
-    pa = pytest.importorskip("pyarrow", "11.0.0")
+    pa = td.versioned_importorskip("pyarrow", "11.0.0")
     import pyarrow.interchange as pai
 
     if expected_dtype == "timestamp[us, tz=Asia/Kathmandu]":
@@ -578,7 +579,7 @@ def test_pandas_nullable_without_missing_values(
 
 def test_string_validity_buffer() -> None:
     # https://github.com/pandas-dev/pandas/issues/57761
-    pytest.importorskip("pyarrow", "11.0.0")
+    td.versioned_importorskip("pyarrow", "11.0.0")
     df = pd.DataFrame({"a": ["x"]}, dtype="large_string[pyarrow]")
     result = df.__dataframe__().get_column_by_name("a").get_buffers()["validity"]
     assert result is None
@@ -586,7 +587,7 @@ def test_string_validity_buffer() -> None:
 
 def test_string_validity_buffer_no_missing() -> None:
     # https://github.com/pandas-dev/pandas/issues/57762
-    pytest.importorskip("pyarrow", "11.0.0")
+    td.versioned_importorskip("pyarrow", "11.0.0")
     df = pd.DataFrame({"a": ["x", None]}, dtype="large_string[pyarrow]")
     validity = df.__dataframe__().get_column_by_name("a").get_buffers()["validity"]
     assert validity is not None

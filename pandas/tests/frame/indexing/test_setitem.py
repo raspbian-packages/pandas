@@ -760,7 +760,7 @@ class TestDataFrameSetItem:
 
     def test_setitem_string_option_object_index(self):
         # GH#55638
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = DataFrame({"a": [1, 2]})
         with pd.option_context("future.infer_string", True):
             df["b"] = Index(["a", "b"], dtype=object)

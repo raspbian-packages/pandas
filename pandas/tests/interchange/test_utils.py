@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas.core.interchange.utils import dtype_to_arrow_c_fmt
 
@@ -78,7 +79,7 @@ def test_dtype_to_arrow_c_fmt(pandas_dtype, c_string):  # PR01
 )
 def test_dtype_to_arrow_c_fmt_arrowdtype(pa_dtype, args_kwargs, c_string):
     # GH 52323
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     if not args_kwargs:
         pa_type = getattr(pa, pa_dtype)()
     elif isinstance(args_kwargs, tuple):

@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Series,
@@ -35,7 +36,7 @@ def win_types_special(request):
 
 def test_constructor(frame_or_series):
     # GH 12669
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     c = frame_or_series(range(5)).rolling
 
     # valid
@@ -47,7 +48,7 @@ def test_constructor(frame_or_series):
 @pytest.mark.parametrize("w", [2.0, "foo", np.array([2])])
 def test_invalid_constructor(frame_or_series, w):
     # not valid
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     c = frame_or_series(range(5)).rolling
     with pytest.raises(ValueError, match="min_periods must be an integer"):
         c(win_type="boxcar", window=2, min_periods=w)
@@ -57,7 +58,7 @@ def test_invalid_constructor(frame_or_series, w):
 
 @pytest.mark.parametrize("wt", ["foobar", 1])
 def test_invalid_constructor_wintype(frame_or_series, wt):
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     c = frame_or_series(range(5)).rolling
     with pytest.raises(ValueError, match="Invalid win_type"):
         c(win_type=wt, window=2)
@@ -65,14 +66,14 @@ def test_invalid_constructor_wintype(frame_or_series, wt):
 
 def test_constructor_with_win_type(frame_or_series, win_types):
     # GH 12669
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     c = frame_or_series(range(5)).rolling
     c(win_type=win_types, window=2)
 
 
 @pytest.mark.parametrize("arg", ["median", "kurt", "skew"])
 def test_agg_function_support(arg):
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     df = DataFrame({"A": np.arange(5)})
     roll = df.rolling(2, win_type="triang")
 
@@ -89,7 +90,7 @@ def test_agg_function_support(arg):
 
 def test_invalid_scipy_arg():
     # This error is raised by scipy
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     msg = r"boxcar\(\) got an unexpected"
     with pytest.raises(TypeError, match=msg):
         Series(range(3)).rolling(1, win_type="boxcar").mean(foo="bar")
@@ -97,7 +98,7 @@ def test_invalid_scipy_arg():
 
 def test_constructor_with_win_type_invalid(frame_or_series):
     # GH 13383
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     c = frame_or_series(range(5)).rolling
 
     msg = "window must be an integer 0 or greater"
@@ -108,7 +109,7 @@ def test_constructor_with_win_type_invalid(frame_or_series):
 
 def test_window_with_args(step):
     # make sure that we are aggregating window functions correctly with arg
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     r = Series(np.random.default_rng(2).standard_normal(100)).rolling(
         window=10, min_periods=1, win_type="gaussian", step=step
     )
@@ -130,7 +131,7 @@ def test_window_with_args(step):
 
 
 def test_win_type_with_method_invalid():
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     with pytest.raises(
         NotImplementedError, match="'single' is the only supported method type."
     ):
@@ -140,7 +141,7 @@ def test_win_type_with_method_invalid():
 @pytest.mark.parametrize("arg", [2000000000, "2s", Timedelta("2s")])
 def test_consistent_win_type_freq(arg):
     # GH 15969
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     s = Series(range(1))
     with pytest.raises(ValueError, match="Invalid win_type freq"):
         s.rolling(arg, win_type="freq")
@@ -153,7 +154,7 @@ def test_win_type_freq_return_none():
 
 
 def test_win_type_not_implemented():
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
 
     class CustomIndexer(BaseIndexer):
         def get_window_bounds(self, num_values, min_periods, center, closed, step):
@@ -167,7 +168,7 @@ def test_win_type_not_implemented():
 
 def test_cmov_mean(step):
     # GH 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     vals = np.array([6.95, 15.21, 4.72, 9.12, 13.81, 13.49, 16.68, 9.48, 10.63, 14.48])
     result = Series(vals).rolling(5, center=True, step=step).mean()
     expected_values = [
@@ -188,7 +189,7 @@ def test_cmov_mean(step):
 
 def test_cmov_window(step):
     # GH 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     vals = np.array([6.95, 15.21, 4.72, 9.12, 13.81, 13.49, 16.68, 9.48, 10.63, 14.48])
     result = Series(vals).rolling(5, win_type="boxcar", center=True, step=step).mean()
     expected_values = [
@@ -210,7 +211,7 @@ def test_cmov_window(step):
 def test_cmov_window_corner(step):
     # GH 8238
     # all nan
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     vals = Series([np.nan] * 10)
     result = vals.rolling(5, center=True, win_type="boxcar", step=step).mean()
     assert np.isnan(result).all()
@@ -294,7 +295,7 @@ def test_cmov_window_corner(step):
 )
 def test_cmov_window_frame(f, xp, step):
     # Gh 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     df = DataFrame(
         np.array(
             [
@@ -321,7 +322,7 @@ def test_cmov_window_frame(f, xp, step):
 
 @pytest.mark.parametrize("min_periods", [0, 1, 2, 3, 4, 5])
 def test_cmov_window_na_min_periods(step, min_periods):
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     vals = Series(np.random.default_rng(2).standard_normal(10))
     vals[4] = np.nan
     vals[8] = np.nan
@@ -335,7 +336,7 @@ def test_cmov_window_na_min_periods(step, min_periods):
 
 def test_cmov_window_regular(win_types, step):
     # GH 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     vals = np.array([6.95, 15.21, 4.72, 9.12, 13.81, 13.49, 16.68, 9.48, 10.63, 14.48])
     xps = {
         "hamming": [
@@ -443,7 +444,7 @@ def test_cmov_window_regular(win_types, step):
 
 def test_cmov_window_regular_linear_range(win_types, step):
     # GH 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     vals = np.array(range(10), dtype=float)
     xp = vals.copy()
     xp[:2] = np.nan
@@ -456,7 +457,7 @@ def test_cmov_window_regular_linear_range(win_types, step):
 
 def test_cmov_window_regular_missing_data(win_types, step):
     # GH 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     vals = np.array(
         [6.95, 15.21, 4.72, 9.12, 13.81, 13.49, 16.68, np.nan, 10.63, 14.48]
     )
@@ -566,7 +567,7 @@ def test_cmov_window_regular_missing_data(win_types, step):
 
 def test_cmov_window_special(win_types_special, step):
     # GH 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     kwds = {
         "kaiser": {"beta": 1.0},
         "gaussian": {"std": 1.0},
@@ -638,7 +639,7 @@ def test_cmov_window_special(win_types_special, step):
 
 def test_cmov_window_special_linear_range(win_types_special, step):
     # GH 8238
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     kwds = {
         "kaiser": {"beta": 1.0},
         "gaussian": {"std": 1.0},
@@ -663,7 +664,7 @@ def test_cmov_window_special_linear_range(win_types_special, step):
 
 def test_weighted_var_big_window_no_segfault(win_types, center):
     # GitHub Issue #46772
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     x = Series(0)
     result = x.rolling(window=16, center=center, win_type=win_types).var()
     expected = Series(np.nan)
@@ -672,7 +673,7 @@ def test_weighted_var_big_window_no_segfault(win_types, center):
 
 
 def test_rolling_center_axis_1():
-    pytest.importorskip("scipy")
+    td.versioned_importorskip("scipy")
     df = DataFrame(
         {"a": [1, 1, 0, 0, 0, 1], "b": [1, 0, 0, 1, 0, 0], "c": [1, 0, 0, 1, 0, 1]}
     )
