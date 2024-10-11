@@ -16,7 +16,6 @@ import sys
 from sysconfig import get_config_vars
 
 import numpy
-from pkg_resources import parse_version
 from setuptools import (
     Command,
     Extension,
@@ -46,7 +45,7 @@ try:
     )
     from Cython.Build import cythonize
 
-    _CYTHON_INSTALLED = parse_version(_CYTHON_VERSION) >= parse_version(min_cython_ver)
+    _CYTHON_INSTALLED = True
 except ImportError:
     _CYTHON_VERSION = None
     _CYTHON_INSTALLED = False
