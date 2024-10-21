@@ -4,6 +4,7 @@ import struct
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs import (
     algos as libalgos,
     hashtable as ht,
@@ -1789,7 +1790,7 @@ class TestRank:
         ],
     )
     def test_scipy_compat(self, arr):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         arr = np.array(arr)
 

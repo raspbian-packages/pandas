@@ -48,8 +48,8 @@ from pandas.util.version import Version
 
 from pandas.io.formats.printing import pprint_thing
 
-mpl = pytest.importorskip("matplotlib")
-plt = pytest.importorskip("matplotlib.pyplot")
+mpl = td.versioned_importorskip("matplotlib")
+plt = td.versioned_importorskip("matplotlib.pyplot")
 
 
 class TestDataFramePlots:
@@ -1119,7 +1119,7 @@ class TestDataFramePlots:
         _check_box_return_type(result, return_type)
 
     def test_kde_df(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).standard_normal((100, 4)))
         ax = _check_plot_works(df.plot, kind="kde")
         expected = [pprint_thing(c) for c in df.columns]
@@ -1127,13 +1127,13 @@ class TestDataFramePlots:
         _check_ticks_props(ax, xrot=0)
 
     def test_kde_df_rot(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)))
         ax = df.plot(kind="kde", rot=20, fontsize=5)
         _check_ticks_props(ax, xrot=20, xlabelsize=5, ylabelsize=5)
 
     def test_kde_df_subplots(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)))
         axes = _check_plot_works(
             df.plot,
@@ -1144,13 +1144,13 @@ class TestDataFramePlots:
         _check_axes_shape(axes, axes_num=4, layout=(4, 1))
 
     def test_kde_df_logy(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)))
         axes = df.plot(kind="kde", logy=True, subplots=True)
         _check_ax_scales(axes, yaxis="log")
 
     def test_kde_missing_vals(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).uniform(size=(100, 4)))
         df.loc[0, 0] = np.nan
         _check_plot_works(df.plot, kind="kde")
@@ -1447,14 +1447,14 @@ class TestDataFramePlots:
 
     @pytest.mark.parametrize("kind", plotting.PlotAccessor._common_kinds)
     def test_kind_both_ways(self, kind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame({"x": [1, 2, 3]})
         df.plot(kind=kind)
         getattr(df.plot, kind)()
 
     @pytest.mark.parametrize("kind", ["scatter", "hexbin"])
     def test_kind_both_ways_x_y(self, kind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame({"x": [1, 2, 3]})
         df.plot("x", "x", kind=kind)
         getattr(df.plot, kind)("x", "x")
@@ -2100,7 +2100,7 @@ class TestDataFramePlots:
     @pytest.mark.parametrize("kind", plotting.PlotAccessor._all_kinds)
     def test_memory_leak(self, kind):
         """Check that every plot type gets properly collected."""
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         args = {}
         if kind in ["hexbin", "scatter", "pie"]:
             df = DataFrame(
@@ -2427,7 +2427,7 @@ class TestDataFramePlots:
         "kind", ("line", "bar", "barh", "hist", "kde", "density", "area", "pie")
     )
     def test_group_subplot(self, kind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         d = {
             "a": np.arange(10),
             "b": np.arange(10) + 1,

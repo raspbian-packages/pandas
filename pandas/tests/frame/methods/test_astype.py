@@ -893,7 +893,7 @@ def test_frame_astype_no_copy():
 @pytest.mark.parametrize("dtype", ["int64", "Int64"])
 def test_astype_copies(dtype):
     # GH#50984
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame({"a": [1, 2, 3]}, dtype=dtype)
     result = df.astype("int64[pyarrow]", copy=True)
     df.iloc[0, 0] = 100

@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import DtypeWarning
 
 import pandas._testing as tm
@@ -11,7 +12,7 @@ from pandas.io.parsers.c_parser_wrapper import _concatenate_chunks
 
 def test_concatenate_chunks_pyarrow():
     # GH#51876
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     chunks = [
         {0: ArrowExtensionArray(pa.array([1.5, 2.5]))},
         {0: ArrowExtensionArray(pa.array([1, 2]))},
@@ -23,7 +24,7 @@ def test_concatenate_chunks_pyarrow():
 
 def test_concatenate_chunks_pyarrow_strings():
     # GH#51876
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     chunks = [
         {0: ArrowExtensionArray(pa.array([1.5, 2.5]))},
         {0: ArrowExtensionArray(pa.array(["a", "b"]))},

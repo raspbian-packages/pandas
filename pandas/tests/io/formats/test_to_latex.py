@@ -4,6 +4,7 @@ from textwrap import dedent
 
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -11,7 +12,7 @@ from pandas import (
 )
 import pandas._testing as tm
 
-pytest.importorskip("jinja2")
+td.versioned_importorskip("jinja2")
 
 
 def _dedent(string):

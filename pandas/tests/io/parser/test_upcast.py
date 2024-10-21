@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs.parsers import (
     _maybe_upcast,
     na_values,
@@ -87,7 +88,7 @@ def test_maybe_upcaste_all_nan():
 @pytest.mark.parametrize("val", [na_values[np.object_], "c"])
 def test_maybe_upcast_object(val, string_storage):
     # GH#36712
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     with pd.option_context("mode.string_storage", string_storage):
         arr = np.array(["a", "b", val], dtype=np.object_)

@@ -58,8 +58,8 @@ def s3_base(worker_id, monkeypatch):
     Sets up moto server in separate process locally
     Return url for motoserver/moto CI service
     """
-    pytest.importorskip("s3fs")
-    pytest.importorskip("boto3")
+    td.versioned_importorskip("s3fs")
+    td.versioned_importorskip("boto3")
 
     # temporary workaround as moto fails for botocore >= 1.11 otherwise,
     # see https://github.com/spulec/moto/issues/1924 & 1952
@@ -80,9 +80,9 @@ def s3_base(worker_id, monkeypatch):
             # set in .github/workflows/unit-tests.yml
             yield "http://localhost:5000"
     else:
-        requests = pytest.importorskip("requests")
-        pytest.importorskip("moto")
-        pytest.importorskip("flask")  # server mode needs flask too
+        requests = td.versioned_importorskip("requests")
+        td.versioned_importorskip("moto")
+        td.versioned_importorskip("flask")  # server mode needs flask too
 
         # Launching moto in server mode, i.e., as a separate process
         # with an S3 endpoint on localhost

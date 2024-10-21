@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Series,
@@ -12,7 +13,7 @@ from pandas.io.pytables import (
     read_hdf,
 )
 
-pytest.importorskip("tables")
+td.versioned_importorskip("tables")
 
 
 class TestHDFStoreSubclass:

@@ -6,6 +6,7 @@ from datetime import (
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import IS64
 from pandas.errors import OutOfBoundsTimedelta
 
@@ -324,7 +325,7 @@ class TestTimedeltas:
 
 def test_from_numeric_arrow_dtype(any_numeric_ea_dtype):
     # GH 52425
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     ser = Series([1, 2], dtype=f"{any_numeric_ea_dtype.lower()}[pyarrow]")
     result = to_timedelta(ser)
     expected = Series([1, 2], dtype="timedelta64[ns]")
@@ -334,7 +335,7 @@ def test_from_numeric_arrow_dtype(any_numeric_ea_dtype):
 @pytest.mark.parametrize("unit", ["ns", "ms"])
 def test_from_timedelta_arrow_dtype(unit):
     # GH 54298
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     expected = Series([timedelta(1)], dtype=f"duration[{unit}][pyarrow]")
     result = to_timedelta(expected)
     tm.assert_series_equal(result, expected)

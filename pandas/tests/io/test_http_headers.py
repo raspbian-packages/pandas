@@ -161,7 +161,7 @@ def test_to_parquet_to_disk_with_storage_options(engine):
         "Auth": "other_custom",
     }
 
-    pytest.importorskip(engine)
+    td.versioned_importorskip(engine)
 
     true_df = pd.DataFrame({"column_name": ["column_value"]})
     msg = (
