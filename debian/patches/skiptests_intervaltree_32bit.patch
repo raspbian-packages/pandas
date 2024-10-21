@@ -1,0 +1,55 @@
+Description: Re-add test skips dropped in 2.2.3
+
+Dropped because they apparently aren't needed in 3.x;
+unknown if this is 2.x vs 3.x or i386 vs arm*
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- a/pandas/tests/indexes/interval/test_interval_tree.py
++++ b/pandas/tests/indexes/interval/test_interval_tree.py
+@@ -190,6 +190,7 @@ class TestIntervalTree:
+         expected = (50 + np.iinfo(np.int64).max) / 2
+         assert result == expected
+ 
++    @pytest.mark.xfail(not IS64, reason="GH 23440", raises=TypeError)
+     @pytest.mark.parametrize(
+         "left, right, expected",
+         [
+--- a/pandas/tests/indexing/interval/test_interval.py
++++ b/pandas/tests/indexing/interval/test_interval.py
+@@ -2,6 +2,7 @@ import numpy as np
+ import pytest
+ 
+ from pandas._libs import index as libindex
++from pandas.compat import IS64
+ 
+ import pandas as pd
+ from pandas import (
+@@ -209,6 +210,7 @@ class TestIntervalIndexInsideMultiIndex:
+         expected = Series([1, 6, 2, 8, 7], index=expected_index, name="value")
+         tm.assert_series_equal(result, expected)
+ 
++    @pytest.mark.xfail(not IS64, reason="GH 23440", raises=TypeError)
+     @pytest.mark.parametrize(
+         "base",
+         [101, 1010],
+--- a/pandas/tests/indexing/interval/test_interval_new.py
++++ b/pandas/tests/indexing/interval/test_interval_new.py
+@@ -3,6 +3,8 @@ import re
+ import numpy as np
+ import pytest
+ 
++from pandas.compat import IS64
++
+ from pandas import (
+     Index,
+     Interval,
+@@ -209,6 +211,7 @@ class TestIntervalIndex:
+             obj.loc[[4, 5, 6]]
+ 
+ 
++@pytest.mark.xfail(not IS64, reason="GH 23440", raises=TypeError)
+ @pytest.mark.parametrize(
+     "intervals",
+     [
