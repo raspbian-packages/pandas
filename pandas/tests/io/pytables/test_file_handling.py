@@ -270,7 +270,7 @@ def test_complibs(tmp_path, lvl, lib, request):
     # GH14478
     if PY311 and is_platform_linux() and lib == "blosc2" and lvl != 0:
         request.applymarker(
-            pytest.mark.xfail(reason=f"Fails for {lib} on Linux and PY > 3.11")
+            pytest.mark.xfail(reason=f"Fails for {lib} on Linux and PY > 3.11", strict=False)
         )
     df = DataFrame(
         np.ones((30, 4)), columns=list("ABCD"), index=np.arange(30).astype(np.str_)
