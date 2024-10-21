@@ -10,7 +10,11 @@ from pandas.compat import (
     IS64,
     is_platform_arm,
     is_platform_power,
+    IS64,
 )
+import platform
+import re
+is_platform_x86 = bool(re.match("i.?86|x86", platform.uname()[4]))
 
 from pandas import (
     DataFrame,
@@ -1176,7 +1180,8 @@ def test_rolling_sem(frame_or_series):
 
 
 @pytest.mark.xfail(
-    is_platform_arm() or is_platform_power(),
+    not (is_platform_x86 and IS64),
+    strict=False,
     reason="GH 38921",
 )
 @pytest.mark.parametrize(
