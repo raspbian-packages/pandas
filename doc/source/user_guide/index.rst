@@ -87,4 +87,3 @@ Guides
     scale
     sparse
     gotchas
-    cookbook
