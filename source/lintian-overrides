@@ -1,0 +1,5 @@
+# long lines in test data are not a bug
+very-long-line-length-in-source-file * [pandas/tests/io/data/*]
+very-long-line-length-in-source-file * [pandas/tests/io/sas/data/*]
+# long lines also don't equal actually missing source
+source-is-missing [pandas/tests/io/data/html/*]
