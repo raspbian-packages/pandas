@@ -4,6 +4,7 @@ from string import ascii_lowercase
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Index,
@@ -385,7 +386,7 @@ def test_count_uses_size_on_exception():
 
 def test_count_arrow_string_array(any_string_dtype):
     # GH#54751
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         {"a": [1, 2, 3], "b": Series(["a", "b", "a"], dtype=any_string_dtype)}
     )

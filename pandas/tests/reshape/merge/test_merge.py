@@ -8,6 +8,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.core.dtypes.common import (
     is_object_dtype,
     is_string_dtype,
@@ -2817,7 +2818,7 @@ def test_merge_ea_and_non_ea(any_numeric_ea_dtype, join_type):
 @pytest.mark.parametrize("dtype", ["int64", "int64[pyarrow]"])
 def test_merge_arrow_and_numpy_dtypes(dtype):
     # GH#52406
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame({"a": [1, 2]}, dtype=dtype)
     df2 = DataFrame({"a": [1, 2]}, dtype="int64[pyarrow]")
     result = df.merge(df2)
@@ -2967,7 +2968,7 @@ def test_merge_ea_int_and_float_numpy():
 
 def test_merge_arrow_string_index(any_string_dtype):
     # GH#54894
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     left = DataFrame({"a": ["a", "b"]}, dtype=any_string_dtype)
     right = DataFrame({"b": 1}, index=Index(["a", "c"], dtype=any_string_dtype))
     result = left.merge(right, left_on="a", right_index=True, how="left")

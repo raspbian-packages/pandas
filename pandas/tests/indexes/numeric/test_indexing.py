@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import InvalidIndexError
 
 from pandas import (
@@ -385,7 +386,7 @@ class TestGetIndexer:
     def test_get_indexer_masked_na_boolean(self, dtype):
         # GH#39133
         if dtype == "bool[pyarrow]":
-            pytest.importorskip("pyarrow")
+            td.versioned_importorskip("pyarrow")
         idx = Index([True, False, NA], dtype=dtype)
         result = idx.get_loc(False)
         assert result == 1
@@ -393,7 +394,7 @@ class TestGetIndexer:
         assert result == 2
 
     def test_get_indexer_arrow_dictionary_target(self):
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         target = Index(
             ArrowExtensionArray(
                 pa.array([1, 2], type=pa.dictionary(pa.int8(), pa.int8()))

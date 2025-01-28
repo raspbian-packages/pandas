@@ -1,9 +1,10 @@
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 
-tables = pytest.importorskip("tables")
+tables = td.versioned_importorskip("tables")
 
 
 @pytest.fixture

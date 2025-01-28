@@ -5,10 +5,11 @@ from io import (
 
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 
-pytest.importorskip("tabulate")
+td.versioned_importorskip("tabulate")
 
 
 def test_simple():

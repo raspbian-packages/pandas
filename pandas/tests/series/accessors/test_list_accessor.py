@@ -2,13 +2,14 @@ import re
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     ArrowDtype,
     Series,
 )
 import pandas._testing as tm
 
-pa = pytest.importorskip("pyarrow")
+pa = td.versioned_importorskip("pyarrow")
 
 from pandas.compat import pa_version_under11p0
 

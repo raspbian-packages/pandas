@@ -401,7 +401,7 @@ def test_read_py2_hdf_file_in_py3(datapath):
 
 def test_read_infer_string(tmp_path, setup_path):
     # GH#54431
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame({"a": ["a", "b", None]})
     path = tmp_path / setup_path
     df.to_hdf(path, key="data", format="table")

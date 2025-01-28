@@ -3,6 +3,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -1224,7 +1225,7 @@ class TestWideToLong:
 
 def test_wide_to_long_pyarrow_string_columns():
     # GH 57066
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         {
             "ID": {0: 1},

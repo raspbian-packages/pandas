@@ -1,13 +1,14 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     NA,
     DataFrame,
     IndexSlice,
 )
 
-pytest.importorskip("jinja2")
+td.versioned_importorskip("jinja2")
 
 from pandas.io.formats.style import Styler
 
