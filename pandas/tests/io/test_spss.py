@@ -162,4 +162,6 @@ def test_spss_metadata(datapath):
                 "modification_time": datetime.datetime(2015, 2, 6, 14, 33, 36),
             }
         )
+    if Version(pyreadstat.__version__) >= Version("1.2.8"):
+        metadata["mr_sets"] = {}
     assert df.attrs == metadata
