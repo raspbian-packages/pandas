@@ -186,12 +186,7 @@ try:
 
     _built_with_meson = True
 except ImportError:
-    from pandas._version import get_versions
-
-    v = get_versions()
-    __version__ = v.get("closest-tag", v["version"])
-    __git_version__ = v.get("full-revisionid")
-    del get_versions, v
+    from .__version import version as __version__
 
 # GH#55043 - deprecation of the data_manager option
 if "PANDAS_DATA_MANAGER" in os.environ:
