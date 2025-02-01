@@ -7,6 +7,7 @@ import operator
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat.pyarrow import pa_version_under12p0
 
 from pandas.core.dtypes.common import is_dtype_equal
@@ -486,7 +487,7 @@ def test_fillna_args(dtype, arrow_string_storage):
 
 def test_arrow_array(dtype):
     # protocol added in 0.15.0
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     import pyarrow.compute as pc
 
     data = pd.array(["a", "b", "c"], dtype=dtype)
@@ -502,7 +503,7 @@ def test_arrow_array(dtype):
 @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
 def test_arrow_roundtrip(dtype, string_storage2, request, using_infer_string):
     # roundtrip possible from arrow 1.0.0
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     if using_infer_string and string_storage2 != "pyarrow_numpy":
         request.applymarker(
@@ -532,7 +533,7 @@ def test_arrow_load_from_zero_chunks(
     dtype, string_storage2, request, using_infer_string
 ):
     # GH-41040
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     if using_infer_string and string_storage2 != "pyarrow_numpy":
         request.applymarker(

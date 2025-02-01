@@ -10,6 +10,7 @@ import pickle
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs.tslibs import (
     BaseOffset,
     to_offset,
@@ -41,7 +42,7 @@ from pandas.tests.plotting.common import _check_ticks_props
 
 from pandas.tseries.offsets import WeekOfMonth
 
-mpl = pytest.importorskip("matplotlib")
+mpl = td.versioned_importorskip("matplotlib")
 
 
 class TestTSPlot:
@@ -737,7 +738,7 @@ class TestTSPlot:
         assert ax.get_yaxis().get_visible()
 
     def test_secondary_kde(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         ser = Series(np.random.default_rng(2).standard_normal(10))
         fig, ax = mpl.pyplot.subplots()
         ax = ser.plot(secondary_y=True, kind="density", ax=ax)

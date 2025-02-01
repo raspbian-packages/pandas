@@ -6,6 +6,7 @@ import re
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import is_platform_windows
 
 import pandas as pd
@@ -13,7 +14,7 @@ import pandas._testing as tm
 
 from pandas.io.excel import ExcelWriter
 
-odf = pytest.importorskip("odf")
+odf = td.versioned_importorskip("odf")
 
 if is_platform_windows():
     pytestmark = pytest.mark.single_cpu

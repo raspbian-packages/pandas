@@ -4,6 +4,7 @@ Tests for ndarray-like method on the base Index class
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import Index
 import pandas._testing as tm
 
@@ -58,7 +59,7 @@ class TestReshape:
 
     def test_insert_none_into_string_numpy(self):
         # GH#55365
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         index = Index(["a", "b", "c"], dtype="string[pyarrow_numpy]")
         result = index.insert(-1, None)
         expected = Index(["a", "b", None, "c"], dtype="string[pyarrow_numpy]")

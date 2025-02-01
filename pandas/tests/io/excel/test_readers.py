@@ -667,7 +667,7 @@ class TestReaders:
         if read_ext in (".xlsb", ".xls"):
             pytest.skip(f"No engine for filetype: '{read_ext}'")
 
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
 
         with pd.option_context("mode.string_storage", string_storage):
             df = DataFrame(

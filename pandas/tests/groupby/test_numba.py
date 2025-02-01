@@ -1,5 +1,6 @@
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Series,
@@ -9,7 +10,7 @@ import pandas._testing as tm
 
 pytestmark = pytest.mark.single_cpu
 
-pytest.importorskip("numba")
+td.versioned_importorskip("numba")
 
 
 @pytest.mark.filterwarnings("ignore")

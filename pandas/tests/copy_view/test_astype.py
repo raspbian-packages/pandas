@@ -45,7 +45,7 @@ def test_astype_single_dtype(using_copy_on_write):
 @pytest.mark.parametrize("new_dtype", ["int64", "Int64", "int64[pyarrow]"])
 def test_astype_avoids_copy(using_copy_on_write, dtype, new_dtype):
     if new_dtype == "int64[pyarrow]":
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
     df = DataFrame({"a": [1, 2, 3]}, dtype=dtype)
     df_orig = df.copy()
     df2 = df.astype(new_dtype)
@@ -70,7 +70,7 @@ def test_astype_avoids_copy(using_copy_on_write, dtype, new_dtype):
 @pytest.mark.parametrize("dtype", ["float64", "int32", "Int32", "int32[pyarrow]"])
 def test_astype_different_target_dtype(using_copy_on_write, dtype):
     if dtype == "int32[pyarrow]":
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
     df = DataFrame({"a": [1, 2, 3]})
     df_orig = df.copy()
     df2 = df.astype(dtype)
@@ -198,7 +198,7 @@ def test_astype_different_timezones_different_reso(using_copy_on_write):
 
 
 def test_astype_arrow_timestamp(using_copy_on_write):
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         {
             "a": [

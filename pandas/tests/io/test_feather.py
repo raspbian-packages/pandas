@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 from pandas.core.arrays import (
@@ -15,7 +16,7 @@ pytestmark = pytest.mark.filterwarnings(
     "ignore:Passing a BlockManager to DataFrame:DeprecationWarning"
 )
 
-pa = pytest.importorskip("pyarrow")
+pa = td.versioned_importorskip("pyarrow")
 
 
 @pytest.mark.single_cpu

@@ -7,6 +7,7 @@ from decimal import Decimal
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     Categorical,
@@ -1091,7 +1092,7 @@ class TestSeriesReductions:
 
     def test_any_all_pyarrow_string(self):
         # GH#54591
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         ser = Series(["", "a"], dtype="string[pyarrow_numpy]")
         assert ser.any()
         assert not ser.all()

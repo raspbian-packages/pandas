@@ -1110,7 +1110,7 @@ def test_resample_dtype_preservation(unit):
 
 
 def test_resample_dtype_coercion(unit):
-    pytest.importorskip("scipy.interpolate")
+    td.versioned_importorskip("scipy.interpolate")
 
     # GH 16361
     df = {"a": [1, 3, 1, 4]}
