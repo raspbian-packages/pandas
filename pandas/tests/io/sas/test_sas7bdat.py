@@ -15,6 +15,9 @@ import pandas as pd
 import pandas._testing as tm
 
 from pandas.io.sas.sas7bdat import SAS7BDATReader
+import platform
+import re
+is_platform_x86_32 = bool(re.match("i.?86|x86", platform.uname()[4])) and not IS64
 
 
 @pytest.fixture
@@ -202,7 +205,7 @@ def test_date_time(datapath):
     res = df0["DateTimeHi"].astype("M8[us]").dt.round("ms")
     df0["DateTimeHi"] = res.astype("M8[ms]")
 
-    if not IS64:
+    if is_platform_x86_32:
         # No good reason for this, just what we get on the CI
         df0.loc[0, "DateTimeHi"] += np.timedelta64(1, "ms")
         df0.loc[[2, 3], "DateTimeHi"] -= np.timedelta64(1, "ms")
@@ -297,7 +300,7 @@ def test_max_sas_date(datapath):
         columns=["text", "dt_as_float", "dt_as_dt", "date_as_float", "date_as_date"],
     )
 
-    if not IS64:
+    if is_platform_x86_32:
         # No good reason for this, just what we get on the CI
         expected.loc[:, "dt_as_dt"] -= np.timedelta64(1, "ms")
 
@@ -340,7 +343,7 @@ def test_max_sas_date_iterator(datapath):
             columns=col_order,
         ),
     ]
-    if not IS64:
+    if is_platform_x86_32:
         # No good reason for this, just what we get on the CI
         expected[0].loc[0, "dt_as_dt"] -= np.timedelta64(1, "ms")
         expected[1].loc[0, "dt_as_dt"] -= np.timedelta64(1, "ms")
@@ -371,7 +374,7 @@ def test_null_date(datapath):
             ),
         },
     )
-    if not IS64:
+    if is_platform_x86_32:
         # No good reason for this, just what we get on the CI
         expected.loc[0, "datetimecol"] -= np.timedelta64(1, "ms")
     tm.assert_frame_equal(df, expected)
