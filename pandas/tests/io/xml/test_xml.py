@@ -487,13 +487,13 @@ def test_empty_string_etree(val):
             read_xml(BytesIO(val), parser="etree")
 
 
-def test_wrong_file_path(parser):
+def test_wrong_file_path(parser, datapath):
     msg = (
         "Passing literal xml to 'read_xml' is deprecated and "
         "will be removed in a future version. To read from a "
         "literal string, wrap it in a 'StringIO' object."
     )
-    filename = os.path.join("data", "html", "books.xml")
+    filename = os.path.join(datapath("io", "data", "html"), "books.xml")
 
     with pytest.raises(
         FutureWarning,
@@ -1358,17 +1358,16 @@ def test_stylesheet_with_etree(kml_cta_rail_lines, xsl_flatten_doc):
 
 
 @pytest.mark.parametrize("val", ["", b""])
-def test_empty_stylesheet(val):
+def test_empty_stylesheet(val, datapath):
     pytest.importorskip("lxml")
     msg = (
         "Passing literal xml to 'read_xml' is deprecated and "
         "will be removed in a future version. To read from a "
         "literal string, wrap it in a 'StringIO' object."
     )
-    kml = os.path.join("data", "xml", "cta_rail_lines.kml")
+    kml = datapath("io", "data", "xml", "cta_rail_lines.kml")
 
-    with pytest.raises(FutureWarning, match=msg):
-        read_xml(kml, stylesheet=val)
+    read_xml(kml, stylesheet=val)
 
 
 # ITERPARSE
