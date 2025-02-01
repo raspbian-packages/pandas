@@ -11,6 +11,12 @@ from pandas import (
     option_context,
 )
 import pandas._testing as tm
+from pandas.compat import IS64
+try:
+    from numba.core.errors import UnsupportedParforsError, TypingError
+except ImportError:  # numba not installed
+    UnsupportedParforsError = ImportError
+    TypingError = ImportError
 
 pytestmark = pytest.mark.single_cpu
 
@@ -251,6 +257,12 @@ def test_multifunc_numba_vs_cython_series(agg_kwargs):
             {"min_col": NamedAgg(column=1, aggfunc="min")},
         ),
     ],
+)
+@pytest.mark.xfail(
+    condition=not IS64,
+    reason="parfors not available on 32-bit",
+    raises=UnsupportedParforsError,
+    strict=False,
 )
 def test_multifunc_numba_kwarg_propagation(data, agg_kwargs):
     pytest.importorskip("numba")
