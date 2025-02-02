@@ -107,9 +107,9 @@ def round_trip_localpath(writer, reader, path: str | None = None):
     pandas object
         The original object that was serialized and then re-read.
     """
-    import pytest
+    import pandas.util._test_decorators as td
 
-    LocalPath = pytest.importorskip("py.path").local
+    LocalPath = td.versioned_importorskip("py.path").local
     if path is None:
         path = "___localpath___"
     with ensure_clean(path) as path:

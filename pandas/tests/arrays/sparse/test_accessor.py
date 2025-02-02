@@ -3,6 +3,7 @@ import string
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import SparseDtype
 import pandas._testing as tm
@@ -26,7 +27,7 @@ class TestSeriesAccessor:
         assert result == expected
 
     def test_from_coo(self):
-        scipy_sparse = pytest.importorskip("scipy.sparse")
+        scipy_sparse = td.versioned_importorskip("scipy.sparse")
 
         row = [0, 3, 1, 0]
         col = [0, 3, 1, 2]
@@ -64,7 +65,7 @@ class TestSeriesAccessor:
     def test_to_coo(
         self, sort_labels, expected_rows, expected_cols, expected_values_pos
     ):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         values = SparseArray([0, np.nan, 1, 0, None, 3], fill_value=0)
         index = pd.MultiIndex.from_tuples(
@@ -107,7 +108,7 @@ class TestFrameAccessor:
     @pytest.mark.parametrize("labels", [None, list(string.ascii_letters[:10])])
     @pytest.mark.parametrize("dtype", ["float64", "int64"])
     def test_from_spmatrix(self, format, labels, dtype):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         sp_dtype = SparseDtype(dtype, np.array(0, dtype=dtype).item())
 
@@ -120,7 +121,7 @@ class TestFrameAccessor:
 
     @pytest.mark.parametrize("format", ["csc", "csr", "coo"])
     def test_from_spmatrix_including_explicit_zero(self, format):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         mat = sp_sparse.random(10, 2, density=0.5, format=format)
         mat.data[0] = 0
@@ -134,7 +135,7 @@ class TestFrameAccessor:
         [["a", "b"], pd.MultiIndex.from_product([["A"], ["a", "b"]]), ["a", "a"]],
     )
     def test_from_spmatrix_columns(self, columns):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         dtype = SparseDtype("float64", 0.0)
 
@@ -147,7 +148,7 @@ class TestFrameAccessor:
         "colnames", [("A", "B"), (1, 2), (1, pd.NA), (0.1, 0.2), ("x", "x"), (0, 0)]
     )
     def test_to_coo(self, colnames):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         df = pd.DataFrame(
             {colnames[0]: [0, 1, 0], colnames[1]: [1, 0, 0]}, dtype="Sparse[int64, 0]"
@@ -158,7 +159,7 @@ class TestFrameAccessor:
 
     @pytest.mark.parametrize("fill_value", [1, np.nan])
     def test_to_coo_nonzero_fill_val_raises(self, fill_value):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = pd.DataFrame(
             {
                 "A": SparseArray(
@@ -174,7 +175,7 @@ class TestFrameAccessor:
 
     def test_to_coo_midx_categorical(self):
         # GH#50996
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         midx = pd.MultiIndex.from_arrays(
             [
@@ -219,7 +220,7 @@ class TestFrameAccessor:
     @pytest.mark.parametrize("dtype", ["int64", "float64"])
     @pytest.mark.parametrize("dense_index", [True, False])
     def test_series_from_coo(self, dtype, dense_index):
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         A = sp_sparse.eye(3, format="coo", dtype=dtype)
         result = pd.Series.sparse.from_coo(A, dense_index=dense_index)
@@ -239,7 +240,7 @@ class TestFrameAccessor:
 
     def test_series_from_coo_incorrect_format_raises(self):
         # gh-26554
-        sp_sparse = pytest.importorskip("scipy.sparse")
+        sp_sparse = td.versioned_importorskip("scipy.sparse")
 
         m = sp_sparse.csr_matrix(np.array([[0, 1], [0, 0]]))
         with pytest.raises(

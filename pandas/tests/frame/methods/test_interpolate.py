@@ -213,7 +213,7 @@ class TestDataFrameInterpolate:
             df.interpolate(method="values")
 
     def test_interp_various(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(
             {"A": [1, 2, np.nan, 4, 5, np.nan, 7], "C": [1, 2, 3, 5, 8, 13, 21]}
         )
@@ -252,7 +252,7 @@ class TestDataFrameInterpolate:
         tm.assert_frame_equal(result, expected, check_dtype=False)
 
     def test_interp_alt_scipy(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(
             {"A": [1, 2, np.nan, 4, 5, np.nan, 7], "C": [1, 2, 3, 5, 8, 13, 21]}
         )
@@ -541,7 +541,7 @@ class TestDataFrameInterpolate:
     )
     def test_interpolate_arrow(self, dtype):
         # GH#55347
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         df = DataFrame({"a": [1, None, None, None, 3]}, dtype=dtype + "[pyarrow]")
         result = df.interpolate(limit=2)
         expected = DataFrame({"a": [1, 1.5, 2.0, None, 3]}, dtype="float64[pyarrow]")

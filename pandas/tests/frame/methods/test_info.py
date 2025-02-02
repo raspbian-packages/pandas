@@ -7,6 +7,7 @@ import textwrap
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import (
     IS64,
     PYPY,
@@ -527,7 +528,7 @@ def test_memory_usage_empty_no_warning():
 @pytest.mark.single_cpu
 def test_info_compute_numba():
     # GH#51922
-    pytest.importorskip("numba")
+    td.versioned_importorskip("numba")
     df = DataFrame([[1, 2], [3, 4]])
 
     with option_context("compute.use_numba", True):

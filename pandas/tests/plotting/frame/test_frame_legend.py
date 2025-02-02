@@ -14,7 +14,7 @@ from pandas.tests.plotting.common import (
 )
 from pandas.util.version import Version
 
-mpl = pytest.importorskip("matplotlib")
+mpl = td.versioned_importorskip("matplotlib")
 
 
 class TestFrameLegend:
@@ -61,7 +61,7 @@ class TestFrameLegend:
 
     @pytest.mark.parametrize("kind", ["line", "bar", "barh", "kde", "area", "hist"])
     def test_df_legend_labels(self, kind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).random((3, 3)), columns=["a", "b", "c"])
         df2 = DataFrame(
             np.random.default_rng(2).random((3, 3)), columns=["d", "e", "f"]
@@ -87,7 +87,7 @@ class TestFrameLegend:
         _check_legend_labels(ax, labels=expected)
 
     def test_df_legend_labels_secondary_y(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         df = DataFrame(np.random.default_rng(2).random((3, 3)), columns=["a", "b", "c"])
         df2 = DataFrame(
             np.random.default_rng(2).random((3, 3)), columns=["d", "e", "f"]
@@ -105,7 +105,7 @@ class TestFrameLegend:
 
     def test_df_legend_labels_time_series(self):
         # Time Series
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         ind = date_range("1/1/2014", periods=3)
         df = DataFrame(
             np.random.default_rng(2).standard_normal((3, 3)),
@@ -131,7 +131,7 @@ class TestFrameLegend:
 
     def test_df_legend_labels_time_series_scatter(self):
         # Time Series
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         ind = date_range("1/1/2014", periods=3)
         df = DataFrame(
             np.random.default_rng(2).standard_normal((3, 3)),
@@ -157,7 +157,7 @@ class TestFrameLegend:
         _check_legend_labels(ax, labels=["data1", "data3"])
 
     def test_df_legend_labels_time_series_no_mutate(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         ind = date_range("1/1/2014", periods=3)
         df = DataFrame(
             np.random.default_rng(2).standard_normal((3, 3)),
