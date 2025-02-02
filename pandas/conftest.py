@@ -34,6 +34,7 @@ from typing import (
     TYPE_CHECKING,
     Callable,
 )
+import argparse
 
 from dateutil.tz import (
     tzlocal,
@@ -114,6 +115,7 @@ def pytest_addoption(parser) -> None:
         action="store_false",
         help="Don't fail if a test is skipped for missing data file.",
     )
+    parser.addoption("--deb-data-root-dir", action="store", help=argparse.SUPPRESS)  # for internal use of the Debian CI infrastructure, may change without warning.  Security note: test_pickle can run arbitrary code from this directory
 
 
 def ignore_doctest_warning(item: pytest.Item, path: str, message: str) -> None:
@@ -1098,7 +1100,7 @@ def strict_data_files(pytestconfig):
 
 
 @pytest.fixture
-def datapath(strict_data_files: str) -> Callable[..., str]:
+def datapath(strict_data_files: str, pytestconfig) -> Callable[..., str]:
     """
     Get the path to a data file.
 
@@ -1116,7 +1118,9 @@ def datapath(strict_data_files: str) -> Callable[..., str]:
     ValueError
         If the path doesn't exist and the --no-strict-data-files option is not set.
     """
-    BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
+    BASE_PATH = pytestconfig.getoption("--deb-data-root-dir", default=None)
+    if BASE_PATH is None:
+        BASE_PATH = os.path.join(os.path.dirname(__file__), "tests")
 
     def deco(*args):
         path = os.path.join(BASE_PATH, *args)
