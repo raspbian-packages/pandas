@@ -1,6 +1,12 @@
 import numpy as np
 import pytest
 
+from pandas.compat import IS64
+try:
+    from numba.core.errors import UnsupportedParforsError, TypingError
+except ImportError:  # numba not installed
+    UnsupportedParforsError = ImportError
+    TypingError = ImportError
 from pandas.errors import NumbaUtilError
 import pandas.util._test_decorators as td
 
@@ -186,6 +192,12 @@ class TestEngine:
         expected = DataFrame({"value": [2.0, 2.0, 2.0]})
         tm.assert_frame_equal(result, expected)
 
+    @pytest.mark.xfail(
+        condition=not IS64,
+        reason="parfors not available on 32-bit",
+        raises=UnsupportedParforsError,
+        strict=False,
+    )
     def test_dont_cache_engine_kwargs(self):
         # If the user passes a different set of engine_kwargs don't return the same
         # jitted function
@@ -326,6 +338,12 @@ class TestTableMethod:
                 f, engine="numba", raw=True
             )
 
+    @pytest.mark.xfail(
+        condition=not IS64,
+        reason="parfors not available on 32-bit",
+        raises=(UnsupportedParforsError, TypingError),
+        strict=False,
+    )
     def test_table_method_rolling_methods(
         self,
         axis,
@@ -408,6 +426,12 @@ class TestTableMethod:
         )
         tm.assert_frame_equal(result, expected)
 
+    @pytest.mark.xfail(
+        condition=not IS64,
+        reason="parfors not available on 32-bit",
+        raises=(UnsupportedParforsError, TypingError),
+        strict=False,
+    )
     def test_table_method_expanding_methods(
         self, axis, nogil, parallel, nopython, arithmetic_numba_supported_operators
     ):
