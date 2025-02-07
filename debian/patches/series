@@ -34,6 +34,9 @@ sum_loosen_test_tolerance.patch
 versioned_importorskip.patch
 add_missing_importorskip.patch
 blosc_nonstrict_xfail.patch
-skiptests_intervaltree_32bit.patch
 no_pkg_resources.patch
 no_pytz_datetime.patch
+1088988_xarray_pyreadstat_compat.patch
+privacy2.patch
+value_counts_nat_numpy2.patch
+ignore_test_1094417.patch
