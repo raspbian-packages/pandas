@@ -29,6 +29,8 @@ from typing import (
     cast,
 )
 import warnings
+from pandas.compat import is_platform_little_endian
+warn_stata_platform = "Non-x86 system detected, Stata format I/O may give wrong results (particularly on strings) - https://bugs.debian.org/877419" if not is_platform_little_endian() else False
 
 import numpy as np
 
@@ -971,6 +973,8 @@ class StataParser:
         # NOTE: the byte type seems to be reserved for categorical variables
         # with a label, but the underlying variable is -127 to 100
         # we're going to drop the label and cast to int
+        if warn_stata_platform:
+            warnings.warn(warn_stata_platform)
         self.DTYPE_MAP = dict(
             [(i, np.dtype(f"S{i}")) for i in range(1, 245)]
             + [
