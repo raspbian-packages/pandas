@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 
@@ -8,7 +9,7 @@ pytestmark = pytest.mark.filterwarnings(
     "ignore:Passing a BlockManager to DataFrame:DeprecationWarning"
 )
 
-pa = pytest.importorskip("pyarrow")
+pa = td.versioned_importorskip("pyarrow")
 
 from pandas.core.arrays.arrow._arrow_utils import pyarrow_array_to_numpy_and_mask
 

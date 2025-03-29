@@ -32,8 +32,8 @@ from pandas.tests.plotting.common import (
     get_y_axis,
 )
 
-mpl = pytest.importorskip("matplotlib")
-plt = pytest.importorskip("matplotlib.pyplot")
+mpl = td.versioned_importorskip("matplotlib")
+plt = td.versioned_importorskip("matplotlib.pyplot")
 
 
 @pytest.fixture
@@ -569,16 +569,16 @@ class TestSeriesPlots:
         ],
     )
     def test_kde_kwargs(self, ts, bw_method, ind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _check_plot_works(ts.plot.kde, bw_method=bw_method, ind=ind)
 
     def test_density_kwargs(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         sample_points = np.linspace(-100, 100, 20)
         _check_plot_works(ts.plot.density, bw_method=0.5, ind=sample_points)
 
     def test_kde_kwargs_check_axes(self, ts):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _, ax = mpl.pyplot.subplots()
         sample_points = np.linspace(-100, 100, 20)
         ax = ts.plot.kde(logy=True, bw_method=0.5, ind=sample_points, ax=ax)
@@ -586,7 +586,7 @@ class TestSeriesPlots:
         _check_text_labels(ax.yaxis.get_label(), "Density")
 
     def test_kde_missing_vals(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         s = Series(np.random.default_rng(2).uniform(size=50))
         s[0] = np.nan
         axes = _check_plot_works(s.plot.kde)
@@ -609,7 +609,7 @@ class TestSeriesPlots:
         plotting.PlotAccessor._common_kinds + plotting.PlotAccessor._series_kinds,
     )
     def test_kind_kwarg(self, kind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         s = Series(range(3))
         _, ax = mpl.pyplot.subplots()
         s.plot(kind=kind, ax=ax)
@@ -620,7 +620,7 @@ class TestSeriesPlots:
         plotting.PlotAccessor._common_kinds + plotting.PlotAccessor._series_kinds,
     )
     def test_kind_attr(self, kind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         s = Series(range(3))
         _, ax = mpl.pyplot.subplots()
         getattr(s.plot, kind)()
@@ -636,7 +636,7 @@ class TestSeriesPlots:
 
     @pytest.mark.parametrize("kind", plotting.PlotAccessor._common_kinds)
     def test_valid_object_plot(self, kind):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         s = Series(range(10), dtype=object)
         _check_plot_works(s.plot, kind=kind)
 
@@ -750,7 +750,7 @@ class TestSeriesPlots:
     @pytest.mark.slow
     def test_series_grid_settings(self):
         # Make sure plot defaults to rcParams['axes.grid'] setting, GH 9792
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         _check_grid_settings(
             Series([1, 2, 3]),
             plotting.PlotAccessor._series_kinds + plotting.PlotAccessor._common_kinds,

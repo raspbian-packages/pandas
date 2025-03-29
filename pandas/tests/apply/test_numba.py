@@ -26,7 +26,7 @@ def test_numba_vs_python_noop(float_frame, apply_axis):
 
 def test_numba_vs_python_string_index():
     # GH#56189
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         1,
         index=Index(["a", "b"], dtype="string[pyarrow_numpy]"),

@@ -11,6 +11,7 @@ from shutil import get_terminal_size
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_pyarrow_string_dtype
 
 import pandas as pd
@@ -2268,7 +2269,7 @@ def test_filepath_or_buffer_arg(
 ):
     df = DataFrame([data])
     if method in ["to_latex"]:  # uses styler implementation
-        pytest.importorskip("jinja2")
+        td.versioned_importorskip("jinja2")
 
     if filepath_or_buffer_id not in ["string", "pathlike"] and encoding is not None:
         with pytest.raises(
@@ -2287,7 +2288,7 @@ def test_filepath_or_buffer_arg(
 @pytest.mark.parametrize("method", ["to_string", "to_html", "to_latex"])
 def test_filepath_or_buffer_bad_arg_raises(float_frame, method):
     if method in ["to_latex"]:  # uses styler implementation
-        pytest.importorskip("jinja2")
+        td.versioned_importorskip("jinja2")
     msg = "buf is not a file name and it has no write method"
     with pytest.raises(TypeError, match=msg):
         getattr(float_frame, method)(buf=object())

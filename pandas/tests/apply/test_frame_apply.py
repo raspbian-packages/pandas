@@ -4,6 +4,7 @@ import warnings
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.core.dtypes.dtypes import CategoricalDtype
 
 import pandas as pd
@@ -35,7 +36,7 @@ def int_frame_const_col():
 @pytest.fixture(params=["python", pytest.param("numba", marks=pytest.mark.single_cpu)])
 def engine(request):
     if request.param == "numba":
-        pytest.importorskip("numba")
+        td.versioned_importorskip("numba")
     return request.param
 
 

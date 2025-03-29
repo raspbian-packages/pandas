@@ -14,6 +14,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import EmptyDataError
 
 import pandas as pd
@@ -972,13 +973,13 @@ def test_dtype_backend(string_storage, dtype_backend):
         arr = StringArray(np.array(["a", "b"], dtype=np.object_))
         arr_na = StringArray(np.array([pd.NA, "a"], dtype=np.object_))
     elif dtype_backend == "pyarrow":
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         from pandas.arrays import ArrowExtensionArray
 
         arr = ArrowExtensionArray(pa.array(["a", "b"]))
         arr_na = ArrowExtensionArray(pa.array([None, "a"]))
     else:
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         arr = ArrowStringArray(pa.array(["a", "b"]))
         arr_na = ArrowStringArray(pa.array([None, "a"]))
 
@@ -1002,7 +1003,7 @@ def test_dtype_backend(string_storage, dtype_backend):
         }
     )
     if dtype_backend == "pyarrow":
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         from pandas.arrays import ArrowExtensionArray
 
         expected = DataFrame(

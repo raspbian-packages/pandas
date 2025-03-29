@@ -2034,7 +2034,7 @@ class TestPandasContainer:
         self, string_storage, dtype_backend, orient, using_infer_string
     ):
         # GH#50750
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         df = DataFrame(
             {
                 "a": Series([1, np.nan, 3], dtype="Int64"),
@@ -2056,7 +2056,7 @@ class TestPandasContainer:
             string_array_na = StringArray(np.array(["a", "b", NA], dtype=np.object_))
 
         elif dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             from pandas.arrays import ArrowExtensionArray
 
             string_array = ArrowExtensionArray(pa.array(["a", "b", "c"]))
@@ -2103,7 +2103,7 @@ class TestPandasContainer:
     @pytest.mark.parametrize("orient", ["split", "records", "index"])
     def test_read_json_nullable_series(self, string_storage, dtype_backend, orient):
         # GH#50750
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         ser = Series([1, np.nan, 3], dtype="Int64")
 
         out = ser.to_json(orient=orient)
@@ -2147,7 +2147,7 @@ def test_pyarrow_engine_lines_false():
 
 
 def test_json_roundtrip_string_inference(orient):
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = DataFrame(
         [["a", "b"], ["c", "d"]], index=["row 1", "row 2"], columns=["col 1", "col 2"]
     )

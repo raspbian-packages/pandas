@@ -5,6 +5,7 @@ import pydoc
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_pyarrow_string_dtype
 from pandas._config.config import option_context
 
@@ -288,7 +289,7 @@ class TestDataFrameMisc:
 
     def test_tab_complete_warning(self, ip, frame_or_series):
         # GH 16409
-        pytest.importorskip("IPython", minversion="6.0.0")
+        td.versioned_importorskip("IPython", min_version="6.0.0")
         from IPython.core.completer import provisionalcompleter
 
         if frame_or_series is DataFrame:
@@ -383,7 +384,7 @@ class TestDataFrameMisc:
 
     def test_inspect_getmembers(self):
         # GH38740
-        pytest.importorskip("jinja2")
+        td.versioned_importorskip("jinja2")
         df = DataFrame()
         msg = "DataFrame._data is deprecated"
         with tm.assert_produces_warning(
