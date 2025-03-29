@@ -1,0 +1,16 @@
+Description: Ignore warning added in matplotlib 3.10
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/1101527
+Forwarded: no
+
+--- a/pyproject.toml
++++ b/pyproject.toml
+@@ -507,6 +507,7 @@ filterwarnings = [
+   "ignore::ResourceWarning:asyncio",
+   # From plotting doctests
+   "ignore:More than 20 figures have been opened:RuntimeWarning",
++  "ignore:vert.*bool will be deprecated in a future version.*:PendingDeprecationWarning",
+   # Will be fixed in numba 0.56: https://github.com/numba/numba/issues/7758
+   "ignore:`np.MachAr` is deprecated:DeprecationWarning:numba",
+   "ignore:.*urllib3:DeprecationWarning:botocore",

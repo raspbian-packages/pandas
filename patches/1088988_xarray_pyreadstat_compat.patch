@@ -1,0 +1,35 @@
+Description: Fix pyreadstat and some xarray fails, test others
+
+Tests failing with newer xarray and/or pyreadstat
+
+Author: Richard Shadrach, Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Origin: partly https://github.com/pandas-dev/pandas/pull/60109
+Bug: partly https://github.com/pydata/xarray/issues/9661
+Bug-Debian: https://bugs.debian.org/1088988
+Forwarded: no
+
+--- a/pandas/tests/generic/test_to_xarray.py
++++ b/pandas/tests/generic/test_to_xarray.py
+@@ -52,9 +52,10 @@ class TestDataFrameToXArray:
+         # datetimes w/tz are preserved
+         # column names are lost
+         expected = df.copy()
+-        expected["f"] = expected["f"].astype(
+-            object if not using_infer_string else "string[pyarrow_numpy]"
+-        )
++        # breaks in xarray >= 2024.10.0(?)
++        # debug print
++        r0 = result.to_dataframe()
++        print("expected",expected, expected.index, expected.dtypes, "actual",result, r0, r0.index, r0.dtypes,sep='\n')
+         expected.columns.name = None
+         tm.assert_frame_equal(result.to_dataframe(), expected)
+ 
+--- a/pandas/tests/io/test_spss.py
++++ b/pandas/tests/io/test_spss.py
+@@ -162,4 +162,6 @@ def test_spss_metadata(datapath):
+                 "modification_time": datetime.datetime(2015, 2, 6, 14, 33, 36),
+             }
+         )
++    if Version(pyreadstat.__version__) >= Version("1.2.8"):
++        metadata["mr_sets"] = {}
+     assert df.attrs == metadata
