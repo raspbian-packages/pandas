@@ -245,7 +245,7 @@ html_theme_options = {
     "footer_start": ["pandas_footer", "sphinx-version"],
     "github_url": "https://github.com/pandas-dev/pandas",
     "twitter_url": "https://twitter.com/pandas_dev",
-    "logo": {"image_dark": "https://pandas.pydata.org/static/img/pandas_white.svg"},
+    "logo": {"image_dark": "../../web/pandas/static/img/pandas_white.svg"},
     "navbar_align": "left",
     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],
     "switcher": {
