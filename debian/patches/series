@@ -30,7 +30,6 @@ pytables_python3p12.patch
 ignore_python3p12_deprecations.patch
 sum_loosen_test_tolerance.patch
 1068104_time64.patch
-1068422_ignore_dask_tests.patch
 versioned_importorskip.patch
 add_missing_importorskip.patch
 blosc_nonstrict_xfail.patch
@@ -39,4 +38,5 @@ no_pytz_datetime.patch
 1088988_xarray_pyreadstat_compat.patch
 privacy2.patch
 value_counts_nat_numpy2.patch
-ignore_test_1094417.patch
+ignore_test_1094417_1088988.patch
+1101527_matplotlib3p10.patch

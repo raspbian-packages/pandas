@@ -1,4 +1,8 @@
-New upstream and contributors_list update (warning: assumes my directory layout):
+=== Importing a new upstream version ===
+
+Upstream's documentation generates contributor information from the git history.  As this obviously does not work in a Debian package build, it is patched out with contributor_list_not_in_tarball.patch and replaced with a file debian/contributors_list.txt.
+
+To import a new upstream release and update this file, assuming you have a checkout of the Debian package at ~/Debian/sourcepkgs/pandas and a checkout of upstream's repository at ~/Debian/upstreams/pandas:
 
 #update this: export version=1.5.1
 cd ~/Debian/sourcepkgs/pandas
@@ -16,3 +20,13 @@ cd ~/Debian/sourcepkgs/pandas
 echo "" >> debian/contributors_list.txt
 echo "Debian packaging" >> debian/contributors_list.txt
 git shortlog -ns -- debian >> debian/contributors_list.txt
+
+=== Circular dependencies and bootstrapping ===
+
+pandas build-depends on itself on arch:all (via pyreadstat/statsmodels/xarray), and matplotlib and pandas build-depend on each other on all architectures.
+
+* For Python interpreter version transitions, where the old package is installable but not importable in all Python versions, this should not be a problem as the tests that use it are automatically skipped.  I think either ordering of pandas and matplotlib should work, but I'm unsure of that, so if one fails it may be worth trying the other ordering.
+
+* In some other transitions, or after a pandas upload where one of arch:amd64 and arch:all succeeds and the other fails, pandas may become BD-Uninstallable.  This can be worked around by building with the nocheck *and* nodoc build profiles.  As the resulting pandas will be missing most of python-pandas-doc, please follow this with a normal build.
+
+* In both cases, build pandas before statsmodels.

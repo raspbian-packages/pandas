@@ -1,11 +1,29 @@
-pandas (2.2.3+dfsg-7+rpi1) trixie-staging; urgency=medium
+pandas (2.2.3+dfsg-9+rpi1) trixie-staging; urgency=medium
 
   [changes brought forward from 2.2.3+dfsg-5+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 02 Feb 2025 11:17:13 +0000]
   * Binary-only non-maintainer upload for armhf; no source changes.
   * Rebuild for python 3.13
   * Disable testsuite.
 
- -- Raspbian forward porter <root@raspbian.org>  Fri, 07 Feb 2025 19:00:21 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Wed, 09 Apr 2025 02:40:44 +0000
+
+pandas (2.2.3+dfsg-9) unstable; urgency=medium
+
+  * Tests: ignore warning added in matplotlib 3.10. (Closes: #1101527)
+  * Tests: run but ignore more (already) xfailed tests,
+    but less verbosely to not overflow the log.
+  * Tests: remove no longer needed xfails (#1068422 has been fixed).
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sat, 29 Mar 2025 13:01:52 +0000
+
+pandas (2.2.3+dfsg-8) unstable; urgency=medium
+
+  * Re-add full build dependencies.
+  * Allow building on ports without PyQt5.
+  * README.source: document circular dependencies.
+  * Ignore some more failing tests (workaround for #1088988).
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sat, 01 Feb 2025 18:39:17 +0000
 
 pandas (2.2.3+dfsg-7) unstable; urgency=medium
 

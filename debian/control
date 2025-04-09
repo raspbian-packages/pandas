@@ -21,7 +21,7 @@ Build-Depends: debhelper-compat (= 13),
                python3-hypothesis (>= 6.46.1~) <!nocheck> <!nodoc>,
                python3-jinja2 (>= 3.1.2~) <!nocheck> <!nodoc>,
                python3-lxml (>= 4.9.2~) <!nocheck> <!nodoc>,
-#               python3-matplotlib (>= 3.6.3~) [!hurd-any !ia64 !loong64 !m68k !powerpc !sh4 !sparc64 !x32] <!nocheck> <!nodoc>,
+               python3-matplotlib (>= 3.6.3~) [!alpha !hurd-any !loong64 !m68k !powerpc !sh4 !sparc64 !x32] <!nocheck> <!nodoc>,
 # numba has a history of bugs on non-x86, e.g. #1033907
 # architectures here are the ones on which to treat numba-related failures as RC - see also debian/tests/control
 # temporarily disabled as numba is not in testing #1033907               python3-numba (>= 0.56.4~) [amd64 i386 ppc64el] <!nocheck> <!nodoc>,
@@ -32,7 +32,7 @@ Build-Depends: debhelper-compat (= 13),
 # doesn't seem to work in this test environment               python3-psycopg2 (>= 2.9.6~) <!nocheck> <!nodoc>,
                python3-py <!nocheck> <!nodoc>,
 # doesn't seem to work in this test environment               python3-pymysql (>= 1.0.2~) <!nocheck> <!nodoc>,
-               python3-pyqt5 (>= 5.15.9~) <!nocheck> <!nodoc>,
+               python3-pyqt5 (>= 5.15.9~) [!alpha !powerpc !sparc64 !x32] <!nocheck> <!nodoc>,
 # in -indep to reduce circular dependencies python3-pyreadstat,
                python3-pytest (>= 7.3.2~) <!nocheck> <!nodoc>,
                python3-pytest-asyncio (>= 0.17~) <!nocheck> <!nodoc>,
@@ -85,13 +85,12 @@ Build-Depends-Indep: python3-sphinx <!nodoc>,
 # not in Debian (not to be confused with python3-arrow) python3-pyarrow <!nodoc>,
 #fails with KeyError 'state', possibly nbconvert bug 1731                     python3-ipywidgets <!nodoc>,
                      python3-rpy2 <!nodoc>,
-#break depends cycle                     python3-seaborn <!nodoc>,
+                     python3-seaborn <!nodoc>,
 # these are also used in some tests, but depend on pandas, so are in -indep to avoid
 # circular-dependency BD-Uninstallable when arch:all finishes before some of the arch:any start
-#                     python3-pyreadstat (>= 1.2.0~) <!nocheck> <!nodoc>,
-#                     python3-statsmodels <!nocheck> <!nodoc>,
-#                     python3-xarray (>= 2022.12.0~) <!nocheck> <!nodoc>,
-                      python3-matplotlib <!nocheck> <!nodoc>,
+                     python3-pyreadstat (>= 1.2.0~) <!nocheck> <!nodoc>,
+                     python3-statsmodels <!nocheck> <!nodoc>,
+                     python3-xarray (>= 2022.12.0~) <!nocheck> <!nodoc>,
 Standards-Version: 4.7.0
 Vcs-Browser: https://salsa.debian.org/science-team/pandas
 Vcs-Git: https://salsa.debian.org/science-team/pandas.git

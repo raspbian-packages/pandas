@@ -1,5 +1,8 @@
 Description: Don't try to run matplotlib-using tests without it
 
+This allows the circular pandas <-> matplotlib dependency
+to be broken for bootstrapping (see README.source)
+
 Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Forwarded: no
 
