@@ -204,6 +204,7 @@ def scatter_matrix(
     .. plot::
         :context: close-figs
 
+        >>> np.random.seed(1234)
         >>> df = pd.DataFrame(np.random.randn(1000, 4), columns=['A','B','C','D'])
         >>> pd.plotting.scatter_matrix(df, alpha=0.2)
         array([[<Axes: xlabel='A', ylabel='A'>, <Axes: xlabel='B', ylabel='A'>,
@@ -438,6 +439,8 @@ def bootstrap_plot(
     .. plot::
         :context: close-figs
 
+        >>> np.random.seed(1234)
+        >>> random.seed(1234)  # for reproducibility
         >>> s = pd.Series(np.random.uniform(size=100))
         >>> pd.plotting.bootstrap_plot(s)  # doctest: +SKIP
         <Figure size 640x480 with 6 Axes>
@@ -597,6 +600,7 @@ def autocorrelation_plot(series: Series, ax: Axes | None = None, **kwargs) -> Ax
     .. plot::
         :context: close-figs
 
+        >>> np.random.seed(1234)
         >>> spacing = np.linspace(-9 * np.pi, 9 * np.pi, num=1000)
         >>> s = pd.Series(0.7 * np.random.rand(1000) + 0.3 * np.sin(spacing))
         >>> pd.plotting.autocorrelation_plot(s)  # doctest: +SKIP
