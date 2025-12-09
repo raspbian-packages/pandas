@@ -4,8 +4,8 @@ import pytest
 
 
 @pytest.fixture
-def xml_data_path():
-    return Path(__file__).parent.parent / "data" / "xml"
+def xml_data_path(datapath):
+    return Path(datapath("io", "data", "xml"))
 
 
 @pytest.fixture
