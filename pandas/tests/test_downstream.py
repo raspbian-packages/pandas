@@ -44,8 +44,8 @@ def test_dask(df):
     olduse = pd.get_option("compute.use_numexpr")
 
     try:
-        pytest.importorskip("toolz")
-        dd = pytest.importorskip("dask.dataframe")
+        td.versioned_importorskip("toolz")
+        dd = td.versioned_importorskip("dask.dataframe")
 
         ddf = dd.from_pandas(df, npartitions=3)
         assert ddf.A is not None
@@ -60,8 +60,8 @@ def test_dask_ufunc():
     olduse = pd.get_option("compute.use_numexpr")
 
     try:
-        da = pytest.importorskip("dask.array")
-        dd = pytest.importorskip("dask.dataframe")
+        da = td.versioned_importorskip("dask.array")
+        dd = td.versioned_importorskip("dask.dataframe")
 
         s = Series([1.5, 2.3, 3.7, 4.0])
         ds = dd.from_pandas(s, npartitions=2)
@@ -76,7 +76,7 @@ def test_dask_ufunc():
 def test_construct_dask_float_array_int_dtype_match_ndarray():
     # GH#40110 make sure we treat a float-dtype dask array with the same
     #  rules we would for an ndarray
-    dd = pytest.importorskip("dask.dataframe")
+    dd = td.versioned_importorskip("dask.dataframe")
 
     arr = np.array([1, 2.5, 3])
     darr = dd.from_array(arr)
@@ -100,15 +100,15 @@ def test_construct_dask_float_array_int_dtype_match_ndarray():
 
 
 def test_xarray(df):
-    pytest.importorskip("xarray")
+    td.versioned_importorskip("xarray")
 
     assert df.to_xarray() is not None
 
 
 def test_xarray_cftimeindex_nearest():
     # https://github.com/pydata/xarray/issues/3751
-    cftime = pytest.importorskip("cftime")
-    xarray = pytest.importorskip("xarray")
+    cftime = td.versioned_importorskip("cftime")
+    xarray = td.versioned_importorskip("xarray")
 
     times = xarray.cftime_range("0001", periods=2)
     key = cftime.DatetimeGregorian(2000, 1, 1)
@@ -140,7 +140,7 @@ def test_oo_optimized_datetime_index_unpickle():
 
 
 def test_statsmodels():
-    smf = pytest.importorskip("statsmodels.formula.api")
+    smf = td.versioned_importorskip("statsmodels.formula.api")
 
     df = DataFrame(
         {"Lottery": range(5), "Literacy": range(5), "Pop1831": range(100, 105)}
@@ -149,7 +149,7 @@ def test_statsmodels():
 
 
 def test_scikit_learn():
-    pytest.importorskip("sklearn")
+    td.versioned_importorskip("sklearn")
     from sklearn import (
         datasets,
         svm,
@@ -162,7 +162,7 @@ def test_scikit_learn():
 
 
 def test_seaborn():
-    seaborn = pytest.importorskip("seaborn")
+    seaborn = td.versioned_importorskip("seaborn")
     tips = DataFrame(
         {"day": pd.date_range("2023", freq="D", periods=5), "total_bill": range(5)}
     )
@@ -170,12 +170,12 @@ def test_seaborn():
 
 
 def test_pandas_datareader():
-    pytest.importorskip("pandas_datareader")
+    td.versioned_importorskip("pandas_datareader")
 
 
 @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
 def test_pyarrow(df):
-    pyarrow = pytest.importorskip("pyarrow")
+    pyarrow = td.versioned_importorskip("pyarrow")
     table = pyarrow.Table.from_pandas(df)
     result = table.to_pandas()
     tm.assert_frame_equal(result, df)
@@ -183,7 +183,7 @@ def test_pyarrow(df):
 
 def test_yaml_dump(df):
     # GH#42748
-    yaml = pytest.importorskip("yaml")
+    yaml = td.versioned_importorskip("yaml")
 
     dumped = yaml.dump(df)
 
@@ -245,8 +245,8 @@ def test_frame_setitem_dask_array_into_new_col(request):
     olduse = pd.get_option("compute.use_numexpr")
 
     try:
-        dask = pytest.importorskip("dask")
-        da = pytest.importorskip("dask.array")
+        dask = td.versioned_importorskip("dask")
+        da = td.versioned_importorskip("dask.array")
         if Version(dask.__version__) <= Version("2025.1.0") and Version(
             np.__version__
         ) >= Version("2.1"):
@@ -353,7 +353,7 @@ def test_dataframe_consortium() -> None:
     Full testing is done at https://github.com/data-apis/dataframe-api-compat,
     this is just to check that the entry point works as expected.
     """
-    pytest.importorskip("dataframe_api_compat")
+    td.versioned_importorskip("dataframe_api_compat")
     df_pd = DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
     df = df_pd.__dataframe_consortium_standard__()
     result_1 = df.get_column_names()
@@ -367,7 +367,7 @@ def test_dataframe_consortium() -> None:
 
 def test_xarray_coerce_unit():
     # GH44053
-    xr = pytest.importorskip("xarray")
+    xr = td.versioned_importorskip("xarray")
 
     arr = xr.DataArray([1, 2, 3])
     result = pd.to_datetime(arr, unit="ns")

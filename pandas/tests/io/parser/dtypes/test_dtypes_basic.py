@@ -8,6 +8,7 @@ from io import StringIO
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import ParserWarning
 
 import pandas as pd
@@ -492,7 +493,7 @@ def test_dtype_backend_ea_dtype_specified(all_parsers):
 
 def test_dtype_backend_pyarrow(all_parsers, request):
     # GH#36712
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     parser = all_parsers
 
     data = """a,b,c,d,e,f,g,h,i,j

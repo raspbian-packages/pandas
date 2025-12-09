@@ -2,6 +2,7 @@ import re
 
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -174,7 +175,7 @@ class TestDatetimeIndex:
 
     def test_getitem_pyarrow_index(self, frame_or_series):
         # GH 53644
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         obj = frame_or_series(
             range(5),
             index=date_range("2020", freq="D", periods=5).astype(

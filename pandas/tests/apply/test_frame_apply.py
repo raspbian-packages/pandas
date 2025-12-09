@@ -4,6 +4,7 @@ import warnings
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import is_platform_arm
 
 from pandas.core.dtypes.dtypes import CategoricalDtype
@@ -38,7 +39,7 @@ def int_frame_const_col():
 @pytest.fixture(params=["python", pytest.param("numba", marks=pytest.mark.single_cpu)])
 def engine(request):
     if request.param == "numba":
-        pytest.importorskip("numba")
+        td.versioned_importorskip("numba")
     return request.param
 
 
@@ -68,7 +69,7 @@ def test_apply(float_frame, engine, request):
 @pytest.mark.parametrize("raw", [True, False])
 def test_apply_args(float_frame, axis, raw, engine, request):
     if engine == "numba":
-        numba = pytest.importorskip("numba")
+        numba = td.versioned_importorskip("numba")
         if Version(numba.__version__) == Version("0.61") and is_platform_arm():
             pytest.skip(f"Segfaults on ARM platforms with numba {numba.__version__}")
         mark = pytest.mark.xfail(reason="numba engine doesn't support args")

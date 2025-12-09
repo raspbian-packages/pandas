@@ -22,7 +22,7 @@ from pandas.util.version import Version
 
 pytestmark = [pytest.mark.single_cpu]
 
-numba = pytest.importorskip("numba")
+numba = td.versioned_importorskip("numba")
 pytestmark.append(
     pytest.mark.skipif(
         Version(numba.__version__) == Version("0.61") and is_platform_arm(),

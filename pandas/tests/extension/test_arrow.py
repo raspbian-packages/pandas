@@ -30,6 +30,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs import lib
 from pandas._libs.tslibs import timezones
 from pandas.compat import (
@@ -63,7 +64,7 @@ from pandas.api.types import (
 )
 from pandas.tests.extension import base
 
-pa = pytest.importorskip("pyarrow")
+pa = td.versioned_importorskip("pyarrow")
 
 from pandas.core.arrays.arrow.array import ArrowExtensionArray
 from pandas.core.arrays.arrow.extension_types import ArrowPeriodType
