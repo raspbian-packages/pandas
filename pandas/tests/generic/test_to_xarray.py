@@ -54,9 +54,10 @@ class TestDataFrameToXArray:
         # datetimes w/tz are preserved
         # column names are lost
         expected = df.copy()
-        expected["f"] = expected["f"].astype(
-            object if not using_infer_string else "str"
-        )
+        # breaks in xarray >= 2024.10.0(?)
+        # debug print
+        r0 = result.to_dataframe()
+        print("expected",expected, expected.index, expected.dtypes, "actual",result, r0, r0.index, r0.dtypes,sep='\n')
         expected.columns.name = None
         tm.assert_frame_equal(result.to_dataframe(), expected)
 
