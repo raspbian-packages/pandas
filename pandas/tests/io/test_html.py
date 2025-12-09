@@ -389,6 +389,7 @@ class TestReadHtml:
     @pytest.mark.slow
     @pytest.mark.network
     @pytest.mark.single_cpu
+    @pytest.mark.xfail(reason="404 object not cleaned up in python 3.14",raises=pytest.PytestUnraisableExceptionWarning,strict=False)
     def test_invalid_url(self, httpserver, flavor_read_html):
         httpserver.serve_content("Name or service not known", code=404)
         with pytest.raises((URLError, ValueError), match="HTTP Error 404: NOT FOUND"):

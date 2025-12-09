@@ -520,6 +520,7 @@ def test_url(httpserver, xml_file):
 
 @pytest.mark.network
 @pytest.mark.single_cpu
+@pytest.mark.xfail(reason="404 object not cleaned up in python 3.14",raises=pytest.PytestUnraisableExceptionWarning,strict=False)
 def test_wrong_url(parser, httpserver):
     httpserver.serve_content("NOT FOUND", code=404)
     with pytest.raises(HTTPError, match=("HTTP Error 404: NOT FOUND")):
