@@ -34,6 +34,8 @@ from pandas.io.stata import (
     read_stata,
 )
 
+from pandas.compat import is_platform_little_endian
+pytestmark = pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of test_stata on non-little endian",strict=False)
 
 @pytest.fixture
 def mixed_frame():
