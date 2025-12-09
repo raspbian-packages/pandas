@@ -1,0 +1,14 @@
+---
+include:
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/salsa-ci.yml
+  - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/pipeline-jobs.yml
+# known not currently reproducible, and the debrebuild output doesn't try to say why, don't waste the resources
+variables:
+  SALSA_CI_DISABLE_DEBREBUILD: 1
+  SALSA_CI_LINTIAN_FAIL_WARNING: 1
+# these do not have obvious equivalents in debrebuild
+# clearer errors from reproducibility test
+#  SALSA_CI_REPROTEST_ENABLE_DIFFOSCOPE: 1
+# tests are long, so don't rerun them
+# shorten the build logs to make room for reporting differences
+#  SALSA_CI_REPROTEST_ARGS: "--append-build-command=-Pnocheck --vary=environment.variables+=DEB_BUILD_OPTIONS=terse"
