@@ -5,7 +5,7 @@ Forwarded: not-needed
 
 --- a/pandas/tests/test_downstream.py
 +++ b/pandas/tests/test_downstream.py
-@@ -193,6 +193,7 @@ def test_yaml_dump(df):
+@@ -194,6 +194,7 @@ def test_yaml_dump(df):
  
  
  @pytest.mark.single_cpu

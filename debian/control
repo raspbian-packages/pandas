@@ -1,16 +1,20 @@
 Source: pandas
-Maintainer: Debian Science Team <debian-science-maintainers@lists.alioth.debian.org>
+Maintainer: Debian Science Maintainers <debian-science-maintainers@lists.alioth.debian.org>
 Uploaders: Yaroslav Halchenko <debian@onerussian.com>,
            Michael Hanke <michael.hanke@gmail.com>,
            Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Section: python
 Priority: optional
-Build-Depends: debhelper-compat (= 13),
-               dh-python,
+Build-Depends: cython3 (>= 3.0.5~),
+               debhelper-compat (= 13),
+               dh-sequence-numpy3,
+               dh-sequence-python3,
+               dh-sequence-sphinxdoc,
                faketime,
                locales-all,
+               meson (>= 1.2.1~),
+               pybuild-plugin-pyproject,
                python3-all-dev,
-               cython3 (>= 3.0.5~),
 # python3-blosc is not actually used (blosc is used through python3-tables instead)
                python3-bottleneck (>= 1.3.6~) <!nocheck> <!nodoc>,
                python3-bs4 (>= 4.11.2~) <!nocheck> <!nodoc>,
@@ -22,6 +26,7 @@ Build-Depends: debhelper-compat (= 13),
                python3-jinja2 (>= 3.1.2~) <!nocheck> <!nodoc>,
                python3-lxml (>= 4.9.2~) <!nocheck> <!nodoc>,
                python3-matplotlib (>= 3.6.3~) [!alpha !hurd-any !loong64 !m68k !powerpc !sh4 !sparc64 !x32] <!nocheck> <!nodoc>,
+               python3-mesonpy (>= 0.13.1~),
 # numba has a history of bugs on non-x86, e.g. #1033907
 # architectures here are the ones on which to treat numba-related failures as RC - see also debian/tests/control
 # temporarily disabled as numba is not in testing #1033907               python3-numba (>= 0.56.4~) [amd64 i386 ppc64el] <!nocheck> <!nodoc>,
@@ -30,9 +35,9 @@ Build-Depends: debhelper-compat (= 13),
                python3-odf (>= 1.4.1~) <!nocheck> <!nodoc>,
                python3-openpyxl (>= 3.1.0~) <!nocheck> <!nodoc>,
 # doesn't seem to work in this test environment               python3-psycopg2 (>= 2.9.6~) <!nocheck> <!nodoc>,
-               python3-py <!nocheck> <!nodoc>,
 # doesn't seem to work in this test environment               python3-pymysql (>= 1.0.2~) <!nocheck> <!nodoc>,
-               python3-pyqt5 (>= 5.15.9~) [!alpha !powerpc !sparc64 !x32] <!nocheck> <!nodoc>,
+               python3-pyqt5 (>= 5.15.9~) <!nocheck> <!nodoc>,
+               python3-pytz (>= 2022.7~) <!nocheck> <!nodoc>,
 # in -indep to reduce circular dependencies python3-pyreadstat,
                python3-pytest (>= 7.3.2~) <!nocheck> <!nodoc>,
                python3-pytest-asyncio (>= 0.17~) <!nocheck> <!nodoc>,
@@ -48,12 +53,10 @@ Build-Depends: debhelper-compat (= 13),
                python3-tables (>= 3.8.0~) [!s390x !hppa !powerpc !ppc64 !sparc64 !hurd-any !alpha] <!nocheck> <!nodoc>,
                python3-tabulate (>= 0.9.0~) <!nocheck> <!nodoc>,
                python3-tk <!nocheck> <!nodoc>,
-               python3-tz (>= 2022.7~) <!nocheck> <!nodoc>,
                python3-xlrd (>= 2.0.1~) <!nocheck> <!nodoc>,
                python3-xlsxwriter (>= 3.0.5~) <!nocheck> <!nodoc>,
                python3-versioneer,
                python3-zstandard (>= 0.19.0~) <!nocheck> <!nodoc>,
-               sphinx-common,
 # for tests/examples that use old-style timezone names
                tzdata-legacy <!nocheck> <!nodoc>,
                xvfb <!nocheck>,
@@ -69,6 +72,7 @@ Build-Depends-Indep: python3-sphinx <!nodoc>,
                      python3-nbconvert (>= 7.11.0~) <!nodoc>,
                      python3-nbsphinx <!nodoc>,
                      python3-numpydoc <!nodoc>,
+                     python3-pickleshare <!nodoc>,
                      python3-pygments <!nodoc>,
                      ipython3 (>= 7.11.1~) <!nodoc>,
                      jdupes <!nodoc>,
@@ -91,11 +95,10 @@ Build-Depends-Indep: python3-sphinx <!nodoc>,
                      python3-pyreadstat (>= 1.2.0~) <!nocheck> <!nodoc>,
                      python3-statsmodels <!nocheck> <!nodoc>,
                      python3-xarray (>= 2022.12.0~) <!nocheck> <!nodoc>,
-Standards-Version: 4.7.0
+Standards-Version: 4.7.2
 Vcs-Browser: https://salsa.debian.org/science-team/pandas
 Vcs-Git: https://salsa.debian.org/science-team/pandas.git
 Homepage: https://pandas.pydata.org/
-Rules-Requires-Root: no
 
 Package: python3-pandas
 Architecture: all
@@ -108,7 +111,7 @@ Depends: ${misc:Depends},
          tzdata
 Recommends: python3-scipy,
             python3-matplotlib,
-            python3-tz,
+            python3-pytz,
 # for faster processing
 # see -lib for python3-numba
             python3-bottleneck,
@@ -154,7 +157,6 @@ Breaks:
         python3-skbio (<< 0.5.9~),
         python3-sklearn-pandas (<= 2.2.0-1.1),
         python3-sunpy (<< 5.1.0-1~),
-# broken tests but probably not broken actual package        python3-tqdm (<= 4.64.1-1),
 # python3-ulmo affected test no longer run but not actually fixed
         python3-ulmo (<= 0.8.8+dfsg1-2),
         python3-upsetplot (<< 0.8.0-3~),
@@ -169,6 +171,8 @@ Breaks:
         augur (<< 24.4.0-1~),
         python3-influxdb (<< 5.3.2-1~),
         python3-statsmodels (<< 0.14.2~),
+# no 2.2 -> 2.3 API breaks, #1111280
+# broken tests but probably not broken actual package        python3-tqdm (<= 4.67.1-5),
 Description: data structures for "relational" or "labeled" data
  pandas is a Python package providing fast, flexible, and expressive
  data structures designed to make working with "relational" or

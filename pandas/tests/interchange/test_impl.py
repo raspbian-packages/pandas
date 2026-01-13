@@ -289,7 +289,7 @@ def test_empty_pyarrow(data):
     expected = pd.DataFrame(data)
     arrow_df = pa_from_dataframe(expected)
     result = from_dataframe(arrow_df)
-    tm.assert_frame_equal(result, expected)
+    tm.assert_frame_equal(result, expected, check_column_type=False)
 
 
 def test_multi_chunk_pyarrow() -> None:
@@ -299,8 +299,7 @@ def test_multi_chunk_pyarrow() -> None:
     table = pa.table([n_legs], names=names)
     with pytest.raises(
         RuntimeError,
-        match="To join chunks a copy is required which is "
-        "forbidden by allow_copy=False",
+        match="Cannot do zero copy conversion into multi-column DataFrame block",
     ):
         pd.api.interchange.from_dataframe(table, allow_copy=False)
 
@@ -424,7 +423,7 @@ def test_large_string():
     td.versioned_importorskip("pyarrow")
     df = pd.DataFrame({"a": ["x"]}, dtype="large_string[pyarrow]")
     result = pd.api.interchange.from_dataframe(df.__dataframe__())
-    expected = pd.DataFrame({"a": ["x"]}, dtype="object")
+    expected = pd.DataFrame({"a": ["x"]}, dtype="str")
     tm.assert_frame_equal(result, expected)
 
 
@@ -445,7 +444,7 @@ def test_non_str_names_w_duplicates():
             "Expected a Series, got a DataFrame. This likely happened because you "
             "called __dataframe__ on a DataFrame which, after converting column "
             r"names to string, resulted in duplicated names: Index\(\['0', '0'\], "
-            r"dtype='object'\). Please rename these columns before using the "
+            r"dtype='(str|object)'\). Please rename these columns before using the "
             "interchange protocol."
         ),
     ):
@@ -473,7 +472,7 @@ def test_non_str_names_w_duplicates():
         ([1.0, 2.25, None], "Float32[pyarrow]", "float32"),
         ([True, False, None], "boolean", "bool"),
         ([True, False, None], "boolean[pyarrow]", "bool"),
-        (["much ado", "about", None], "string[pyarrow_numpy]", "large_string"),
+        (["much ado", "about", None], pd.StringDtype(na_value=np.nan), "large_string"),
         (["much ado", "about", None], "string[pyarrow]", "large_string"),
         (
             [datetime(2020, 1, 1), datetime(2020, 1, 2), None],
@@ -536,7 +535,11 @@ def test_pandas_nullable_with_missing_values(
         ([1.0, 2.25, 5.0], "Float32[pyarrow]", "float32"),
         ([True, False, False], "boolean", "bool"),
         ([True, False, False], "boolean[pyarrow]", "bool"),
-        (["much ado", "about", "nothing"], "string[pyarrow_numpy]", "large_string"),
+        (
+            ["much ado", "about", "nothing"],
+            pd.StringDtype(na_value=np.nan),
+            "large_string",
+        ),
         (["much ado", "about", "nothing"], "string[pyarrow]", "large_string"),
         (
             [datetime(2020, 1, 1), datetime(2020, 1, 2), datetime(2020, 1, 3)],
@@ -602,4 +605,13 @@ def test_empty_dataframe():
     dfi = df.__dataframe__()
     result = pd.api.interchange.from_dataframe(dfi, allow_copy=False)
     expected = pd.DataFrame({"a": []}, dtype="int8")
+    tm.assert_frame_equal(result, expected)
+
+
+def test_from_dataframe_list_dtype():
+    pa = td.versioned_importorskip("pyarrow", "14.0.0")
+    data = {"a": [[1, 2], [4, 5, 6]]}
+    tbl = pa.table(data)
+    result = from_dataframe(tbl)
+    expected = pd.DataFrame(data)
     tm.assert_frame_equal(result, expected)

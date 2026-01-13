@@ -1,11 +1,68 @@
-pandas (2.2.3+dfsg-9+rpi1) trixie-staging; urgency=medium
+pandas (2.3.3+dfsg-3+rpi1) forky-staging; urgency=medium
 
   [changes brought forward from 2.2.3+dfsg-5+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 02 Feb 2025 11:17:13 +0000]
   * Binary-only non-maintainer upload for armhf; no source changes.
   * Rebuild for python 3.13
   * Disable testsuite.
 
- -- Raspbian forward porter <root@raspbian.org>  Wed, 09 Apr 2025 02:40:44 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Tue, 13 Jan 2026 21:57:36 +0000
+
+pandas (2.3.3+dfsg-3) unstable; urgency=medium
+
+  [ Graham Inggs ]
+  * Team upload
+
+  [ Rebecca N. Palmer ]
+  * Tests: accept Python 3.14 wording of (expected) error messages
+    (Closes: #1121955) and ignore new ResourceWarnings,
+    improve cleanup, remove another dependency on python3-py,
+    unconditionally require pyqt5 (Closes: #1119724).
+  * Salsa CI: disable mostly-useless debrebuild.
+
+ -- Graham Inggs <ginggs@debian.org>  Tue, 09 Dec 2025 11:19:37 +0000
+
+pandas (2.3.3+dfsg-2) unstable; urgency=medium
+
+  * Team Upload
+  * Drop unused dependency on RC-buggy python3-py
+  * Drop "Rules-Requires-Root: no": it is the new default value
+
+ -- Alexandre Detiste <tchet@debian.org>  Fri, 24 Oct 2025 08:54:48 +0200
+
+pandas (2.3.3+dfsg-1) unstable; urgency=medium
+
+  * New upstream release. (Closes: #1117200)
+  * Update contributors and patches.
+  * Tests: don't require warnings removed in numexpr 2.13.1.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Mon, 06 Oct 2025 16:54:01 +0100
+
+pandas (2.3.2+dfsg-2) unstable; urgency=medium
+
+  * Revert __version__ to the non-+dfsg form to not break mlpack.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Thu, 18 Sep 2025 15:08:15 +0100
+
+pandas (2.3.2+dfsg-1) pandas2p3; urgency=medium
+
+  * New upstream release.  Update contributors and patches.
+  * Docs reproducibility: fix some more random seeds.
+  * Upload to unstable. (Closes: #1111280)
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Thu, 04 Sep 2025 21:25:53 +0100
+
+pandas (2.3.1+dfsg-1) experimental; urgency=medium
+
+  * New upstream release.  Update contributors and patches.
+  * Upload to experimental, due to potential breakage (see #1111280).
+  * Use pybuild-plugin-pyproject, meson and more modern dh* style.
+  * Docs: build-depend on pickleshare for bookmarks.
+  * Docs reproducibility: strip ipykernel IDs and more times.
+  * Bump Standards-Version to 4.7.2 (no changes needed).
+  * Clean up after tests.
+  * autopkgtest: be less verbose to not overflow the CI log.
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sat, 16 Aug 2025 14:31:43 +0100
 
 pandas (2.2.3+dfsg-9) unstable; urgency=medium
 

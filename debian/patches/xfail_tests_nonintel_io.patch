@@ -9,6 +9,9 @@ armhf TestHDF5Store::test*encoding only sometimes crashes
 (1.1.3+dfsg-1 passed on build but failed autopkgtest)
 
 HDF5 and Stata are known to fail on big-endian architectures
+(the pandas/tests/io/test_common.py patch for hdf5 was removed in
+2.3.1 because that test is currently xfailed upstream for other
+reasons - it may need to be re-added if this is fixed)
 Stata was previously seen to fail on qemu-ppc64el, but not real ppc64el
 
 Author: Andreas Tille <tille@debian.org>, Graham Inggs <ginggs@debian.org>, Yaroslav Halchenko <debian@onerussian.com>, Rebecca N. Palmer <rebecca_palmer@zoho.com>
@@ -18,7 +21,7 @@ Forwarded: no
 
 --- a/pyproject.toml
 +++ b/pyproject.toml
-@@ -495,6 +495,7 @@ filterwarnings = [
+@@ -501,6 +501,7 @@ filterwarnings = [
    "error:::pandas",
    "error::ResourceWarning",
    "error::pytest.PytestUnraisableExceptionWarning",
@@ -39,7 +42,7 @@ Forwarded: no
  
  import numpy as np
  
-@@ -560,6 +564,8 @@ class HDFStore:
+@@ -573,6 +577,8 @@ class HDFStore:
          fletcher32: bool = False,
          **kwargs,
      ) -> None:
@@ -48,7 +51,7 @@ Forwarded: no
          if "format" in kwargs:
              raise ValueError("format is not a defined argument for HDFStore")
  
-@@ -781,7 +787,10 @@ class HDFStore:
+@@ -794,7 +800,10 @@ class HDFStore:
              self._handle.flush()
              if fsync:
                  with suppress(OSError):
@@ -71,7 +74,7 @@ Forwarded: no
  
  import numpy as np
  
-@@ -971,6 +973,8 @@ class StataParser:
+@@ -975,6 +977,8 @@ class StataParser:
          # NOTE: the byte type seems to be reserved for categorical variables
          # with a label, but the underlying variable is -127 to 100
          # we're going to drop the label and cast to int
@@ -93,7 +96,7 @@ Forwarded: no
  
  from pandas.io import pytables
  from pandas.io.pytables import Term
-@@ -297,6 +301,7 @@ def test_complibs(tmp_path, lvl, lib, re
+@@ -319,6 +323,7 @@ def test_complibs(tmp_path, lvl, lib, re
                  assert node.filters.complib == lib
  
  
@@ -101,10 +104,10 @@ Forwarded: no
  @pytest.mark.skipif(
      not is_platform_little_endian(), reason="reason platform is not little endian"
  )
-@@ -329,6 +334,7 @@ def test_encoding(setup_path):
+@@ -351,6 +356,7 @@ def test_encoding(setup_path):
      ],
  )
- @pytest.mark.parametrize("dtype", ["category", object])
+ @pytest.mark.parametrize("dtype", ["category", None])
 +@pytest.mark.xfail(condition=is_crashing_arch,reason="https://bugs.debian.org/790925",strict=False,run=False)
  def test_latin_encoding(tmp_path, setup_path, dtype, val):
      enc = "latin-1"
@@ -120,9 +123,9 @@ Forwarded: no
 +import sys
 +is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
  
- pytestmark = pytest.mark.single_cpu
+ pytestmark = [pytest.mark.single_cpu]
  
-@@ -282,6 +286,7 @@ def test_append_all_nans(setup_path):
+@@ -288,6 +292,7 @@ def test_append_all_nans(setup_path, usi
              tm.assert_frame_equal(store["df2"], df, check_index_type=True)
  
  
@@ -141,9 +144,9 @@ Forwarded: no
 +import sys
 +is_crashing_arch=bool((platform.uname()[4].startswith('arm') or platform.uname()[4].startswith('aarch')) and sys.maxsize<2**33) # meant for armhf, though this form will also skip on armel - uname = kernel arch
  
- pytestmark = pytest.mark.single_cpu
+ pytestmark = [pytest.mark.single_cpu]
  
-@@ -880,6 +884,7 @@ def test_start_stop_fixed(setup_path):
+@@ -890,6 +894,7 @@ def test_start_stop_fixed(setup_path):
          df.iloc[8:10, -2] = np.nan
  
  
@@ -178,7 +181,7 @@ Forwarded: no
  def test_legacy_table_fixed_format_read_datetime_py2(datapath):
      # GH 31750
      # legacy table with fixed format and datetime64 column written in Python 2
-@@ -370,6 +372,7 @@ def test_read_hdf_series_mode_r(tmp_path
+@@ -376,6 +378,7 @@ def test_read_hdf_series_mode_r(tmp_path
  
  @pytest.mark.filterwarnings(r"ignore:Period with BDay freq is deprecated:FutureWarning")
  @pytest.mark.filterwarnings(r"ignore:PeriodDtype\[B\] is deprecated:FutureWarning")
@@ -223,31 +226,6 @@ Forwarded: no
  def test_py2_created_with_datetimez(datapath):
      # The test HDF5 file was created in Python 2, but could not be read in
      # Python 3.
---- a/pandas/tests/io/test_common.py
-+++ b/pandas/tests/io/test_common.py
-@@ -18,7 +18,7 @@ import tempfile
- import numpy as np
- import pytest
- 
--from pandas.compat import is_platform_windows
-+from pandas.compat import is_platform_windows, is_platform_little_endian
- import pandas.util._test_decorators as td
- 
- import pandas as pd
-@@ -305,11 +305,11 @@ Look,a snake,🐍"""
-                 "pyarrow",
-                 ("io", "data", "feather", "feather-0_3_1.feather"),
-             ),
--            (
-+            pytest.param(
-                 pd.read_hdf,
-                 "tables",
-                 ("io", "data", "legacy_hdf", "datetimetz_object.h5"),
--            ),
-+            marks=pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)),
-             (pd.read_stata, "os", ("io", "data", "stata", "stata10_115.dta")),
-             (pd.read_sas, "os", ("io", "sas", "data", "test1.sas7bdat")),
-             (pd.read_json, "os", ("io", "json", "data", "tsframe_v012.json")),
 --- a/pandas/_testing/_warnings.py
 +++ b/pandas/_testing/_warnings.py
 @@ -13,6 +13,7 @@ from typing import (

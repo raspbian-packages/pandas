@@ -29,7 +29,7 @@ Forwarded: no
  
  
  @pytest.mark.parametrize(
-@@ -633,11 +637,13 @@ def test_float_precision_options(c_parse
+@@ -637,11 +641,13 @@ def test_float_precision_options(c_parse
  
      tm.assert_frame_equal(df, df2)
  

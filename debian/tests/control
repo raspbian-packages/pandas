@@ -5,7 +5,7 @@ Depends: python3-pandas
 Restrictions: allow-stderr
 
 # According to pandas/doc/source/install.rst, running the unit tests looks like:
-# `py.test-3 --skip-slow --skip-network /usr/lib/python3/dist-packages/pandas/ -v -rs`
+# `pytest --skip-slow --skip-network /usr/lib/python3/dist-packages/pandas/ -v -rs`
 # Or simply `python3 -c "import pandas as pd; pd.test()"`, which doesn't require
 # us to specify the path (pandas.__path__) in command line.
 # See: pandas/util/_tester.py
@@ -33,7 +33,6 @@ Depends: python3-pandas,
          python3-odf (>= 1.4.1~),
          python3-openpyxl (>= 3.1.0~),
 # doesn't seem to work in this test environment         python3-psycopg2 (>= 2.9.6~),
-         python3-py,
 # doesn't seem to work in this test environment         python3-pymysql (>= 1.0.2~),
          python3-pyqt5 (>= 5.15.9~),
          python3-pyreadstat (>= 1.2.0~),
@@ -43,6 +42,7 @@ Depends: python3-pandas,
          python3-pytest-localserver,
          python3-pytest-xdist (>= 2.2.0~),
          python3-pytestqt (>= 4.2.0~),
+         python3-pytz (>= 2022.7~),
 # we don't have python3-pyxlsb
          python3-scipy (>= 1.10.0~),
          python3-setuptools (>= 51~),
@@ -51,7 +51,6 @@ Depends: python3-pandas,
          python3-tables (>= 3.8.0~) [!s390x !hppa !powerpc !ppc64 !sparc64 !hurd-any !alpha],
          python3-tabulate (>= 0.9.0~),
          python3-tk,
-         python3-tz (>= 2022.7~),
          python3-xarray (>= 2022.12.0~),
          python3-xlrd (>= 2.0.1~),
          python3-xlsxwriter (>= 3.0.5~),
@@ -90,7 +89,6 @@ Depends: python3-pandas,
          python3-odf (>= 1.4.1~),
          python3-openpyxl (>= 3.1.0~),
          python3-psycopg2 (>= 2.9.6~),
-         python3-py,
          python3-pymysql (>= 1.0.2~),
          python3-pyqt5 (>= 5.15.9~),
          python3-pyreadstat (>= 1.2.0~),
@@ -100,6 +98,7 @@ Depends: python3-pandas,
          python3-pytest-localserver,
          python3-pytest-xdist (>= 2.2.0~),
          python3-pytestqt (>= 4.2.0~),
+         python3-pytz (>= 2022.7~),
 # we don't have python3-pyxlsb
          python3-scipy (>= 1.10.0~),
          python3-setuptools (>= 51~),
@@ -108,7 +107,6 @@ Depends: python3-pandas,
          python3-tables (>= 3.8.0~) [!s390x !hppa !powerpc !ppc64 !sparc64 !hurd-any !alpha],
          python3-tabulate (>= 0.9.0~),
          python3-tk,
-         python3-tz (>= 2022.7~),
          python3-xarray (>= 2022.12.0~),
          python3-xlrd (>= 2.0.1~),
          python3-xlsxwriter (>= 3.0.5~),

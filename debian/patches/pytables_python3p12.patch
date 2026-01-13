@@ -11,7 +11,7 @@ Forwarded: no
 
 --- a/pandas/tests/io/pytables/test_append.py
 +++ b/pandas/tests/io/pytables/test_append.py
-@@ -286,7 +286,8 @@ def test_append_all_nans(setup_path):
+@@ -292,7 +292,8 @@ def test_append_all_nans(setup_path, usi
              tm.assert_frame_equal(store["df2"], df, check_index_type=True)
  
  
@@ -42,7 +42,7 @@ Forwarded: no
          np.random.default_rng(2).standard_normal((10, 4)),
 --- a/pandas/tests/io/pytables/test_store.py
 +++ b/pandas/tests/io/pytables/test_store.py
-@@ -884,7 +884,8 @@ def test_start_stop_fixed(setup_path):
+@@ -894,7 +894,8 @@ def test_start_stop_fixed(setup_path):
          df.iloc[8:10, -2] = np.nan
  
  

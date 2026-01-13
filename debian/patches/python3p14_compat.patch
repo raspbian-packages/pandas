@@ -1,0 +1,58 @@
+Description: Be compatible with Python 3.14
+
+Accept new (Python 3.14) wording of error messages
+Ignore some ResourceWarnings
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Bug-Debian: https://bugs.debian.org/1121955
+Forwarded: no
+
+--- pandas-2.3.3+dfsg.orig/pandas/tests/computation/test_eval.py
++++ pandas-2.3.3+dfsg/pandas/tests/computation/test_eval.py
+@@ -177,7 +177,7 @@ class TestEval:
+                 r"only list-like( or dict-like)? objects are allowed to be "
+                 r"passed to (DataFrame\.)?isin\(\), you passed a "
+                 r"(`|')bool(`|')",
+-                "argument of type 'bool' is not iterable",
++                "argument of type 'bool' is not (a container or )?iterable",
+             ]
+         )
+         if cmp_op in ("in", "not in") and not is_list_like(rhs):
+@@ -222,7 +222,7 @@ class TestEval:
+                 r"only list-like( or dict-like)? objects are allowed to be "
+                 r"passed to (DataFrame\.)?isin\(\), you passed a "
+                 r"(`|')float(`|')",
+-                "argument of type 'float' is not iterable",
++                "argument of type 'float' is not (a container or )?iterable",
+             ]
+         )
+         if is_scalar(rhs) and op in skip_these:
+@@ -1092,7 +1092,7 @@ class TestOperations:
+             ex3 = f"1 {op} (x + 1)"
+ 
+             if op in ("in", "not in"):
+-                msg = "argument of type 'int' is not iterable"
++                msg = "argument of type 'int' is not (a container or )?iterable"
+                 with pytest.raises(TypeError, match=msg):
+                     pd.eval(ex, engine=engine, parser=parser)
+             else:
+--- a/pandas/tests/io/test_html.py
++++ b/pandas/tests/io/test_html.py
+@@ -389,6 +389,7 @@ class TestReadHtml:
+     @pytest.mark.slow
+     @pytest.mark.network
+     @pytest.mark.single_cpu
++    @pytest.mark.xfail(reason="404 object not cleaned up in python 3.14",raises=pytest.PytestUnraisableExceptionWarning,strict=False)
+     def test_invalid_url(self, httpserver, flavor_read_html):
+         httpserver.serve_content("Name or service not known", code=404)
+         with pytest.raises((URLError, ValueError), match="HTTP Error 404: NOT FOUND"):
+--- a/pandas/tests/io/xml/test_xml.py
++++ b/pandas/tests/io/xml/test_xml.py
+@@ -520,6 +520,7 @@ def test_url(httpserver, xml_file):
+ 
+ @pytest.mark.network
+ @pytest.mark.single_cpu
++@pytest.mark.xfail(reason="404 object not cleaned up in python 3.14",raises=pytest.PytestUnraisableExceptionWarning,strict=False)
+ def test_wrong_url(parser, httpserver):
+     httpserver.serve_content("NOT FOUND", code=404)
+     with pytest.raises(HTTPError, match=("HTTP Error 404: NOT FOUND")):

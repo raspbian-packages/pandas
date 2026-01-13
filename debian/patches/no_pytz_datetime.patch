@@ -9,7 +9,7 @@ Forwarded: no
 
 --- a/pandas/tests/arrays/test_array.py
 +++ b/pandas/tests/arrays/test_array.py
-@@ -272,7 +272,8 @@ def test_array_copy():
+@@ -306,7 +306,8 @@ def test_array_copy():
      assert tm.shares_memory(a, b)
  
  
@@ -19,7 +19,7 @@ Forwarded: no
  
  
  @pytest.mark.parametrize(
-@@ -313,11 +314,20 @@ cet = pytz.timezone("CET")
+@@ -347,11 +348,20 @@ cet = pytz.timezone("CET")
          ),
          (
              [

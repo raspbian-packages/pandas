@@ -24,6 +24,7 @@ from pandas.core.arrays import (
     DatetimeArray,
     TimedeltaArray,
 )
+from pandas.util.version import Version
 
 
 @pytest.fixture
@@ -232,11 +233,11 @@ def test_missing_required_dependency():
 
 
 @pytest.mark.xfail(
-    condition=True,#not IS64,
-    reason="ignoring https://bugs.debian.org/1094417 to unblock transition",#"dask has different nativesize-int vs int64 type rules",
+    condition=not IS64,
+    reason="dask has different nativesize-int vs int64 type rules",
     strict=False,
 )
-def test_frame_setitem_dask_array_into_new_col():
+def test_frame_setitem_dask_array_into_new_col(request):
     # GH#47128
 
     # dask sets "compute.use_numexpr" to False, so catch the current value
@@ -244,7 +245,14 @@ def test_frame_setitem_dask_array_into_new_col():
     olduse = pd.get_option("compute.use_numexpr")
 
     try:
+        dask = td.versioned_importorskip("dask")
         da = td.versioned_importorskip("dask.array")
+        if Version(dask.__version__) <= Version("2025.1.0") and Version(
+            np.__version__
+        ) >= Version("2.1"):
+            request.applymarker(
+                pytest.mark.xfail(reason="loc.__setitem__ incorrectly mutated column c")
+            )
 
         dda = da.array([1, 2])
         df = DataFrame({"a": ["a", "b"]})

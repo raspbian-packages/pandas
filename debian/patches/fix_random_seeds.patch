@@ -13,6 +13,32 @@ Forwarded: no
  
     baseball = pd.DataFrame(
         {
+--- a/doc/source/user_guide/10min.rst
++++ b/doc/source/user_guide/10min.rst
+@@ -701,6 +701,11 @@ We use the standard convention for refer
+ The ``plt.close`` method is used to `close <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.close.html>`__ a figure window:
+ 
+ .. ipython:: python
++   :suppress:
++
++   np.random.seed(123456)  # for reproducibility
++
++.. ipython:: python
+ 
+    ts = pd.Series(np.random.randn(1000), index=pd.date_range("1/1/2000", periods=1000))
+    ts = ts.cumsum()
+@@ -717,6 +722,11 @@ The ``plt.close`` method is used to `clo
+ :meth:`~DataFrame.plot` plots all columns:
+ 
+ .. ipython:: python
++   :suppress:
++
++   np.random.seed(123456)  # for reproducibility
++
++.. ipython:: python
+ 
+    df = pd.DataFrame(
+        np.random.randn(1000, 4), index=ts.index, columns=["A", "B", "C", "D"]
 --- a/doc/source/user_guide/advanced.rst
 +++ b/doc/source/user_guide/advanced.rst
 @@ -590,6 +590,7 @@ they need to be sorted. As with any inde
@@ -25,13 +51,13 @@ Forwarded: no
     s
 --- a/doc/source/user_guide/visualization.rst
 +++ b/doc/source/user_guide/visualization.rst
-@@ -1086,6 +1086,7 @@ are what constitutes the bootstrap plot.
-    :suppress:
+@@ -1090,6 +1090,7 @@ are what constitutes the bootstrap plot.
+ .. ipython:: python
  
-    np.random.seed(123456)
+    from pandas.plotting import bootstrap_plot
 +   random.seed(123456) # for reproducibility - bootstrap_plot uses random.sample
  
- .. ipython:: python
+    data = pd.Series(np.random.rand(1000))
  
 --- a/pandas/plotting/_core.py
 +++ b/pandas/plotting/_core.py
@@ -69,7 +95,15 @@ Forwarded: no
              ...                    'y': np.random.randn(n)})
 --- a/pandas/plotting/_misc.py
 +++ b/pandas/plotting/_misc.py
-@@ -438,6 +438,8 @@ def bootstrap_plot(
+@@ -204,6 +204,7 @@ def scatter_matrix(
+     .. plot::
+         :context: close-figs
+ 
++        >>> np.random.seed(1234)
+         >>> df = pd.DataFrame(np.random.randn(1000, 4), columns=['A','B','C','D'])
+         >>> pd.plotting.scatter_matrix(df, alpha=0.2)
+         array([[<Axes: xlabel='A', ylabel='A'>, <Axes: xlabel='B', ylabel='A'>,
+@@ -438,6 +439,8 @@ def bootstrap_plot(
      .. plot::
          :context: close-figs
  
@@ -78,7 +112,7 @@ Forwarded: no
          >>> s = pd.Series(np.random.uniform(size=100))
          >>> pd.plotting.bootstrap_plot(s)  # doctest: +SKIP
          <Figure size 640x480 with 6 Axes>
-@@ -597,6 +599,7 @@ def autocorrelation_plot(series: Series,
+@@ -597,6 +600,7 @@ def autocorrelation_plot(series: Series,
      .. plot::
          :context: close-figs
  

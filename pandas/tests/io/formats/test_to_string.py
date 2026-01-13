@@ -11,7 +11,7 @@ import numpy as np
 import pytest
 
 import pandas.util._test_decorators as td
-from pandas._config import using_pyarrow_string_dtype
+from pandas._config import using_string_dtype
 
 from pandas import (
     CategoricalIndex,
@@ -852,7 +852,7 @@ class TestDataFrameToString:
         frame.to_string()
 
     # TODO: split or simplify this test?
-    @pytest.mark.xfail(using_pyarrow_string_dtype(), reason="fix when arrow is default")
+    @pytest.mark.xfail(using_string_dtype(), reason="fix when arrow is default")
     def test_to_string_index_with_nan(self):
         # GH#2850
         df = DataFrame(

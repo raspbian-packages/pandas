@@ -8,6 +8,7 @@ import numpy as np
 import pytest
 
 from pandas.compat import PY312
+from pandas.compat._optional import import_optional_dependency
 from pandas.errors import (
     NumExprClobberingError,
     PerformanceWarning,
@@ -54,6 +55,9 @@ from pandas.core.computation.ops import (
     _unary_math_ops,
 )
 from pandas.core.computation.scope import DEFAULT_GLOBALS
+from pandas.util.version import Version
+
+numexpr = import_optional_dependency("numexpr", errors="ignore")
 
 
 @pytest.fixture(
@@ -173,7 +177,7 @@ class TestEval:
                 r"only list-like( or dict-like)? objects are allowed to be "
                 r"passed to (DataFrame\.)?isin\(\), you passed a "
                 r"(`|')bool(`|')",
-                "argument of type 'bool' is not iterable",
+                "argument of type 'bool' is not (a container or )?iterable",
             ]
         )
         if cmp_op in ("in", "not in") and not is_list_like(rhs):
@@ -218,7 +222,7 @@ class TestEval:
                 r"only list-like( or dict-like)? objects are allowed to be "
                 r"passed to (DataFrame\.)?isin\(\), you passed a "
                 r"(`|')float(`|')",
-                "argument of type 'float' is not iterable",
+                "argument of type 'float' is not (a container or )?iterable",
             ]
         )
         if is_scalar(rhs) and op in skip_these:
@@ -322,7 +326,9 @@ class TestEval:
     def test_floor_division(self, lhs, rhs, engine, parser):
         ex = "lhs // rhs"
 
-        if engine == "python":
+        if engine == "python" or (
+            engine == "numexpr" and Version(numexpr.__version__) >= Version("2.13.0")
+        ):
             res = pd.eval(ex, engine=engine, parser=parser)
             expected = lhs // rhs
             tm.assert_equal(res, expected)
@@ -393,7 +399,7 @@ class TestEval:
 
         # int raises on numexpr
         lhs = DataFrame(np.random.default_rng(2).integers(5, size=(5, 2)))
-        if engine == "numexpr":
+        if engine == "numexpr" and Version(numexpr.__version__) < Version("2.13.0"):
             msg = "couldn't find matching opcode for 'invert"
             with pytest.raises(NotImplementedError, match=msg):
                 pd.eval(expr, engine=engine, parser=parser)
@@ -438,7 +444,7 @@ class TestEval:
 
         # int raises on numexpr
         lhs = Series(np.random.default_rng(2).integers(5, size=5))
-        if engine == "numexpr":
+        if engine == "numexpr" and Version(numexpr.__version__) < Version("2.13.0"):
             msg = "couldn't find matching opcode for 'invert"
             with pytest.raises(NotImplementedError, match=msg):
                 pd.eval(expr, engine=engine, parser=parser)
@@ -558,7 +564,7 @@ class TestEval:
     def test_scalar_unary(self, engine, parser):
         msg = "bad operand type for unary ~: 'float'"
         warn = None
-        if PY312 and not (engine == "numexpr" and parser == "pandas"):
+        if PY312:
             warn = DeprecationWarning
         with pytest.raises(TypeError, match=msg):
             pd.eval("~1.0", engine=engine, parser=parser)
@@ -569,11 +575,11 @@ class TestEval:
         assert pd.eval("-1", parser=parser, engine=engine) == -1
         assert pd.eval("+1", parser=parser, engine=engine) == +1
         with tm.assert_produces_warning(
-            warn, match="Bitwise inversion", check_stacklevel=False, raise_on_extra_warnings=False
+            warn, match="Bitwise inversion", check_stacklevel=False
         ):
             assert pd.eval("~True", parser=parser, engine=engine) == ~True
         with tm.assert_produces_warning(
-            warn, match="Bitwise inversion", check_stacklevel=False, raise_on_extra_warnings=False
+            warn, match="Bitwise inversion", check_stacklevel=False
         ):
             assert pd.eval("~False", parser=parser, engine=engine) == ~False
         assert pd.eval("-True", parser=parser, engine=engine) == -True
@@ -606,11 +612,10 @@ class TestEval:
         )
         tm.assert_numpy_array_equal(result, expected)
 
-    @pytest.mark.parametrize("dtype", [np.float32, np.float64])
     @pytest.mark.parametrize("expr", ["x < -0.1", "-5 > x"])
-    def test_float_comparison_bin_op(self, dtype, expr):
+    def test_float_comparison_bin_op(self, float_numpy_dtype, expr):
         # GH 16363
-        df = DataFrame({"x": np.array([0], dtype=dtype)})
+        df = DataFrame({"x": np.array([0], dtype=float_numpy_dtype)})
         res = df.eval(expr)
         assert res.values == np.array([False])
 
@@ -1087,7 +1092,7 @@ class TestOperations:
             ex3 = f"1 {op} (x + 1)"
 
             if op in ("in", "not in"):
-                msg = "argument of type 'int' is not iterable"
+                msg = "argument of type 'int' is not (a container or )?iterable"
                 with pytest.raises(TypeError, match=msg):
                     pd.eval(ex, engine=engine, parser=parser)
             else:

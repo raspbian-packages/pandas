@@ -57,7 +57,7 @@ Forwarded: no
  import pytest
 --- a/pandas/tests/test_downstream.py
 +++ b/pandas/tests/test_downstream.py
-@@ -31,6 +31,12 @@ def df():
+@@ -32,6 +32,12 @@ def df():
  
  
  def test_dask(df):
@@ -72,7 +72,7 @@ Forwarded: no
      olduse = pd.get_option("compute.use_numexpr")
 --- a/pandas/tests/io/test_common.py
 +++ b/pandas/tests/io/test_common.py
-@@ -200,16 +200,16 @@ Look,a snake,🐍"""
+@@ -203,16 +203,16 @@ Look,a snake,🐍"""
  
          path = os.path.join(HERE, "data", "does_not_exist." + fn_ext)
          msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
@@ -93,7 +93,7 @@ Forwarded: no
          )
          msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
  
-@@ -270,16 +270,16 @@ Look,a snake,🐍"""
+@@ -273,16 +273,16 @@ Look,a snake,🐍"""
          monkeypatch.setattr(icom, "_expand_user", lambda x: os.path.join("foo", x))
  
          msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
@@ -114,7 +114,7 @@ Forwarded: no
          )
          msg8 = rf"Failed to open local file.+does_not_exist\.{fn_ext}"
  
-@@ -610,7 +610,7 @@ def test_bad_encdoing_errors():
+@@ -614,7 +614,7 @@ def test_bad_encdoing_errors():
  
  def test_errno_attribute():
      # GH 13872

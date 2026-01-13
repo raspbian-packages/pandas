@@ -95,10 +95,10 @@ Forwarded: no
 +except ImportError:  # numba not installed
 +    UnsupportedParforsError = ImportError
 +    TypingError = ImportError
+ from pandas.compat import is_platform_arm
  from pandas.errors import NumbaUtilError
  import pandas.util._test_decorators as td
- 
-@@ -186,6 +192,12 @@ class TestEngine:
+@@ -196,6 +202,12 @@ class TestEngine:
          expected = DataFrame({"value": [2.0, 2.0, 2.0]})
          tm.assert_frame_equal(result, expected)
  
@@ -111,7 +111,7 @@ Forwarded: no
      def test_dont_cache_engine_kwargs(self):
          # If the user passes a different set of engine_kwargs don't return the same
          # jitted function
-@@ -326,6 +338,12 @@ class TestTableMethod:
+@@ -336,6 +348,12 @@ class TestTableMethod:
                  f, engine="numba", raw=True
              )
  
@@ -124,7 +124,7 @@ Forwarded: no
      def test_table_method_rolling_methods(
          self,
          axis,
-@@ -408,6 +426,12 @@ class TestTableMethod:
+@@ -418,6 +436,12 @@ class TestTableMethod:
          )
          tm.assert_frame_equal(result, expected)
  
@@ -139,10 +139,10 @@ Forwarded: no
      ):
 --- a/pandas/tests/groupby/aggregate/test_numba.py
 +++ b/pandas/tests/groupby/aggregate/test_numba.py
-@@ -11,6 +11,12 @@ from pandas import (
-     option_context,
+@@ -13,6 +13,12 @@ from pandas import (
  )
  import pandas._testing as tm
+ from pandas.util.version import Version
 +from pandas.compat import IS64
 +try:
 +    from numba.core.errors import UnsupportedParforsError, TypingError
@@ -150,9 +150,9 @@ Forwarded: no
 +    UnsupportedParforsError = ImportError
 +    TypingError = ImportError
  
- pytestmark = pytest.mark.single_cpu
+ pytestmark = [pytest.mark.single_cpu]
  
-@@ -252,6 +258,12 @@ def test_multifunc_numba_vs_cython_serie
+@@ -262,6 +268,12 @@ def test_multifunc_numba_vs_cython_serie
          ),
      ],
  )

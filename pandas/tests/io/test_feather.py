@@ -3,18 +3,20 @@ import numpy as np
 import pytest
 
 import pandas.util._test_decorators as td
+from pandas.compat.pyarrow import (
+    pa_version_under18p0,
+    pa_version_under19p0,
+)
+
 import pandas as pd
 import pandas._testing as tm
-from pandas.core.arrays import (
-    ArrowStringArray,
-    StringArray,
-)
 
 from pandas.io.feather_format import read_feather, to_feather  # isort:skip
 
 pytestmark = pytest.mark.filterwarnings(
     "ignore:Passing a BlockManager to DataFrame:DeprecationWarning"
 )
+
 
 pa = td.versioned_importorskip("pyarrow")
 
@@ -135,8 +137,8 @@ class TestFeather:
     def test_path_pathlib(self):
         df = pd.DataFrame(
             1.1 * np.arange(120).reshape((30, 4)),
-            columns=pd.Index(list("ABCD"), dtype=object),
-            index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+            columns=pd.Index(list("ABCD")),
+            index=pd.Index([f"i-{i}" for i in range(30)]),
         ).reset_index()
         result = tm.round_trip_pathlib(df.to_feather, read_feather)
         tm.assert_frame_equal(df, result)
@@ -144,8 +146,8 @@ class TestFeather:
     def test_path_localpath(self):
         df = pd.DataFrame(
             1.1 * np.arange(120).reshape((30, 4)),
-            columns=pd.Index(list("ABCD"), dtype=object),
-            index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+            columns=pd.Index(list("ABCD")),
+            index=pd.Index([f"i-{i}" for i in range(30)]),
         ).reset_index()
         result = tm.round_trip_localpath(df.to_feather, read_feather)
         tm.assert_frame_equal(df, result)
@@ -153,8 +155,8 @@ class TestFeather:
     def test_passthrough_keywords(self):
         df = pd.DataFrame(
             1.1 * np.arange(120).reshape((30, 4)),
-            columns=pd.Index(list("ABCD"), dtype=object),
-            index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+            columns=pd.Index(list("ABCD")),
+            index=pd.Index([f"i-{i}" for i in range(30)]),
         ).reset_index()
         self.check_round_trip(df, write_kwargs={"version": 1})
 
@@ -168,7 +170,9 @@ class TestFeather:
             res = read_feather(httpserver.url)
         tm.assert_frame_equal(expected, res)
 
-    def test_read_feather_dtype_backend(self, string_storage, dtype_backend):
+    def test_read_feather_dtype_backend(
+        self, string_storage, dtype_backend, using_infer_string
+    ):
         # GH#50765
         df = pd.DataFrame(
             {
@@ -183,24 +187,19 @@ class TestFeather:
             }
         )
 
-        if string_storage == "python":
-            string_array = StringArray(np.array(["a", "b", "c"], dtype=np.object_))
-            string_array_na = StringArray(np.array(["a", "b", pd.NA], dtype=np.object_))
-
-        elif dtype_backend == "pyarrow":
-            from pandas.arrays import ArrowExtensionArray
-
-            string_array = ArrowExtensionArray(pa.array(["a", "b", "c"]))
-            string_array_na = ArrowExtensionArray(pa.array(["a", "b", None]))
-
-        else:
-            string_array = ArrowStringArray(pa.array(["a", "b", "c"]))
-            string_array_na = ArrowStringArray(pa.array(["a", "b", None]))
-
         with tm.ensure_clean() as path:
             to_feather(df, path)
             with pd.option_context("mode.string_storage", string_storage):
                 result = read_feather(path, dtype_backend=dtype_backend)
+
+        if dtype_backend == "pyarrow":
+            pa = td.versioned_importorskip("pyarrow")
+            if using_infer_string:
+                string_dtype = pd.ArrowDtype(pa.large_string())
+            else:
+                string_dtype = pd.ArrowDtype(pa.string())
+        else:
+            string_dtype = pd.StringDtype(string_storage)
 
         expected = pd.DataFrame(
             {
@@ -210,8 +209,8 @@ class TestFeather:
                 "d": pd.Series([1.5, 2.0, 2.5], dtype="Float64"),
                 "e": pd.Series([True, False, pd.NA], dtype="boolean"),
                 "f": pd.Series([True, False, True], dtype="boolean"),
-                "g": string_array,
-                "h": string_array_na,
+                "g": pd.Series(["a", "b", "c"], dtype=string_dtype),
+                "h": pd.Series(["a", "b", None], dtype=string_dtype),
             }
         )
 
@@ -225,6 +224,10 @@ class TestFeather:
                 }
             )
 
+        if using_infer_string:
+            expected.columns = expected.columns.astype(
+                pd.StringDtype(string_storage, na_value=np.nan)
+            )
         tm.assert_frame_equal(result, expected)
 
     def test_int_columns_and_index(self):
@@ -242,12 +245,43 @@ class TestFeather:
             with pytest.raises(ValueError, match=msg):
                 read_feather(path, dtype_backend="numpy")
 
-    def test_string_inference(self, tmp_path):
+    def test_string_inference(self, tmp_path, using_infer_string):
         # GH#54431
         path = tmp_path / "test_string_inference.p"
         df = pd.DataFrame(data={"a": ["x", "y"]})
         df.to_feather(path)
         with pd.option_context("future.infer_string", True):
             result = read_feather(path)
-        expected = pd.DataFrame(data={"a": ["x", "y"]}, dtype="string[pyarrow_numpy]")
+        dtype = pd.StringDtype(na_value=np.nan)
+        expected = pd.DataFrame(
+            data={"a": ["x", "y"]}, dtype=pd.StringDtype(na_value=np.nan)
+        )
+        expected = pd.DataFrame(
+            data={"a": ["x", "y"]},
+            dtype=dtype,
+            columns=pd.Index(
+                ["a"],
+                dtype=object
+                if pa_version_under19p0 and not using_infer_string
+                else dtype,
+            ),
+        )
+        tm.assert_frame_equal(result, expected)
+
+    @pytest.mark.skipif(pa_version_under18p0, reason="not supported before 18.0")
+    def test_string_inference_string_view_type(self, tmp_path):
+        # GH#54798
+        import pyarrow as pa
+        from pyarrow import feather
+
+        path = tmp_path / "string_view.parquet"
+        table = pa.table({"a": pa.array([None, "b", "c"], pa.string_view())})
+        feather.write_feather(table, path)
+
+        with pd.option_context("future.infer_string", True):
+            result = read_feather(path)
+
+            expected = pd.DataFrame(
+                data={"a": [None, "b", "c"]}, dtype=pd.StringDtype(na_value=np.nan)
+            )
         tm.assert_frame_equal(result, expected)

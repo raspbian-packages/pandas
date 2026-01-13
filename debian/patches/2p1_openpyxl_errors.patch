@@ -23,7 +23,7 @@ Forwarded: no
          ) as writer:
 --- a/pandas/tests/io/excel/test_writers.py
 +++ b/pandas/tests/io/excel/test_writers.py
-@@ -1420,6 +1420,8 @@ class TestExcelWriterEngineTests:
+@@ -1423,6 +1423,8 @@ class TestExcelWriterEngineTests:
                      assert isinstance(writer, _XlsxWriter)
                  else:
                      assert isinstance(writer, klass)

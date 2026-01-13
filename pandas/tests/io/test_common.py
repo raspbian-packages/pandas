@@ -18,7 +18,8 @@ import tempfile
 import numpy as np
 import pytest
 
-from pandas.compat import is_platform_windows, is_platform_little_endian
+from pandas.compat import is_platform_windows
+from pandas.compat.pyarrow import pa_version_under19p0
 import pandas.util._test_decorators as td
 
 import pandas as pd
@@ -166,6 +167,8 @@ Look,a snake,🐍"""
         s = StringIO(data)
         with icom.get_handle(s, "rb", is_text=False) as handles:
             df = pa_csv.read_csv(handles.handle).to_pandas()
+            if pa_version_under19p0:
+                expected = expected.astype("object")
             tm.assert_frame_equal(df, expected)
             assert not s.closed
 
@@ -309,7 +312,9 @@ Look,a snake,🐍"""
                 pd.read_hdf,
                 "tables",
                 ("io", "data", "legacy_hdf", "datetimetz_object.h5"),
-            marks=pytest.mark.xfail(condition=not is_platform_little_endian(),reason="known failure of hdf on non-little endian",strict=False,raises=AttributeError)),
+                # cleaned-up in https://github.com/pandas-dev/pandas/pull/57387 on main
+                marks=pytest.mark.xfail(reason="TODO(infer_string)", strict=False),
+            ),
             (pd.read_stata, "os", ("io", "data", "stata", "stata10_115.dta")),
             (pd.read_sas, "os", ("io", "sas", "data", "test1.sas7bdat")),
             (pd.read_json, "os", ("io", "json", "data", "tsframe_v012.json")),
@@ -443,8 +448,8 @@ class TestMMapWrapper:
         with tm.ensure_clean() as path:
             df = pd.DataFrame(
                 1.1 * np.arange(120).reshape((30, 4)),
-                columns=pd.Index(list("ABCD"), dtype=object),
-                index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+                columns=pd.Index(list("ABCD")),
+                index=pd.Index([f"i-{i}" for i in range(30)]),
             )
             df.to_csv(path)
             with pytest.raises(ValueError, match="Unknown engine"):
@@ -459,8 +464,8 @@ class TestMMapWrapper:
         with tm.ensure_clean() as path:
             df = pd.DataFrame(
                 1.1 * np.arange(120).reshape((30, 4)),
-                columns=pd.Index(list("ABCD"), dtype=object),
-                index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+                columns=pd.Index(list("ABCD")),
+                index=pd.Index([f"i-{i}" for i in range(30)]),
             )
             df.to_csv(path, mode="w+b")
             tm.assert_frame_equal(df, pd.read_csv(path, index_col=0))
@@ -477,8 +482,8 @@ class TestMMapWrapper:
         """
         df = pd.DataFrame(
             1.1 * np.arange(120).reshape((30, 4)),
-            columns=pd.Index(list("ABCD"), dtype=object),
-            index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+            columns=pd.Index(list("ABCD")),
+            index=pd.Index([f"i-{i}" for i in range(30)]),
         )
         with tm.ensure_clean() as path:
             with tm.assert_produces_warning(UnicodeWarning):
@@ -508,19 +513,18 @@ def test_is_fsspec_url():
     assert icom.is_fsspec_url("RFC-3986+compliant.spec://something")
 
 
-@pytest.mark.parametrize("encoding", [None, "utf-8"])
 @pytest.mark.parametrize("format", ["csv", "json"])
-def test_codecs_encoding(encoding, format):
+def test_codecs_encoding(format):
     # GH39247
     expected = pd.DataFrame(
         1.1 * np.arange(120).reshape((30, 4)),
-        columns=pd.Index(list("ABCD"), dtype=object),
-        index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+        columns=pd.Index(list("ABCD")),
+        index=pd.Index([f"i-{i}" for i in range(30)]),
     )
     with tm.ensure_clean() as path:
-        with codecs.open(path, mode="w", encoding=encoding) as handle:
+        with open(path, mode="w", encoding="utf-8") as handle:
             getattr(expected, f"to_{format}")(handle)
-        with codecs.open(path, mode="r", encoding=encoding) as handle:
+        with open(path, encoding="utf-8") as handle:
             if format == "csv":
                 df = pd.read_csv(handle, index_col=0)
             else:
@@ -532,8 +536,8 @@ def test_codecs_get_writer_reader():
     # GH39247
     expected = pd.DataFrame(
         1.1 * np.arange(120).reshape((30, 4)),
-        columns=pd.Index(list("ABCD"), dtype=object),
-        index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+        columns=pd.Index(list("ABCD")),
+        index=pd.Index([f"i-{i}" for i in range(30)]),
     )
     with tm.ensure_clean() as path:
         with open(path, "wb") as handle:
@@ -558,8 +562,8 @@ def test_explicit_encoding(io_class, mode, msg):
     # wrong mode is requested
     expected = pd.DataFrame(
         1.1 * np.arange(120).reshape((30, 4)),
-        columns=pd.Index(list("ABCD"), dtype=object),
-        index=pd.Index([f"i-{i}" for i in range(30)], dtype=object),
+        columns=pd.Index(list("ABCD")),
+        index=pd.Index([f"i-{i}" for i in range(30)]),
     )
     with io_class() as buffer:
         with pytest.raises(TypeError, match=msg):

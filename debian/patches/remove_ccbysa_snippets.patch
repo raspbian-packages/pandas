@@ -36,14 +36,14 @@ Forwarded: no - deletes some tests/examples without replacement
 +This page has been removed for copyright reasons.
 --- a/doc/source/user_guide/index.rst
 +++ b/doc/source/user_guide/index.rst
-@@ -87,4 +87,3 @@ Guides
-     scale
+@@ -88,4 +88,3 @@ Guides
      sparse
+     migration-3-strings
      gotchas
 -    cookbook
 --- a/pandas/io/sql.py
 +++ b/pandas/io/sql.py
-@@ -2465,14 +2465,14 @@ def _get_valid_sqlite_name(name: object)
+@@ -2455,14 +2455,14 @@ def _get_valid_sqlite_name(name: object)
      # Replace all " with "".
      # Wrap the entire thing in double quotes.
  
@@ -65,7 +65,7 @@ Forwarded: no - deletes some tests/examples without replacement
  class SQLiteTable(SQLTable):
 --- a/pandas/tests/groupby/test_categorical.py
 +++ b/pandas/tests/groupby/test_categorical.py
-@@ -988,28 +988,6 @@ def test_groupby_empty_with_category():
+@@ -1005,28 +1005,6 @@ def test_groupby_empty_with_category():
      tm.assert_series_equal(result, expected)
  
  
@@ -203,7 +203,7 @@ Forwarded: no - deletes some tests/examples without replacement
      def test_detect_chained_assignment_changing_dtype(
 --- a/pandas/tests/io/parser/common/test_common_basic.py
 +++ b/pandas/tests/io/parser/common/test_common_basic.py
-@@ -381,23 +381,6 @@ def test_trailing_delimiters(all_parsers
+@@ -384,23 +384,6 @@ def test_trailing_delimiters(all_parsers
      tm.assert_frame_equal(result, expected)
  
  

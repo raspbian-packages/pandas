@@ -159,12 +159,11 @@ def test_standardize_mapping():
     dd = collections.defaultdict(list)
     assert isinstance(com.standardize_mapping(dd), partial)
 
-@pytest.mark.xfail(reason="deb_nonversioneer_version patch")
+
 def test_git_version():
     # GH 21295
     git_version = pd.__git_version__
-    assert len(git_version) == 40
-    assert all(c in string.hexdigits for c in git_version)
+    assert git_version == 'not-from-upstream-git'
 
 
 def test_version_tag():

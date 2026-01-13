@@ -60,7 +60,7 @@ Forwarded: no
          # No good reason for this, just what we get on the CI
          df0.loc[0, "DateTimeHi"] += np.timedelta64(1, "ms")
          df0.loc[[2, 3], "DateTimeHi"] -= np.timedelta64(1, "ms")
-@@ -297,7 +300,7 @@ def test_max_sas_date(datapath):
+@@ -299,7 +302,7 @@ def test_max_sas_date(datapath):
          columns=["text", "dt_as_float", "dt_as_dt", "date_as_float", "date_as_date"],
      )
  
@@ -69,7 +69,7 @@ Forwarded: no
          # No good reason for this, just what we get on the CI
          expected.loc[:, "dt_as_dt"] -= np.timedelta64(1, "ms")
  
-@@ -340,7 +343,7 @@ def test_max_sas_date_iterator(datapath)
+@@ -342,7 +345,7 @@ def test_max_sas_date_iterator(datapath)
              columns=col_order,
          ),
      ]
@@ -78,7 +78,7 @@ Forwarded: no
          # No good reason for this, just what we get on the CI
          expected[0].loc[0, "dt_as_dt"] -= np.timedelta64(1, "ms")
          expected[1].loc[0, "dt_as_dt"] -= np.timedelta64(1, "ms")
-@@ -371,7 +374,7 @@ def test_null_date(datapath):
+@@ -373,7 +376,7 @@ def test_null_date(datapath):
              ),
          },
      )

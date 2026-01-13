@@ -8,7 +8,7 @@ Forwarded: no
 
 --- a/pandas/tests/io/pytables/test_file_handling.py
 +++ b/pandas/tests/io/pytables/test_file_handling.py
-@@ -270,7 +270,7 @@ def test_complibs(tmp_path, lvl, lib, re
+@@ -292,7 +292,7 @@ def test_complibs(tmp_path, lvl, lib, re
      # GH14478
      if PY311 and is_platform_linux() and lib == "blosc2" and lvl != 0:
          request.applymarker(

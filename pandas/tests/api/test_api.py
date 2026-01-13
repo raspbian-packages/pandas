@@ -193,6 +193,8 @@ class TestPDApi(Base):
         "_testing",
         "_typing",
     ]
+    if not pd._built_with_meson:
+        private_modules.append("_version")
 
     def test_api(self):
         checkthese = (

@@ -12,7 +12,7 @@ import numpy as np
 import pytest
 
 import pandas.util._test_decorators as td
-from pandas._config import using_pyarrow_string_dtype
+from pandas._config import using_string_dtype
 
 import pandas as pd
 from pandas import (
@@ -1397,9 +1397,7 @@ class TestSeriesFormatting:
         sf = fmt.SeriesFormatter(s, name="\u05e2\u05d1\u05e8\u05d9\u05ea")
         sf._get_footer()  # should not raise exception
 
-    @pytest.mark.xfail(
-        using_pyarrow_string_dtype(), reason="Fixup when arrow is default"
-    )
+    @pytest.mark.xfail(using_string_dtype(), reason="Fixup when arrow is default")
     def test_east_asian_unicode_series(self):
         # not aligned properly because of east asian width
 
@@ -1774,9 +1772,7 @@ class TestSeriesFormatting:
         ncolsizes = len({len(line.strip()) for line in lines})
         assert ncolsizes == 1
 
-    @pytest.mark.xfail(
-        using_pyarrow_string_dtype(), reason="change when arrow is default"
-    )
+    @pytest.mark.xfail(using_string_dtype(), reason="change when arrow is default")
     def test_format_explicit(self):
         test_sers = gen_series_formatting()
         with option_context("display.max_rows", 4, "display.show_dimensions", False):

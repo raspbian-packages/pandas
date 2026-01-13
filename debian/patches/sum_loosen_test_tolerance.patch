@@ -8,7 +8,7 @@ Forwarded: no
 
 --- a/pandas/tests/frame/test_reductions.py
 +++ b/pandas/tests/frame/test_reductions.py
-@@ -344,7 +344,7 @@ class TestDataFrameAnalytics:
+@@ -337,7 +337,7 @@ class TestDataFrameAnalytics:
              np.sum,
              mixed_float_frame.astype("float32"),
              check_dtype=False,

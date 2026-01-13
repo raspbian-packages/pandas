@@ -1086,11 +1086,11 @@ are what constitutes the bootstrap plot.
    :suppress:
 
    np.random.seed(123456)
-   random.seed(123456) # for reproducibility - bootstrap_plot uses random.sample
 
 .. ipython:: python
 
    from pandas.plotting import bootstrap_plot
+   random.seed(123456) # for reproducibility - bootstrap_plot uses random.sample
 
    data = pd.Series(np.random.rand(1000))
 

@@ -8,7 +8,7 @@ Files-Excluded: doc/source/user_guide/cookbook.rst
 Comment: cookbook has around 100 Stack Overflow snippets (CC-BY-SA with possibly inadequate attribution), the other omissions are for non-copyright potential breakage; the generic pandas upstream copyright in * is repeated for other files modified by them (without bothering to keep track of exact years) because the format defines the initial * as applying only to files not listed elsewhere
 
 Files: *
-Copyright: 2008-2024 AQR Capital Management, LLC, Lambda Foundry, Inc., PyData Development Team, Open source contributors
+Copyright: 2008-2025 AQR Capital Management, LLC, Lambda Foundry, Inc., PyData Development Team, Open source contributors
 License: BSD-3
 Comment: Lumped together as notices disagree on which ones are which years.  See contributors_list.txt for a full list of commit authors.  The original source contains some CC-BY-SA snippets by Stack Overflow users (https://stackoverflow.com/users/1114/jeremy-banks, https://stackoverflow.com/users/387251/oliver, https://stackoverflow.com/users/3297752/noah-motion, https://stackoverflow.com/users/925671/bill, https://stackoverflow.com/users/1082349/foobar, https://stackoverflow.com/users/3089209/crantila, https://stackoverflow.com/users/2375855/ojdo, https://stackoverflow.com/users/487339/dsm, https://stackoverflow.com/users/2677943/swenzel), but these may be too small to be copyrightable, and the less trivial ones are patched out in this package
 
@@ -141,7 +141,7 @@ License: BSD-3
 
 Files: debian/*
 Copyright: 2011-2018, Yaroslav Halchenko <debian@onerussian.com>
-           2019-2024, Debian Science Team
+           2019-2025, Debian Science Team
 License: BSD-3
 
 License: BSD-2

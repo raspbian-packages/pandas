@@ -6,7 +6,7 @@ Forwarded: no
 
 --- a/pyproject.toml
 +++ b/pyproject.toml
-@@ -507,6 +507,7 @@ filterwarnings = [
+@@ -513,6 +513,7 @@ filterwarnings = [
    "ignore::ResourceWarning:asyncio",
    # From plotting doctests
    "ignore:More than 20 figures have been opened:RuntimeWarning",

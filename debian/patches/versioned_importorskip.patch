@@ -30,21 +30,19 @@ Forwarded: no
 
 --- a/pandas/_testing/_io.py
 +++ b/pandas/_testing/_io.py
-@@ -107,9 +107,9 @@ def round_trip_localpath(writer, reader,
-     pandas object
-         The original object that was serialized and then re-read.
+@@ -109,7 +109,8 @@ def round_trip_localpath(writer, reader,
      """
--    import pytest
-+    import pandas.util._test_decorators as td
+     import pytest
  
 -    LocalPath = pytest.importorskip("py.path").local
++    import pandas.util._test_decorators as td
 +    LocalPath = td.versioned_importorskip("py.path").local
      if path is None:
          path = "___localpath___"
      with ensure_clean(path) as path:
 --- a/pandas/conftest.py
 +++ b/pandas/conftest.py
-@@ -1816,7 +1816,7 @@ def ip():
+@@ -1901,7 +1901,7 @@ def ip():
  
      Will raise a skip if IPython is not installed.
      """
@@ -53,7 +51,7 @@ Forwarded: no
      from IPython.core.interactiveshell import InteractiveShell
  
      # GH#35711 make sure sqlite history file handle is not leaked
-@@ -1833,7 +1833,7 @@ def spmatrix(request):
+@@ -1918,7 +1918,7 @@ def spmatrix(request):
      """
      Yields scipy sparse matrix classes.
      """
@@ -69,10 +67,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas.core.dtypes.dtypes import CategoricalDtype
+ from pandas.compat import is_platform_arm
  
- import pandas as pd
-@@ -35,7 +36,7 @@ def int_frame_const_col():
+ from pandas.core.dtypes.dtypes import CategoricalDtype
+@@ -38,7 +39,7 @@ def int_frame_const_col():
  @pytest.fixture(params=["python", pytest.param("numba", marks=pytest.mark.single_cpu)])
  def engine(request):
      if request.param == "numba":
@@ -81,17 +79,35 @@ Forwarded: no
      return request.param
  
  
+@@ -68,7 +69,7 @@ def test_apply(float_frame, engine, requ
+ @pytest.mark.parametrize("raw", [True, False])
+ def test_apply_args(float_frame, axis, raw, engine, request):
+     if engine == "numba":
+-        numba = pytest.importorskip("numba")
++        numba = td.versioned_importorskip("numba")
+         if Version(numba.__version__) == Version("0.61") and is_platform_arm():
+             pytest.skip(f"Segfaults on ARM platforms with numba {numba.__version__}")
+         mark = pytest.mark.xfail(reason="numba engine doesn't support args")
 --- a/pandas/tests/apply/test_numba.py
 +++ b/pandas/tests/apply/test_numba.py
-@@ -26,7 +26,7 @@ def test_numba_vs_python_noop(float_fram
+@@ -14,7 +14,7 @@ from pandas.util.version import Version
  
- def test_numba_vs_python_string_index():
-     # GH#56189
+ pytestmark = [td.skip_if_no("numba"), pytest.mark.single_cpu, pytest.mark.skipif()]
+ 
+-numba = pytest.importorskip("numba")
++numba = td.versioned_importorskip("numba")
+ pytestmark.append(
+     pytest.mark.skipif(
+         Version(numba.__version__) == Version("0.61") and is_platform_arm(),
+@@ -110,7 +110,7 @@ def test_numba_nonunique_unsupported(app
+ 
+ 
+ def test_numba_unsupported_dtypes(apply_axis):
 -    pytest.importorskip("pyarrow")
 +    td.versioned_importorskip("pyarrow")
-     df = DataFrame(
-         1,
-         index=Index(["a", "b"], dtype="string[pyarrow_numpy]"),
+     f = lambda x: x
+     df = DataFrame({"a": [1, 2], "b": ["a", "b"], "c": [4, 5]})
+     df["c"] = df["c"].astype("double[pyarrow]")
 --- a/pandas/tests/arrays/categorical/test_warnings.py
 +++ b/pandas/tests/arrays/categorical/test_warnings.py
 @@ -1,12 +1,13 @@
@@ -219,9 +235,9 @@ Forwarded: no
  import pandas as pd
  import pandas._testing as tm
  
-@@ -8,7 +9,7 @@ pytestmark = pytest.mark.filterwarnings(
-     "ignore:Passing a BlockManager to DataFrame:DeprecationWarning"
+@@ -9,7 +10,7 @@ pytestmark = pytest.mark.filterwarnings(
  )
+ 
  
 -pa = pytest.importorskip("pyarrow")
 +pa = td.versioned_importorskip("pyarrow")
@@ -385,15 +401,25 @@ Forwarded: no
  
 --- a/pandas/tests/arrays/string_/test_string.py
 +++ b/pandas/tests/arrays/string_/test_string.py
-@@ -7,6 +7,7 @@ import operator
- import numpy as np
- import pytest
+@@ -66,7 +66,7 @@ def string_dtype_highest_priority(dtype1
  
-+import pandas.util._test_decorators as td
- from pandas.compat.pyarrow import pa_version_under12p0
  
- from pandas.core.dtypes.common import is_dtype_equal
-@@ -486,7 +487,7 @@ def test_fillna_args(dtype, arrow_string
+ def test_dtype_constructor():
+-    pytest.importorskip("pyarrow")
++    td.versioned_importorskip("pyarrow")
+ 
+     with tm.assert_produces_warning(FutureWarning):
+         dtype = pd.StringDtype("pyarrow_numpy")
+@@ -74,7 +74,7 @@ def test_dtype_constructor():
+ 
+ 
+ def test_dtype_equality():
+-    pytest.importorskip("pyarrow")
++    td.versioned_importorskip("pyarrow")
+ 
+     dtype1 = pd.StringDtype("python")
+     dtype2 = pd.StringDtype("pyarrow")
+@@ -596,7 +596,7 @@ def test_fillna_args(dtype):
  
  def test_arrow_array(dtype):
      # protocol added in 0.15.0
@@ -402,24 +428,42 @@ Forwarded: no
      import pyarrow.compute as pc
  
      data = pd.array(["a", "b", "c"], dtype=dtype)
-@@ -502,7 +503,7 @@ def test_arrow_array(dtype):
+@@ -612,7 +612,7 @@ def test_arrow_array(dtype):
  @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
- def test_arrow_roundtrip(dtype, string_storage2, request, using_infer_string):
+ def test_arrow_roundtrip(dtype, string_storage, using_infer_string):
      # roundtrip possible from arrow 1.0.0
 -    pa = pytest.importorskip("pyarrow")
 +    pa = td.versioned_importorskip("pyarrow")
  
-     if using_infer_string and string_storage2 != "pyarrow_numpy":
-         request.applymarker(
-@@ -532,7 +533,7 @@ def test_arrow_load_from_zero_chunks(
-     dtype, string_storage2, request, using_infer_string
- ):
+     data = pd.array(["a", "b", None], dtype=dtype)
+     df = pd.DataFrame({"a": data})
+@@ -640,7 +640,7 @@ def test_arrow_roundtrip(dtype, string_s
+ @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
+ def test_arrow_from_string(using_infer_string):
+     # not roundtrip,  but starting with pyarrow table without pandas metadata
+-    pa = pytest.importorskip("pyarrow")
++    pa = td.versioned_importorskip("pyarrow")
+     table = pa.table({"a": pa.array(["a", "b", None], type=pa.string())})
+ 
+     result = table.to_pandas()
+@@ -655,7 +655,7 @@ def test_arrow_from_string(using_infer_s
+ @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
+ def test_arrow_load_from_zero_chunks(dtype, string_storage, using_infer_string):
      # GH-41040
 -    pa = pytest.importorskip("pyarrow")
 +    pa = td.versioned_importorskip("pyarrow")
  
-     if using_infer_string and string_storage2 != "pyarrow_numpy":
-         request.applymarker(
+     data = pd.array([], dtype=dtype)
+     df = pd.DataFrame({"a": data})
+@@ -821,7 +821,7 @@ def test_isin_string_array(dtype, dtype2
+ 
+ 
+ def test_isin_arrow_string_array(dtype):
+-    pa = pytest.importorskip("pyarrow")
++    pa = td.versioned_importorskip("pyarrow")
+     s = pd.Series(["a", "b", None], dtype=dtype)
+ 
+     result = s.isin(pd.array(["a", "c"], dtype=pd.ArrowDtype(pa.string())))
 --- a/pandas/tests/arrays/string_/test_string_arrow.py
 +++ b/pandas/tests/arrays/string_/test_string_arrow.py
 @@ -19,7 +19,7 @@ from pandas.core.arrays.string_arrow imp
@@ -431,16 +475,16 @@ Forwarded: no
      a = pd.array([pd.NA, pd.NA], dtype=StringDtype("pyarrow"))
      result = a == a
      expected = pd.array([pd.NA, pd.NA], dtype="boolean[pyarrow]")
-@@ -48,7 +48,7 @@ def test_config_bad_storage_raises():
+@@ -51,7 +51,7 @@ def test_config_bad_storage_raises():
  @pytest.mark.parametrize("chunked", [True, False])
- @pytest.mark.parametrize("array", ["numpy", "pyarrow"])
- def test_constructor_not_string_type_raises(array, chunked, arrow_string_storage):
+ @pytest.mark.parametrize("array_lib", ["numpy", "pyarrow"])
+ def test_constructor_not_string_type_raises(array_lib, chunked):
 -    pa = pytest.importorskip("pyarrow")
 +    pa = td.versioned_importorskip("pyarrow")
  
-     array = pa if array in arrow_string_storage else np
+     array_lib = pa if array_lib == "pyarrow" else np
  
-@@ -69,7 +69,7 @@ def test_constructor_not_string_type_rai
+@@ -72,7 +72,7 @@ def test_constructor_not_string_type_rai
  
  @pytest.mark.parametrize("chunked", [True, False])
  def test_constructor_not_string_type_value_dictionary_raises(chunked):
@@ -449,16 +493,25 @@ Forwarded: no
  
      arr = pa.array([1, 2, 3], pa.dictionary(pa.int32(), pa.int32()))
      if chunked:
-@@ -87,7 +87,7 @@ def test_constructor_not_string_type_val
- )
+@@ -88,7 +88,7 @@ def test_constructor_not_string_type_val
+ @pytest.mark.parametrize("string_type", ["string", "large_string"])
  @pytest.mark.parametrize("chunked", [True, False])
- def test_constructor_valid_string_type_value_dictionary(chunked):
+ def test_constructor_valid_string_type_value_dictionary(string_type, chunked):
 -    pa = pytest.importorskip("pyarrow")
 +    pa = td.versioned_importorskip("pyarrow")
  
-     arr = pa.array(["1", "2", "3"], pa.large_string()).dictionary_encode()
+     arr = pa.array(["1", "2", "3"], getattr(pa, string_type)()).dictionary_encode()
      if chunked:
-@@ -99,14 +99,14 @@ def test_constructor_valid_string_type_v
+@@ -102,7 +102,7 @@ def test_constructor_valid_string_type_v
+ @pytest.mark.parametrize("chunked", [True, False])
+ def test_constructor_valid_string_view(chunked):
+     # requires pyarrow>=18 for casting string_view to string
+-    pa = pytest.importorskip("pyarrow", minversion="18")
++    pa = td.versioned_importorskip("pyarrow", min_version="18")
+ 
+     arr = pa.array(["1", "2", "3"], pa.string_view())
+     if chunked:
+@@ -115,14 +115,14 @@ def test_constructor_valid_string_view(c
  
  def test_constructor_from_list():
      # GH#27673
@@ -475,7 +528,7 @@ Forwarded: no
      with pd.option_context("string_storage", "python"):
          ArrowStringArray._from_sequence(["a", None, "c"], dtype="string")
  
-@@ -199,7 +199,7 @@ def test_pyarrow_not_installed_raises():
+@@ -215,7 +215,7 @@ def test_pyarrow_not_installed_raises():
      ],
  )
  def test_setitem(multiple_chunks, key, value, expected):
@@ -484,7 +537,7 @@ Forwarded: no
  
      result = pa.array(list("abcde"))
      expected = pa.array(expected)
-@@ -216,7 +216,7 @@ def test_setitem(multiple_chunks, key, v
+@@ -232,7 +232,7 @@ def test_setitem(multiple_chunks, key, v
  
  
  def test_setitem_invalid_indexer_raises():
@@ -493,22 +546,22 @@ Forwarded: no
  
      arr = ArrowStringArray(pa.array(list("abcde")))
  
-@@ -242,7 +242,7 @@ def test_setitem_invalid_indexer_raises(
- @pytest.mark.parametrize("dtype", ["string[pyarrow]", "string[pyarrow_numpy]"])
- def test_pickle_roundtrip(dtype):
+@@ -258,7 +258,7 @@ def test_setitem_invalid_indexer_raises(
+ @pytest.mark.parametrize("na_value", [pd.NA, np.nan])
+ def test_pickle_roundtrip(na_value):
      # GH 42600
 -    pytest.importorskip("pyarrow")
 +    td.versioned_importorskip("pyarrow")
+     dtype = StringDtype("pyarrow", na_value=na_value)
      expected = pd.Series(range(10), dtype=dtype)
      expected_sliced = expected.head(2)
-     full_pickled = pickle.dumps(expected)
-@@ -259,7 +259,7 @@ def test_pickle_roundtrip(dtype):
+@@ -276,7 +276,7 @@ def test_pickle_roundtrip(na_value):
  
  def test_string_dtype_error_message():
      # GH#55051
 -    pytest.importorskip("pyarrow")
 +    td.versioned_importorskip("pyarrow")
-     msg = "Storage must be 'python', 'pyarrow' or 'pyarrow_numpy'."
+     msg = "Storage must be 'python' or 'pyarrow'."
      with pytest.raises(ValueError, match=msg):
          StringDtype("bla")
 --- a/pandas/tests/computation/test_compat.py
@@ -540,7 +593,7 @@ Forwarded: no
      assert res == 3
 --- a/pandas/tests/copy_view/test_astype.py
 +++ b/pandas/tests/copy_view/test_astype.py
-@@ -45,7 +45,7 @@ def test_astype_single_dtype(using_copy_
+@@ -46,7 +46,7 @@ def test_astype_single_dtype(using_copy_
  @pytest.mark.parametrize("new_dtype", ["int64", "Int64", "int64[pyarrow]"])
  def test_astype_avoids_copy(using_copy_on_write, dtype, new_dtype):
      if new_dtype == "int64[pyarrow]":
@@ -549,7 +602,7 @@ Forwarded: no
      df = DataFrame({"a": [1, 2, 3]}, dtype=dtype)
      df_orig = df.copy()
      df2 = df.astype(new_dtype)
-@@ -70,7 +70,7 @@ def test_astype_avoids_copy(using_copy_o
+@@ -71,7 +71,7 @@ def test_astype_avoids_copy(using_copy_o
  @pytest.mark.parametrize("dtype", ["float64", "int32", "Int32", "int32[pyarrow]"])
  def test_astype_different_target_dtype(using_copy_on_write, dtype):
      if dtype == "int32[pyarrow]":
@@ -558,7 +611,7 @@ Forwarded: no
      df = DataFrame({"a": [1, 2, 3]})
      df_orig = df.copy()
      df2 = df.astype(dtype)
-@@ -198,7 +198,7 @@ def test_astype_different_timezones_diff
+@@ -219,7 +219,7 @@ def test_astype_different_timezones_diff
  
  
  def test_astype_arrow_timestamp(using_copy_on_write):
@@ -569,7 +622,7 @@ Forwarded: no
              "a": [
 --- a/pandas/tests/dtypes/test_common.py
 +++ b/pandas/tests/dtypes/test_common.py
-@@ -214,7 +214,7 @@ def test_is_sparse(check_scipy):
+@@ -216,7 +216,7 @@ def test_is_sparse(check_scipy):
  
  
  def test_is_scipy_sparse():
@@ -588,7 +641,7 @@ Forwarded: no
  from pandas._libs import (
      lib,
      missing as libmissing,
-@@ -1984,7 +1985,7 @@ def test_nan_to_nat_conversions():
+@@ -2009,7 +2010,7 @@ def test_nan_to_nat_conversions():
  
  @pytest.mark.filterwarnings("ignore::PendingDeprecationWarning")
  def test_is_scipy_sparse(spmatrix):
@@ -599,7 +652,15 @@ Forwarded: no
  
 --- a/pandas/tests/extension/test_arrow.py
 +++ b/pandas/tests/extension/test_arrow.py
-@@ -62,7 +62,7 @@ from pandas.api.types import (
+@@ -30,6 +30,7 @@ import re
+ import numpy as np
+ import pytest
+ 
++import pandas.util._test_decorators as td
+ from pandas._libs import lib
+ from pandas._libs.tslibs import timezones
+ from pandas.compat import (
+@@ -63,7 +64,7 @@ from pandas.api.types import (
  )
  from pandas.tests.extension import base
  
@@ -615,10 +676,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- import pandas as pd
- import pandas._testing as tm
- from pandas.api.types import is_string_dtype
-@@ -35,7 +36,7 @@ def maybe_split_array(arr, chunked):
+ from pandas.compat import HAS_PYARROW
+ 
+ from pandas.core.dtypes.base import StorageExtensionDtype
+@@ -40,7 +41,7 @@ def maybe_split_array(arr, chunked):
      elif arr.dtype.storage != "pyarrow":
          return arr
  
@@ -627,29 +688,9 @@ Forwarded: no
  
      arrow_array = arr._pa_array
      split = len(arrow_array) // 2
---- a/pandas/tests/frame/indexing/test_indexing.py
-+++ b/pandas/tests/frame/indexing/test_indexing.py
-@@ -1945,7 +1945,7 @@ def test_adding_new_conditional_column()
- )
- def test_adding_new_conditional_column_with_string(dtype, infer_string) -> None:
-     # https://github.com/pandas-dev/pandas/issues/56204
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
- 
-     df = DataFrame({"a": [1, 2], "b": [3, 4]})
-     with pd.option_context("future.infer_string", infer_string):
-@@ -1958,7 +1958,7 @@ def test_adding_new_conditional_column_w
- 
- def test_add_new_column_infer_string():
-     # GH#55366
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
-     df = DataFrame({"x": [1]})
-     with pd.option_context("future.infer_string", True):
-         df.loc[df["x"] == 1, "y"] = "1"
 --- a/pandas/tests/frame/indexing/test_setitem.py
 +++ b/pandas/tests/frame/indexing/test_setitem.py
-@@ -760,7 +760,7 @@ class TestDataFrameSetItem:
+@@ -779,7 +779,7 @@ class TestDataFrameSetItem:
  
      def test_setitem_string_option_object_index(self):
          # GH#55638
@@ -660,7 +701,7 @@ Forwarded: no
              df["b"] = Index(["a", "b"], dtype=object)
 --- a/pandas/tests/frame/methods/test_astype.py
 +++ b/pandas/tests/frame/methods/test_astype.py
-@@ -893,7 +893,7 @@ def test_frame_astype_no_copy():
+@@ -897,7 +897,7 @@ def test_frame_astype_no_copy():
  @pytest.mark.parametrize("dtype", ["int64", "Int64"])
  def test_astype_copies(dtype):
      # GH#50984
@@ -679,7 +720,7 @@ Forwarded: no
  import pandas as pd
  import pandas._testing as tm
  
-@@ -49,7 +50,7 @@ class TestConvertDtypes:
+@@ -45,7 +46,7 @@ class TestConvertDtypes:
          assert result.columns.name == "cols"
  
      def test_pyarrow_dtype_backend(self):
@@ -688,7 +729,7 @@ Forwarded: no
          df = pd.DataFrame(
              {
                  "a": pd.Series([1, 2, 3], dtype=np.dtype("int32")),
-@@ -105,13 +106,13 @@ class TestConvertDtypes:
+@@ -101,13 +102,13 @@ class TestConvertDtypes:
          tm.assert_frame_equal(result, expected)
  
      def test_pyarrow_dtype_backend_already_pyarrow(self):
@@ -704,7 +745,7 @@ Forwarded: no
          df = pd.DataFrame(
              {
                  "a": pd.Series([1, 2, None], dtype="Int32"),
-@@ -135,7 +136,7 @@ class TestConvertDtypes:
+@@ -131,7 +132,7 @@ class TestConvertDtypes:
  
      def test_pyarrow_dtype_empty_object(self):
          # GH 50970
@@ -713,7 +754,7 @@ Forwarded: no
          expected = pd.DataFrame(columns=[0])
          result = expected.convert_dtypes(dtype_backend="pyarrow")
          tm.assert_frame_equal(result, expected)
-@@ -152,7 +153,7 @@ class TestConvertDtypes:
+@@ -148,7 +149,7 @@ class TestConvertDtypes:
  
      def test_pyarrow_backend_no_conversion(self):
          # GH#52872
@@ -722,7 +763,7 @@ Forwarded: no
          df = pd.DataFrame({"a": [1, 2], "b": 1.5, "c": True, "d": "x"})
          expected = df.copy()
          result = df.convert_dtypes(
-@@ -166,7 +167,7 @@ class TestConvertDtypes:
+@@ -162,7 +163,7 @@ class TestConvertDtypes:
  
      def test_convert_dtypes_pyarrow_to_np_nullable(self):
          # GH 53648
@@ -731,7 +772,7 @@ Forwarded: no
          ser = pd.DataFrame(range(2), dtype="int32[pyarrow]")
          result = ser.convert_dtypes(dtype_backend="numpy_nullable")
          expected = pd.DataFrame(range(2), dtype="Int32")
-@@ -174,7 +175,7 @@ class TestConvertDtypes:
+@@ -170,7 +171,7 @@ class TestConvertDtypes:
  
      def test_convert_dtypes_pyarrow_timestamp(self):
          # GH 54191
@@ -796,7 +837,7 @@ Forwarded: no
          df = DataFrame({"a": [1, 0], "b": [1, 0], "c": ["x", "y"]})
          expected = DataFrame(np.ones((2, 2)), index=["a", "b"], columns=["a", "b"])
          if numeric_only:
-@@ -433,7 +433,7 @@ class TestDataFrameCorrWith:
+@@ -432,7 +432,7 @@ class TestDataFrameCorrWith:
  
      def test_corrwith_spearman(self):
          # GH#21925
@@ -805,7 +846,7 @@ Forwarded: no
          df = DataFrame(np.random.default_rng(2).random(size=(100, 3)))
          result = df.corrwith(df**2, method="spearman")
          expected = Series(np.ones(len(result)))
-@@ -441,7 +441,7 @@ class TestDataFrameCorrWith:
+@@ -440,7 +440,7 @@ class TestDataFrameCorrWith:
  
      def test_corrwith_kendall(self):
          # GH#21925
@@ -814,7 +855,7 @@ Forwarded: no
          df = DataFrame(np.random.default_rng(2).random(size=(100, 3)))
          result = df.corrwith(df**2, method="kendall")
          expected = Series(np.ones(len(result)))
-@@ -449,7 +449,7 @@ class TestDataFrameCorrWith:
+@@ -448,7 +448,7 @@ class TestDataFrameCorrWith:
  
      def test_corrwith_spearman_with_tied_data(self):
          # GH#48826
@@ -868,21 +909,21 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
+ from pandas._config import using_string_dtype
+ 
  from pandas.compat import (
-     IS64,
-     PYPY,
-@@ -527,7 +528,7 @@ def test_memory_usage_empty_no_warning()
+@@ -549,7 +550,7 @@ def test_memory_usage_empty_no_warning(u
  @pytest.mark.single_cpu
  def test_info_compute_numba():
      # GH#51922
--    pytest.importorskip("numba")
-+    td.versioned_importorskip("numba")
+-    numba = pytest.importorskip("numba")
++    numba = td.versioned_importorskip("numba")
+     if Version(numba.__version__) == Version("0.61") and is_platform_arm():
+         pytest.skip(f"Segfaults on ARM platforms with numba {numba.__version__}")
      df = DataFrame([[1, 2], [3, 4]])
- 
-     with option_context("compute.use_numba", True):
 --- a/pandas/tests/frame/methods/test_interpolate.py
 +++ b/pandas/tests/frame/methods/test_interpolate.py
-@@ -213,7 +213,7 @@ class TestDataFrameInterpolate:
+@@ -218,7 +218,7 @@ class TestDataFrameInterpolate:
              df.interpolate(method="values")
  
      def test_interp_various(self):
@@ -891,7 +932,7 @@ Forwarded: no
          df = DataFrame(
              {"A": [1, 2, np.nan, 4, 5, np.nan, 7], "C": [1, 2, 3, 5, 8, 13, 21]}
          )
-@@ -252,7 +252,7 @@ class TestDataFrameInterpolate:
+@@ -257,7 +257,7 @@ class TestDataFrameInterpolate:
          tm.assert_frame_equal(result, expected, check_dtype=False)
  
      def test_interp_alt_scipy(self):
@@ -900,7 +941,7 @@ Forwarded: no
          df = DataFrame(
              {"A": [1, 2, np.nan, 4, 5, np.nan, 7], "C": [1, 2, 3, 5, 8, 13, 21]}
          )
-@@ -541,7 +541,7 @@ class TestDataFrameInterpolate:
+@@ -549,7 +549,7 @@ class TestDataFrameInterpolate:
      )
      def test_interpolate_arrow(self, dtype):
          # GH#55347
@@ -965,15 +1006,6 @@ Forwarded: no
  
          xs = np.random.default_rng(2).integers(0, 21, (100, 26))
          xs = (xs - 10.0) / 10.0
-@@ -503,7 +504,7 @@ class TestRank:
-     )
-     def test_rank_string_dtype(self, dtype, exp_dtype):
-         # GH#55362
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         obj = Series(["foo", "foo", None, "foo"], dtype=dtype)
-         result = obj.rank(method="first")
-         expected = Series([1, 2, None, 3], dtype=exp_dtype)
 --- a/pandas/tests/frame/test_api.py
 +++ b/pandas/tests/frame/test_api.py
 @@ -5,6 +5,7 @@ import pydoc
@@ -981,10 +1013,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas._config import using_pyarrow_string_dtype
+ from pandas._config import using_string_dtype
  from pandas._config.config import option_context
  
-@@ -288,7 +289,7 @@ class TestDataFrameMisc:
+@@ -292,7 +293,7 @@ class TestDataFrameMisc:
  
      def test_tab_complete_warning(self, ip, frame_or_series):
          # GH 16409
@@ -993,15 +1025,6 @@ Forwarded: no
          from IPython.core.completer import provisionalcompleter
  
          if frame_or_series is DataFrame:
-@@ -383,7 +384,7 @@ class TestDataFrameMisc:
- 
-     def test_inspect_getmembers(self):
-         # GH38740
--        pytest.importorskip("jinja2")
-+        td.versioned_importorskip("jinja2")
-         df = DataFrame()
-         msg = "DataFrame._data is deprecated"
-         with tm.assert_produces_warning(
 --- a/pandas/tests/frame/test_arrow_interface.py
 +++ b/pandas/tests/frame/test_arrow_interface.py
 @@ -6,7 +6,7 @@ import pandas.util._test_decorators as t
@@ -1015,34 +1038,7 @@ Forwarded: no
  @td.skip_if_no("pyarrow", min_version="14.0")
 --- a/pandas/tests/frame/test_constructors.py
 +++ b/pandas/tests/frame/test_constructors.py
-@@ -2704,7 +2704,7 @@ class TestDataFrameConstructors:
- 
-     def test_frame_string_inference(self):
-         # GH#54430
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         dtype = "string[pyarrow_numpy]"
-         expected = DataFrame(
-             {"a": ["a", "b"]}, dtype=dtype, columns=Index(["a"], dtype=dtype)
-@@ -2739,7 +2739,7 @@ class TestDataFrameConstructors:
- 
-     def test_frame_string_inference_array_string_dtype(self):
-         # GH#54496
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         dtype = "string[pyarrow_numpy]"
-         expected = DataFrame(
-             {"a": ["a", "b"]}, dtype=dtype, columns=Index(["a"], dtype=dtype)
-@@ -2764,7 +2764,7 @@ class TestDataFrameConstructors:
- 
-     def test_frame_string_inference_block_dim(self):
-         # GH#55363
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         with pd.option_context("future.infer_string", True):
-             df = DataFrame(np.array([["hello", "goodbye"], ["hello", "Hello"]]))
-         assert df._mgr.blocks[0].ndim == 2
-@@ -2852,7 +2852,7 @@ class TestDataFrameConstructorIndexInfer
+@@ -2891,7 +2891,7 @@ class TestDataFrameConstructorIndexInfer
      )
      def test_dict_data_arrow_column_expansion(self, key_val, col_vals, col_type):
          # GH 53617
@@ -1053,7 +1049,7 @@ Forwarded: no
          )
 --- a/pandas/tests/frame/test_query_eval.py
 +++ b/pandas/tests/frame/test_query_eval.py
-@@ -1384,7 +1384,7 @@ class TestDataFrameQueryBacktickQuoting:
+@@ -1396,7 +1396,7 @@ class TestDataFrameQueryBacktickQuoting:
      @pytest.mark.parametrize("dtype", ["int64", "Int64", "int64[pyarrow]"])
      def test_query_ea_dtypes(self, dtype):
          if dtype == "int64[pyarrow]":
@@ -1062,7 +1058,7 @@ Forwarded: no
          # GH#50261
          df = DataFrame({"a": Series([1, 2], dtype=dtype)})
          ref = {2}  # noqa: F841
-@@ -1402,7 +1402,7 @@ class TestDataFrameQueryBacktickQuoting:
+@@ -1414,7 +1414,7 @@ class TestDataFrameQueryBacktickQuoting:
          if engine == "numexpr" and not NUMEXPR_INSTALLED:
              pytest.skip("numexpr not installed")
          if dtype == "int64[pyarrow]":
@@ -1073,7 +1069,7 @@ Forwarded: no
          )
 --- a/pandas/tests/frame/test_reductions.py
 +++ b/pandas/tests/frame/test_reductions.py
-@@ -369,7 +369,7 @@ class TestDataFrameAnalytics:
+@@ -362,7 +362,7 @@ class TestDataFrameAnalytics:
          )
  
      def test_stat_op_calc_skew_kurtosis(self, float_frame_with_na):
@@ -1082,7 +1078,7 @@ Forwarded: no
  
          def skewness(x):
              if len(x) < 3:
-@@ -1162,7 +1162,7 @@ class TestDataFrameAnalytics:
+@@ -1146,7 +1146,7 @@ class TestDataFrameAnalytics:
  
      def test_idxmax_arrow_types(self):
          # GH#55368
@@ -1091,7 +1087,7 @@ Forwarded: no
  
          df = DataFrame({"a": [2, 3, 1], "b": [2, 1, 1]}, dtype="int64[pyarrow]")
          result = df.idxmax()
-@@ -2020,7 +2020,7 @@ def test_reduction_axis_none_returns_sca
+@@ -1996,7 +1996,7 @@ def test_reduction_axis_none_returns_sca
      result = getattr(df, method)(axis=None, numeric_only=numeric_only)
      np_arr = df.to_numpy(dtype=np.float64)
      if method in {"skew", "kurt"}:
@@ -1107,10 +1103,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas._config import using_pyarrow_string_dtype
- 
  from pandas import (
-@@ -287,7 +288,7 @@ NaT   4"""
+     NA,
+     Categorical,
+@@ -284,7 +285,7 @@ NaT   4"""
              assert "StringCol" in repr(df)
  
      def test_latex_repr(self):
@@ -1119,7 +1115,7 @@ Forwarded: no
          expected = r"""\begin{tabular}{llll}
  \toprule
   & 0 & 1 & 2 \\
-@@ -475,7 +476,7 @@ NaT   4"""
+@@ -472,7 +473,7 @@ NaT   4"""
  
      def test_repr_ea_columns(self, any_string_dtype):
          # GH#54797
@@ -1195,12 +1191,12 @@ Forwarded: no
  from pandas import (
      Categorical,
      DataFrame,
-@@ -10,7 +11,7 @@ from pandas import (
- )
+@@ -12,7 +13,7 @@ from pandas import (
  import pandas._testing as tm
+ from pandas.util.version import Version
  
--pytest.importorskip("xarray")
-+td.versioned_importorskip("xarray")
+-xarray = pytest.importorskip("xarray")
++xarray = td.versioned_importorskip("xarray")
  
  
  class TestDataFrameToXArray:
@@ -1211,10 +1207,19 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
+ from pandas.compat import is_platform_arm
  from pandas.errors import NumbaUtilError
  
- from pandas import (
-@@ -22,7 +23,7 @@ pytestmark = pytest.mark.single_cpu
+@@ -22,7 +23,7 @@ except ImportError:  # numba not install
+ 
+ pytestmark = [pytest.mark.single_cpu]
+ 
+-numba = pytest.importorskip("numba")
++numba = td.versioned_importorskip("numba")
+ pytestmark.append(
+     pytest.mark.skipif(
+         Version(numba.__version__) == Version("0.61") and is_platform_arm(),
+@@ -32,7 +33,7 @@ pytestmark.append(
  
  
  def test_correct_function_signature():
@@ -1223,7 +1228,7 @@ Forwarded: no
  
      def incorrect_function(x):
          return sum(x) * 2.7
-@@ -39,7 +40,7 @@ def test_correct_function_signature():
+@@ -49,7 +50,7 @@ def test_correct_function_signature():
  
  
  def test_check_nopython_kwargs():
@@ -1232,7 +1237,7 @@ Forwarded: no
  
      def incorrect_function(values, index):
          return sum(values) * 2.7
-@@ -61,7 +62,7 @@ def test_check_nopython_kwargs():
+@@ -71,7 +72,7 @@ def test_check_nopython_kwargs():
  @pytest.mark.parametrize("pandas_obj", ["Series", "DataFrame"])
  @pytest.mark.parametrize("as_index", [True, False])
  def test_numba_vs_cython(jit, pandas_obj, nogil, parallel, nopython, as_index):
@@ -1241,7 +1246,7 @@ Forwarded: no
  
      def func_numba(values, index):
          return np.mean(values) * 2.7
-@@ -92,7 +93,7 @@ def test_numba_vs_cython(jit, pandas_obj
+@@ -102,7 +103,7 @@ def test_numba_vs_cython(jit, pandas_obj
  @pytest.mark.parametrize("pandas_obj", ["Series", "DataFrame"])
  def test_cache(jit, pandas_obj, nogil, parallel, nopython):
      # Test that the functions are cached correctly if we switch functions
@@ -1250,7 +1255,7 @@ Forwarded: no
  
      def func_1(values, index):
          return np.mean(values) - 3.4
-@@ -130,7 +131,7 @@ def test_cache(jit, pandas_obj, nogil, p
+@@ -140,7 +141,7 @@ def test_cache(jit, pandas_obj, nogil, p
  
  
  def test_use_global_config():
@@ -1259,7 +1264,7 @@ Forwarded: no
  
      def func_1(values, index):
          return np.mean(values) - 3.4
-@@ -155,7 +156,7 @@ def test_use_global_config():
+@@ -165,7 +166,7 @@ def test_use_global_config():
      ],
  )
  def test_multifunc_numba_vs_cython_frame(agg_kwargs):
@@ -1268,7 +1273,7 @@ Forwarded: no
      data = DataFrame(
          {
              0: ["a", "a", "b", "b", "a"],
-@@ -190,7 +191,7 @@ def test_multifunc_numba_vs_cython_frame
+@@ -200,7 +201,7 @@ def test_multifunc_numba_vs_cython_frame
      ],
  )
  def test_multifunc_numba_udf_frame(agg_kwargs, expected_func):
@@ -1277,7 +1282,7 @@ Forwarded: no
      data = DataFrame(
          {
              0: ["a", "a", "b", "b", "a"],
-@@ -212,7 +213,7 @@ def test_multifunc_numba_udf_frame(agg_k
+@@ -222,7 +223,7 @@ def test_multifunc_numba_udf_frame(agg_k
      [{"func": ["min", "max"]}, {"func": "min"}, {"min_val": "min", "max_val": "max"}],
  )
  def test_multifunc_numba_vs_cython_series(agg_kwargs):
@@ -1286,7 +1291,7 @@ Forwarded: no
      labels = ["a", "a", "b", "b", "a"]
      data = Series([1.0, 2.0, 3.0, 4.0, 5.0])
      grouped = data.groupby(labels)
-@@ -265,7 +266,7 @@ def test_multifunc_numba_vs_cython_serie
+@@ -275,7 +276,7 @@ def test_multifunc_numba_vs_cython_serie
      strict=False,
  )
  def test_multifunc_numba_kwarg_propagation(data, agg_kwargs):
@@ -1295,7 +1300,7 @@ Forwarded: no
      labels = ["a", "a", "b", "b", "a"]
      grouped = data.groupby(labels)
      result = grouped.agg(**agg_kwargs, engine="numba", engine_kwargs={"parallel": True})
-@@ -278,7 +279,7 @@ def test_multifunc_numba_kwarg_propagati
+@@ -288,7 +289,7 @@ def test_multifunc_numba_kwarg_propagati
  
  def test_args_not_cached():
      # GH 41647
@@ -1304,7 +1309,7 @@ Forwarded: no
  
      def sum_last(values, index, n):
          return values[-n:].sum()
-@@ -296,7 +297,7 @@ def test_args_not_cached():
+@@ -306,7 +307,7 @@ def test_args_not_cached():
  
  def test_index_data_correctly_passed():
      # GH 43133
@@ -1313,7 +1318,7 @@ Forwarded: no
  
      def f(values, index):
          return np.mean(index)
-@@ -312,7 +313,7 @@ def test_index_data_correctly_passed():
+@@ -322,7 +323,7 @@ def test_index_data_correctly_passed():
  def test_engine_kwargs_not_cached():
      # If the user passes a different set of engine_kwargs don't return the same
      # jitted function
@@ -1322,7 +1327,7 @@ Forwarded: no
      nogil = True
      parallel = False
      nopython = True
-@@ -339,7 +340,7 @@ def test_engine_kwargs_not_cached():
+@@ -349,7 +350,7 @@ def test_engine_kwargs_not_cached():
  
  @pytest.mark.filterwarnings("ignore")
  def test_multiindex_one_key(nogil, parallel, nopython):
@@ -1331,7 +1336,7 @@ Forwarded: no
  
      def numba_func(values, index):
          return 1
-@@ -354,7 +355,7 @@ def test_multiindex_one_key(nogil, paral
+@@ -364,7 +365,7 @@ def test_multiindex_one_key(nogil, paral
  
  
  def test_multiindex_multi_key_not_supported(nogil, parallel, nopython):
@@ -1340,7 +1345,7 @@ Forwarded: no
  
      def numba_func(values, index):
          return 1
-@@ -368,7 +369,7 @@ def test_multiindex_multi_key_not_suppor
+@@ -378,7 +379,7 @@ def test_multiindex_multi_key_not_suppor
  
  
  def test_multilabel_numba_vs_cython(numba_supported_reductions):
@@ -1349,7 +1354,7 @@ Forwarded: no
      reduction, kwargs = numba_supported_reductions
      df = DataFrame(
          {
-@@ -389,7 +390,7 @@ def test_multilabel_numba_vs_cython(numb
+@@ -399,7 +400,7 @@ def test_multilabel_numba_vs_cython(numb
  
  
  def test_multilabel_udf_numba_vs_cython():
@@ -1379,7 +1384,7 @@ Forwarded: no
      )
 --- a/pandas/tests/groupby/test_groupby.py
 +++ b/pandas/tests/groupby/test_groupby.py
-@@ -2596,7 +2596,7 @@ def test_groupby_column_index_name_lost(
+@@ -2613,7 +2613,7 @@ def test_groupby_column_index_name_lost(
  def test_groupby_duplicate_columns(infer_string):
      # GH: 31735
      if infer_string:
@@ -1394,29 +1399,37 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
+ from pandas.compat import is_platform_arm
+ 
  from pandas import (
-     DataFrame,
-     Series,
-@@ -9,7 +10,7 @@ import pandas._testing as tm
+@@ -12,7 +13,7 @@ from pandas.util.version import Version
  
- pytestmark = pytest.mark.single_cpu
+ pytestmark = [pytest.mark.single_cpu]
  
--pytest.importorskip("numba")
-+td.versioned_importorskip("numba")
+-numba = pytest.importorskip("numba")
++numba = td.versioned_importorskip("numba")
+ pytestmark.append(
+     pytest.mark.skipif(
+         Version(numba.__version__) == Version("0.61") and is_platform_arm(),
+--- a/pandas/tests/groupby/test_numeric_only.py
++++ b/pandas/tests/groupby/test_numeric_only.py
+@@ -3,6 +3,7 @@ import re
+ import numpy as np
+ import pytest
  
++import pandas.util._test_decorators as td
+ from pandas._libs import lib
  
- @pytest.mark.filterwarnings("ignore")
---- a/pandas/tests/groupby/test_reductions.py
-+++ b/pandas/tests/groupby/test_reductions.py
-@@ -701,7 +701,7 @@ def test_groupby_min_max_categorical(fun
- @pytest.mark.parametrize("func", ["min", "max"])
- def test_min_empty_string_dtype(func):
-     # GH#55619
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
-     dtype = "string[pyarrow_numpy]"
-     df = DataFrame({"a": ["a"], "b": "a", "c": "a"}, dtype=dtype).iloc[:0]
-     result = getattr(df.groupby("a"), func)()
+ import pandas as pd
+@@ -282,7 +283,7 @@ def test_axis1_numeric_only(request, gro
+             "operation 'sub' not supported for dtype 'str' with dtype 'float64'",
+         )
+         if using_infer_string:
+-            pa = pytest.importorskip("pyarrow")
++            pa = td.versioned_importorskip("pyarrow")
+ 
+             errs = (TypeError, pa.lib.ArrowNotImplementedError)
+         else:
 --- a/pandas/tests/groupby/test_timegrouper.py
 +++ b/pandas/tests/groupby/test_timegrouper.py
 @@ -10,6 +10,7 @@ import numpy as np
@@ -1427,7 +1440,7 @@ Forwarded: no
  import pandas as pd
  from pandas import (
      DataFrame,
-@@ -944,7 +945,7 @@ class TestGroupBy:
+@@ -946,7 +947,7 @@ class TestGroupBy:
      def test_groupby_agg_numba_timegrouper_with_nat(
          self, groupby_with_truncated_bingrouper
      ):
@@ -1443,10 +1456,19 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
+ from pandas.compat import is_platform_arm
  from pandas.errors import NumbaUtilError
  
- from pandas import (
-@@ -14,7 +15,7 @@ pytestmark = pytest.mark.single_cpu
+@@ -14,7 +15,7 @@ from pandas.util.version import Version
+ 
+ pytestmark = [pytest.mark.single_cpu]
+ 
+-numba = pytest.importorskip("numba")
++numba = td.versioned_importorskip("numba")
+ pytestmark.append(
+     pytest.mark.skipif(
+         Version(numba.__version__) == Version("0.61") and is_platform_arm(),
+@@ -24,7 +25,7 @@ pytestmark.append(
  
  
  def test_correct_function_signature():
@@ -1455,7 +1477,7 @@ Forwarded: no
  
      def incorrect_function(x):
          return x + 1
-@@ -31,7 +32,7 @@ def test_correct_function_signature():
+@@ -41,7 +42,7 @@ def test_correct_function_signature():
  
  
  def test_check_nopython_kwargs():
@@ -1464,7 +1486,7 @@ Forwarded: no
  
      def incorrect_function(values, index):
          return values + 1
-@@ -53,7 +54,7 @@ def test_check_nopython_kwargs():
+@@ -63,7 +64,7 @@ def test_check_nopython_kwargs():
  @pytest.mark.parametrize("pandas_obj", ["Series", "DataFrame"])
  @pytest.mark.parametrize("as_index", [True, False])
  def test_numba_vs_cython(jit, pandas_obj, nogil, parallel, nopython, as_index):
@@ -1473,7 +1495,7 @@ Forwarded: no
  
      def func(values, index):
          return values + 1
-@@ -84,7 +85,7 @@ def test_numba_vs_cython(jit, pandas_obj
+@@ -94,7 +95,7 @@ def test_numba_vs_cython(jit, pandas_obj
  @pytest.mark.parametrize("pandas_obj", ["Series", "DataFrame"])
  def test_cache(jit, pandas_obj, nogil, parallel, nopython):
      # Test that the functions are cached correctly if we switch functions
@@ -1482,7 +1504,7 @@ Forwarded: no
  
      def func_1(values, index):
          return values + 1
-@@ -121,7 +122,7 @@ def test_cache(jit, pandas_obj, nogil, p
+@@ -131,7 +132,7 @@ def test_cache(jit, pandas_obj, nogil, p
  
  
  def test_use_global_config():
@@ -1491,7 +1513,7 @@ Forwarded: no
  
      def func_1(values, index):
          return values + 1
-@@ -141,7 +142,7 @@ def test_use_global_config():
+@@ -151,7 +152,7 @@ def test_use_global_config():
      "agg_func", [["min", "max"], "min", {"B": ["min", "max"], "C": "sum"}]
  )
  def test_string_cython_vs_numba(agg_func, numba_supported_reductions):
@@ -1500,7 +1522,7 @@ Forwarded: no
      agg_func, kwargs = numba_supported_reductions
      data = DataFrame(
          {0: ["a", "a", "b", "b", "a"], 1: [1.0, 2.0, 3.0, 4.0, 5.0]}, columns=[0, 1]
-@@ -159,7 +160,7 @@ def test_string_cython_vs_numba(agg_func
+@@ -169,7 +170,7 @@ def test_string_cython_vs_numba(agg_func
  
  def test_args_not_cached():
      # GH 41647
@@ -1509,7 +1531,7 @@ Forwarded: no
  
      def sum_last(values, index, n):
          return values[-n:].sum()
-@@ -177,7 +178,7 @@ def test_args_not_cached():
+@@ -187,7 +188,7 @@ def test_args_not_cached():
  
  def test_index_data_correctly_passed():
      # GH 43133
@@ -1518,7 +1540,7 @@ Forwarded: no
  
      def f(values, index):
          return index - 1
-@@ -191,7 +192,7 @@ def test_index_data_correctly_passed():
+@@ -201,7 +202,7 @@ def test_index_data_correctly_passed():
  def test_engine_kwargs_not_cached():
      # If the user passes a different set of engine_kwargs don't return the same
      # jitted function
@@ -1527,7 +1549,7 @@ Forwarded: no
      nogil = True
      parallel = False
      nopython = True
-@@ -218,7 +219,7 @@ def test_engine_kwargs_not_cached():
+@@ -228,7 +229,7 @@ def test_engine_kwargs_not_cached():
  
  @pytest.mark.filterwarnings("ignore")
  def test_multiindex_one_key(nogil, parallel, nopython):
@@ -1536,7 +1558,7 @@ Forwarded: no
  
      def numba_func(values, index):
          return 1
-@@ -233,7 +234,7 @@ def test_multiindex_one_key(nogil, paral
+@@ -243,7 +244,7 @@ def test_multiindex_one_key(nogil, paral
  
  
  def test_multiindex_multi_key_not_supported(nogil, parallel, nopython):
@@ -1545,7 +1567,7 @@ Forwarded: no
  
      def numba_func(values, index):
          return 1
-@@ -247,7 +248,7 @@ def test_multiindex_multi_key_not_suppor
+@@ -257,7 +258,7 @@ def test_multiindex_multi_key_not_suppor
  
  
  def test_multilabel_numba_vs_cython(numba_supported_reductions):
@@ -1554,7 +1576,7 @@ Forwarded: no
      reduction, kwargs = numba_supported_reductions
      df = DataFrame(
          {
-@@ -264,7 +265,7 @@ def test_multilabel_numba_vs_cython(numb
+@@ -274,7 +275,7 @@ def test_multilabel_numba_vs_cython(numb
  
  
  def test_multilabel_udf_numba_vs_cython():
@@ -1563,44 +1585,6 @@ Forwarded: no
      df = DataFrame(
          {
              "A": ["foo", "bar", "foo", "bar", "foo", "bar", "foo", "foo"],
---- a/pandas/tests/indexes/base_class/test_constructors.py
-+++ b/pandas/tests/indexes/base_class/test_constructors.py
-@@ -1,6 +1,7 @@
- import numpy as np
- import pytest
- 
-+import pandas.util._test_decorators as td
- import pandas as pd
- from pandas import (
-     Index,
-@@ -47,7 +48,7 @@ class TestIndexConstructor:
- 
-     def test_index_string_inference(self):
-         # GH#54430
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         dtype = "string[pyarrow_numpy]"
-         expected = Index(["a", "b"], dtype=dtype)
-         with pd.option_context("future.infer_string", True):
---- a/pandas/tests/indexes/base_class/test_reshape.py
-+++ b/pandas/tests/indexes/base_class/test_reshape.py
-@@ -4,6 +4,7 @@ Tests for ndarray-like method on the bas
- import numpy as np
- import pytest
- 
-+import pandas.util._test_decorators as td
- from pandas import Index
- import pandas._testing as tm
- 
-@@ -58,7 +59,7 @@ class TestReshape:
- 
-     def test_insert_none_into_string_numpy(self):
-         # GH#55365
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         index = Index(["a", "b", "c"], dtype="string[pyarrow_numpy]")
-         result = index.insert(-1, None)
-         expected = Index(["a", "b", None, "c"], dtype="string[pyarrow_numpy]")
 --- a/pandas/tests/indexes/multi/test_constructors.py
 +++ b/pandas/tests/indexes/multi/test_constructors.py
 @@ -7,6 +7,7 @@ import itertools
@@ -1650,7 +1634,7 @@ Forwarded: no
                  pa.array([1, 2], type=pa.dictionary(pa.int8(), pa.int8()))
 --- a/pandas/tests/indexes/test_base.py
 +++ b/pandas/tests/indexes/test_base.py
-@@ -1285,7 +1285,7 @@ class TestIndex:
+@@ -1282,7 +1282,7 @@ class TestIndex:
  
      def test_tab_complete_warning(self, ip):
          # https://github.com/pandas-dev/pandas/issues/16409
@@ -1680,7 +1664,7 @@ Forwarded: no
              index=date_range("2020", freq="D", periods=5).astype(
 --- a/pandas/tests/indexing/test_loc.py
 +++ b/pandas/tests/indexing/test_loc.py
-@@ -1308,7 +1308,7 @@ class TestLocBaseIndependent:
+@@ -1342,7 +1342,7 @@ class TestLocBaseIndependent:
      @pytest.mark.parametrize("spmatrix_t", ["coo_matrix", "csc_matrix", "csr_matrix"])
      @pytest.mark.parametrize("dtype", [np.int64, np.float64, complex])
      def test_loc_getitem_range_from_spmatrix(self, spmatrix_t, dtype):
@@ -1689,7 +1673,7 @@ Forwarded: no
  
          spmatrix_t = getattr(sp_sparse, spmatrix_t)
  
-@@ -1337,7 +1337,7 @@ class TestLocBaseIndependent:
+@@ -1371,7 +1371,7 @@ class TestLocBaseIndependent:
  
      def test_loc_getitem_sparse_frame(self):
          # GH34687
@@ -1698,7 +1682,7 @@ Forwarded: no
  
          df = DataFrame.sparse.from_spmatrix(sp_sparse.eye(5))
          result = df.loc[range(2)]
-@@ -3078,7 +3078,7 @@ def test_loc_periodindex_3_levels():
+@@ -3123,7 +3123,7 @@ def test_loc_periodindex_3_levels():
  
  def test_loc_setitem_pyarrow_strings():
      # GH#52319
@@ -1771,7 +1755,7 @@ Forwarded: no
      n_legs = pa.chunked_array([[2, 2, 4], [4, 5, 100]])
      names = ["n_legs"]
      table = pa.table([n_legs], names=names)
-@@ -305,7 +306,7 @@ def test_multi_chunk_pyarrow() -> None:
+@@ -304,7 +305,7 @@ def test_multi_chunk_pyarrow() -> None:
  
  
  def test_multi_chunk_column() -> None:
@@ -1780,7 +1764,7 @@ Forwarded: no
      ser = pd.Series([1, 2, None], dtype="Int64[pyarrow]")
      df = pd.concat([ser, ser], ignore_index=True).to_frame("a")
      df_orig = df.copy()
-@@ -327,7 +328,7 @@ def test_multi_chunk_column() -> None:
+@@ -326,7 +327,7 @@ def test_multi_chunk_column() -> None:
  
  def test_timestamp_ns_pyarrow():
      # GH 56712
@@ -1789,7 +1773,7 @@ Forwarded: no
      timestamp_args = {
          "year": 2000,
          "month": 1,
-@@ -362,7 +363,7 @@ def test_datetimetzdtype(tz, unit):
+@@ -361,7 +362,7 @@ def test_datetimetzdtype(tz, unit):
  
  def test_interchange_from_non_pandas_tz_aware(request):
      # GH 54239, 54287
@@ -1798,7 +1782,7 @@ Forwarded: no
      import pyarrow.compute as pc
  
      if is_platform_windows() and is_ci_environment():
-@@ -420,7 +421,7 @@ def test_empty_string_column():
+@@ -419,7 +420,7 @@ def test_empty_string_column():
  
  def test_large_string():
      # GH#56702
@@ -1806,8 +1790,8 @@ Forwarded: no
 +    td.versioned_importorskip("pyarrow")
      df = pd.DataFrame({"a": ["x"]}, dtype="large_string[pyarrow]")
      result = pd.api.interchange.from_dataframe(df.__dataframe__())
-     expected = pd.DataFrame({"a": ["x"]}, dtype="object")
-@@ -500,7 +501,7 @@ def test_pandas_nullable_with_missing_va
+     expected = pd.DataFrame({"a": ["x"]}, dtype="str")
+@@ -499,7 +500,7 @@ def test_pandas_nullable_with_missing_va
  ) -> None:
      # https://github.com/pandas-dev/pandas/issues/57643
      # https://github.com/pandas-dev/pandas/issues/57664
@@ -1816,7 +1800,7 @@ Forwarded: no
      import pyarrow.interchange as pai
  
      if expected_dtype == "timestamp[us, tz=Asia/Kathmandu]":
-@@ -562,7 +563,7 @@ def test_pandas_nullable_without_missing
+@@ -565,7 +566,7 @@ def test_pandas_nullable_without_missing
      data: list, dtype: str, expected_dtype: str
  ) -> None:
      # https://github.com/pandas-dev/pandas/issues/57643
@@ -1825,7 +1809,7 @@ Forwarded: no
      import pyarrow.interchange as pai
  
      if expected_dtype == "timestamp[us, tz=Asia/Kathmandu]":
-@@ -578,7 +579,7 @@ def test_pandas_nullable_without_missing
+@@ -581,7 +582,7 @@ def test_pandas_nullable_without_missing
  
  def test_string_validity_buffer() -> None:
      # https://github.com/pandas-dev/pandas/issues/57761
@@ -1834,7 +1818,7 @@ Forwarded: no
      df = pd.DataFrame({"a": ["x"]}, dtype="large_string[pyarrow]")
      result = df.__dataframe__().get_column_by_name("a").get_buffers()["validity"]
      assert result is None
-@@ -586,7 +587,7 @@ def test_string_validity_buffer() -> Non
+@@ -589,7 +590,7 @@ def test_string_validity_buffer() -> Non
  
  def test_string_validity_buffer_no_missing() -> None:
      # https://github.com/pandas-dev/pandas/issues/57762
@@ -1843,6 +1827,15 @@ Forwarded: no
      df = pd.DataFrame({"a": ["x", None]}, dtype="large_string[pyarrow]")
      validity = df.__dataframe__().get_column_by_name("a").get_buffers()["validity"]
      assert validity is not None
+@@ -608,7 +609,7 @@ def test_empty_dataframe():
+ 
+ 
+ def test_from_dataframe_list_dtype():
+-    pa = pytest.importorskip("pyarrow", "14.0.0")
++    pa = td.versioned_importorskip("pyarrow", "14.0.0")
+     data = {"a": [[1, 2], [4, 5, 6]]}
+     tbl = pa.table(data)
+     result = from_dataframe(tbl)
 --- a/pandas/tests/interchange/test_utils.py
 +++ b/pandas/tests/interchange/test_utils.py
 @@ -1,6 +1,7 @@
@@ -1875,7 +1868,7 @@ Forwarded: no
  
      # temporary workaround as moto fails for botocore >= 1.11 otherwise,
      # see https://github.com/spulec/moto/issues/1924 & 1952
-@@ -80,9 +80,9 @@ def s3_base(worker_id, monkeypatch):
+@@ -79,9 +79,9 @@ def s3_base(worker_id, monkeypatch):
              # set in .github/workflows/unit-tests.yml
              yield "http://localhost:5000"
      else:
@@ -1943,17 +1936,6 @@ Forwarded: no
  
  if is_platform_windows():
      pytestmark = pytest.mark.single_cpu
---- a/pandas/tests/io/excel/test_readers.py
-+++ b/pandas/tests/io/excel/test_readers.py
-@@ -667,7 +667,7 @@ class TestReaders:
-         if read_ext in (".xlsb", ".xls"):
-             pytest.skip(f"No engine for filetype: '{read_ext}'")
- 
--        pa = pytest.importorskip("pyarrow")
-+        pa = td.versioned_importorskip("pyarrow")
- 
-         with pd.option_context("mode.string_storage", string_storage):
-             df = DataFrame(
 --- a/pandas/tests/io/excel/test_style.py
 +++ b/pandas/tests/io/excel/test_style.py
 @@ -16,7 +16,7 @@ import pandas._testing as tm
@@ -2110,6 +2092,15 @@ Forwarded: no
  
  
  def bar_grad(a=None, b=None, c=None, d=None):
+@@ -347,7 +348,7 @@ def test_styler_bar_with_NA_values():
+ 
+ 
+ def test_style_bar_with_pyarrow_NA_values():
+-    pytest.importorskip("pyarrow")
++    td.versioned_importorskip("pyarrow")
+     data = """name,age,test1,test2,teacher
+         Adam,15,95.0,80,Ashby
+         Bob,16,81.0,82,Ashby
 --- a/pandas/tests/io/formats/style/test_exceptions.py
 +++ b/pandas/tests/io/formats/style/test_exceptions.py
 @@ -1,6 +1,7 @@
@@ -2228,7 +2219,15 @@ Forwarded: no
  
 --- a/pandas/tests/io/formats/style/test_style.py
 +++ b/pandas/tests/io/formats/style/test_style.py
-@@ -16,7 +16,7 @@ from pandas import (
+@@ -6,6 +6,7 @@ from textwrap import dedent
+ import numpy as np
+ import pytest
+ 
++import pandas.util._test_decorators as td
+ from pandas import (
+     DataFrame,
+     IndexSlice,
+@@ -16,7 +17,7 @@ from pandas import (
  import pandas._testing as tm
  import pandas.util._test_decorators as td
  
@@ -2294,10 +2293,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas._config import using_pyarrow_string_dtype
+ from pandas._config import using_string_dtype
  
  import pandas as pd
-@@ -2268,7 +2269,7 @@ def test_filepath_or_buffer_arg(
+@@ -2264,7 +2265,7 @@ def test_filepath_or_buffer_arg(
  ):
      df = DataFrame([data])
      if method in ["to_latex"]:  # uses styler implementation
@@ -2306,7 +2305,7 @@ Forwarded: no
  
      if filepath_or_buffer_id not in ["string", "pathlike"] and encoding is not None:
          with pytest.raises(
-@@ -2287,7 +2288,7 @@ def test_filepath_or_buffer_arg(
+@@ -2283,7 +2284,7 @@ def test_filepath_or_buffer_arg(
  @pytest.mark.parametrize("method", ["to_string", "to_html", "to_latex"])
  def test_filepath_or_buffer_bad_arg_raises(float_frame, method):
      if method in ["to_latex"]:  # uses styler implementation
@@ -2336,7 +2335,7 @@ Forwarded: no
      for name, color in mpl_colors.CSS4_COLORS.items():
 --- a/pandas/tests/io/formats/test_to_latex.py
 +++ b/pandas/tests/io/formats/test_to_latex.py
-@@ -4,6 +4,7 @@ from textwrap import dedent
+@@ -3,6 +3,7 @@ from textwrap import dedent
  
  import pytest
  
@@ -2344,7 +2343,7 @@ Forwarded: no
  import pandas as pd
  from pandas import (
      DataFrame,
-@@ -11,7 +12,7 @@ from pandas import (
+@@ -10,7 +11,7 @@ from pandas import (
  )
  import pandas._testing as tm
  
@@ -2375,7 +2374,7 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas._config import using_pyarrow_string_dtype
+ from pandas._config import using_string_dtype
  
  from pandas import (
 @@ -748,7 +749,7 @@ class TestDataFrameToString:
@@ -2389,25 +2388,25 @@ Forwarded: no
          )
 --- a/pandas/tests/io/json/test_pandas.py
 +++ b/pandas/tests/io/json/test_pandas.py
-@@ -2034,7 +2034,7 @@ class TestPandasContainer:
-         self, string_storage, dtype_backend, orient, using_infer_string
-     ):
-         # GH#50750
--        pa = pytest.importorskip("pyarrow")
-+        pa = td.versioned_importorskip("pyarrow")
-         df = DataFrame(
-             {
-                 "a": Series([1, np.nan, 3], dtype="Int64"),
-@@ -2056,7 +2056,7 @@ class TestPandasContainer:
-             string_array_na = StringArray(np.array(["a", "b", NA], dtype=np.object_))
+@@ -2050,7 +2050,7 @@ class TestPandasContainer:
+             )
  
-         elif dtype_backend == "pyarrow":
+         if dtype_backend == "pyarrow":
+-            pa = pytest.importorskip("pyarrow")
++            pa = td.versioned_importorskip("pyarrow")
+             string_dtype = pd.ArrowDtype(pa.string())
+         else:
+             string_dtype = pd.StringDtype(string_storage)
+@@ -2069,7 +2069,7 @@ class TestPandasContainer:
+         )
+ 
+         if dtype_backend == "pyarrow":
 -            pa = pytest.importorskip("pyarrow")
 +            pa = td.versioned_importorskip("pyarrow")
              from pandas.arrays import ArrowExtensionArray
  
-             string_array = ArrowExtensionArray(pa.array(["a", "b", "c"]))
-@@ -2103,7 +2103,7 @@ class TestPandasContainer:
+             expected = DataFrame(
+@@ -2089,7 +2089,7 @@ class TestPandasContainer:
      @pytest.mark.parametrize("orient", ["split", "records", "index"])
      def test_read_json_nullable_series(self, string_storage, dtype_backend, orient):
          # GH#50750
@@ -2416,15 +2415,6 @@ Forwarded: no
          ser = Series([1, np.nan, 3], dtype="Int64")
  
          out = ser.to_json(orient=orient)
-@@ -2147,7 +2147,7 @@ def test_pyarrow_engine_lines_false():
- 
- 
- def test_json_roundtrip_string_inference(orient):
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
-     df = DataFrame(
-         [["a", "b"], ["c", "d"]], index=["row 1", "row 2"], columns=["col 1", "col 2"]
-     )
 --- a/pandas/tests/io/json/test_readlines.py
 +++ b/pandas/tests/io/json/test_readlines.py
 @@ -5,6 +5,7 @@ from pathlib import Path
@@ -2451,10 +2441,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
+ from pandas.compat import HAS_PYARROW
  from pandas.compat._optional import VERSIONS
  
- from pandas import (
-@@ -135,7 +136,7 @@ def all_parsers(request):
+@@ -144,7 +145,7 @@ def all_parsers(request):
      """
      parser = request.param()
      if parser.engine == "pyarrow":
@@ -2473,16 +2463,7 @@ Forwarded: no
  from pandas.errors import ParserWarning
  
  import pandas as pd
-@@ -460,7 +461,7 @@ def test_dtype_backend_and_dtype(all_par
- 
- def test_dtype_backend_string(all_parsers, string_storage):
-     # GH#36712
--    pa = pytest.importorskip("pyarrow")
-+    pa = td.versioned_importorskip("pyarrow")
- 
-     with pd.option_context("mode.string_storage", string_storage):
-         parser = all_parsers
-@@ -503,7 +504,7 @@ def test_dtype_backend_ea_dtype_specifie
+@@ -492,7 +493,7 @@ def test_dtype_backend_ea_dtype_specifie
  
  def test_dtype_backend_pyarrow(all_parsers, request):
      # GH#36712
@@ -2491,24 +2472,6 @@ Forwarded: no
      parser = all_parsers
  
      data = """a,b,c,d,e,f,g,h,i,j
-@@ -556,7 +557,7 @@ def test_ea_int_avoid_overflow(all_parse
- 
- def test_string_inference(all_parsers):
-     # GH#54430
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
-     dtype = "string[pyarrow_numpy]"
- 
-     data = """a,b
-@@ -577,7 +578,7 @@ y,2
- @pytest.mark.parametrize("dtype", ["O", object, "object", np.object_, str, np.str_])
- def test_string_inference_object_dtype(all_parsers, dtype):
-     # GH#56047
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
- 
-     data = """a,b
- x,a
 --- a/pandas/tests/io/parser/test_concatenate_chunks.py
 +++ b/pandas/tests/io/parser/test_concatenate_chunks.py
 @@ -1,6 +1,7 @@
@@ -2537,6 +2500,25 @@ Forwarded: no
      chunks = [
          {0: ArrowExtensionArray(pa.array([1.5, 2.5]))},
          {0: ArrowExtensionArray(pa.array(["a", "b"]))},
+--- a/pandas/tests/io/parser/test_multi_thread.py
++++ b/pandas/tests/io/parser/test_multi_thread.py
+@@ -15,6 +15,7 @@ except ImportError:
+ import numpy as np
+ import pytest
+ 
++import pandas.util._test_decorators as td
+ import pandas as pd
+ from pandas import DataFrame
+ import pandas._testing as tm
+@@ -35,7 +36,7 @@ def test_multi_thread_string_io_read_csv
+     # see gh-11786
+     parser = all_parsers
+     if parser.engine == "pyarrow":
+-        pa = pytest.importorskip("pyarrow")
++        pa = td.versioned_importorskip("pyarrow")
+         if Version(pa.__version__) < Version("16.0"):
+             request.applymarker(
+                 pytest.mark.xfail(reason="# ValueError: Found non-unique column index")
 --- a/pandas/tests/io/parser/test_network.py
 +++ b/pandas/tests/io/parser/test_network.py
 @@ -80,7 +80,7 @@ class TestS3:
@@ -2604,23 +2586,16 @@ Forwarded: no
  from pandas.errors import EmptyDataError
  
  import pandas as pd
-@@ -972,13 +973,13 @@ def test_dtype_backend(string_storage, d
-         arr = StringArray(np.array(["a", "b"], dtype=np.object_))
-         arr_na = StringArray(np.array([pd.NA, "a"], dtype=np.object_))
-     elif dtype_backend == "pyarrow":
+@@ -971,7 +972,7 @@ def test_dtype_backend(string_storage, d
+         result = read_fwf(StringIO(data), dtype_backend=dtype_backend)
+ 
+     if dtype_backend == "pyarrow":
 -        pa = pytest.importorskip("pyarrow")
 +        pa = td.versioned_importorskip("pyarrow")
-         from pandas.arrays import ArrowExtensionArray
- 
-         arr = ArrowExtensionArray(pa.array(["a", "b"]))
-         arr_na = ArrowExtensionArray(pa.array([None, "a"]))
+         string_dtype = pd.ArrowDtype(pa.string())
      else:
--        pa = pytest.importorskip("pyarrow")
-+        pa = td.versioned_importorskip("pyarrow")
-         arr = ArrowStringArray(pa.array(["a", "b"]))
-         arr_na = ArrowStringArray(pa.array([None, "a"]))
- 
-@@ -1002,7 +1003,7 @@ def test_dtype_backend(string_storage, d
+         string_dtype = pd.StringDtype(string_storage)
+@@ -990,7 +991,7 @@ def test_dtype_backend(string_storage, d
          }
      )
      if dtype_backend == "pyarrow":
@@ -2666,7 +2641,7 @@ Forwarded: no
 +++ b/pandas/tests/io/pytables/test_append.py
 @@ -29,7 +29,7 @@ is_crashing_arch=bool((platform.uname()[
  
- pytestmark = pytest.mark.single_cpu
+ pytestmark = [pytest.mark.single_cpu]
  
 -tables = pytest.importorskip("tables")
 +tables = td.versioned_importorskip("tables")
@@ -2687,20 +2662,9 @@ Forwarded: no
  
  
  @pytest.fixture
---- a/pandas/tests/io/pytables/test_read.py
-+++ b/pandas/tests/io/pytables/test_read.py
-@@ -401,7 +401,7 @@ def test_read_py2_hdf_file_in_py3(datapa
- 
- def test_read_infer_string(tmp_path, setup_path):
-     # GH#54431
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
-     df = DataFrame({"a": ["a", "b", None]})
-     path = tmp_path / setup_path
-     df.to_hdf(path, key="data", format="table")
 --- a/pandas/tests/io/pytables/test_round_trip.py
 +++ b/pandas/tests/io/pytables/test_round_trip.py
-@@ -565,7 +565,7 @@ def test_round_trip_equals(tmp_path, set
+@@ -574,7 +574,7 @@ def test_round_trip_equals(tmp_path, set
  
  def test_infer_string_columns(tmp_path, setup_path):
      # GH#
@@ -2721,7 +2685,7 @@ Forwarded: no
      DataFrame,
 @@ -37,7 +38,7 @@ is_crashing_arch=bool((platform.uname()[
  
- pytestmark = pytest.mark.single_cpu
+ pytestmark = [pytest.mark.single_cpu]
  
 -tables = pytest.importorskip("tables")
 +tables = td.versioned_importorskip("tables")
@@ -2757,26 +2721,18 @@ Forwarded: no
  from pandas.errors import (
      PyperclipException,
      PyperclipWindowsException,
-@@ -353,14 +354,14 @@ class TestClipboard:
+@@ -349,7 +350,7 @@ class TestClipboard:
      ):
          # GH#50502
-         if string_storage == "pyarrow" or dtype_backend == "pyarrow":
+         if dtype_backend == "pyarrow":
 -            pa = pytest.importorskip("pyarrow")
 +            pa = td.versioned_importorskip("pyarrow")
- 
-         if string_storage == "python":
-             string_array = StringArray(np.array(["x", "y"], dtype=np.object_))
-             string_array_na = StringArray(np.array(["x", NA], dtype=np.object_))
- 
-         elif dtype_backend == "pyarrow" and engine != "c":
--            pa = pytest.importorskip("pyarrow")
-+            pa = td.versioned_importorskip("pyarrow")
-             from pandas.arrays import ArrowExtensionArray
- 
-             string_array = ArrowExtensionArray(pa.array(["x", "y"]))
+             if engine == "c" and string_storage == "pyarrow":
+                 # TODO avoid this exception?
+                 string_dtype = pd.ArrowDtype(pa.large_string())
 --- a/pandas/tests/io/test_common.py
 +++ b/pandas/tests/io/test_common.py
-@@ -100,7 +100,7 @@ bar2,12,13,14,15
+@@ -101,7 +101,7 @@ bar2,12,13,14,15
  
      def test_stringify_file_and_path_like(self):
          # GH 38125: do not stringify file objects that are also path-like
@@ -2785,7 +2741,7 @@ Forwarded: no
          with tm.ensure_clean() as path:
              with fsspec.open(f"file://{path}", mode="wb") as fsspec_obj:
                  assert fsspec_obj == icom.stringify_path(fsspec_obj)
-@@ -153,7 +153,7 @@ Look,a snake,🐍"""
+@@ -154,7 +154,7 @@ Look,a snake,🐍"""
  
      # Test that pyarrow can handle a file opened with get_handle
      def test_get_handle_pyarrow_compat(self):
@@ -2794,7 +2750,7 @@ Forwarded: no
  
          # Test latin1, ucs-2, and ucs-4 chars
          data = """a,b,c
-@@ -196,7 +196,7 @@ Look,a snake,🐍"""
+@@ -199,7 +199,7 @@ Look,a snake,🐍"""
          ],
      )
      def test_read_non_existent(self, reader, module, error_class, fn_ext):
@@ -2803,7 +2759,7 @@ Forwarded: no
  
          path = os.path.join(HERE, "data", "does_not_exist." + fn_ext)
          msg1 = rf"File (b')?.+does_not_exist\.{fn_ext}'? does not exist"
-@@ -234,7 +234,7 @@ Look,a snake,🐍"""
+@@ -237,7 +237,7 @@ Look,a snake,🐍"""
      )
      # NOTE: Missing parent directory for pd.DataFrame.to_hdf is handled by PyTables
      def test_write_missing_parent_directory(self, method, module, error_class, fn_ext):
@@ -2812,7 +2768,7 @@ Forwarded: no
  
          dummy_frame = pd.DataFrame({"a": [1, 2, 3], "b": [2, 3, 4], "c": [3, 4, 5]})
  
-@@ -264,7 +264,7 @@ Look,a snake,🐍"""
+@@ -267,7 +267,7 @@ Look,a snake,🐍"""
      def test_read_expands_user_home_dir(
          self, reader, module, error_class, fn_ext, monkeypatch
      ):
@@ -2821,7 +2777,7 @@ Forwarded: no
  
          path = os.path.join("~", "does_not_exist." + fn_ext)
          monkeypatch.setattr(icom, "_expand_user", lambda x: os.path.join("foo", x))
-@@ -321,7 +321,7 @@ Look,a snake,🐍"""
+@@ -326,7 +326,7 @@ Look,a snake,🐍"""
          ],
      )
      def test_read_fspath_all(self, reader, module, path, datapath):
@@ -2830,7 +2786,7 @@ Forwarded: no
          path = datapath(*path)
  
          mypath = CustomFSPath(path)
-@@ -349,13 +349,13 @@ Look,a snake,🐍"""
+@@ -354,13 +354,13 @@ Look,a snake,🐍"""
      )
      def test_write_fspath_all(self, writer_name, writer_kwargs, module):
          if writer_name in ["to_latex"]:  # uses Styler implementation
@@ -2846,7 +2802,7 @@ Forwarded: no
              mypath = CustomFSPath(fspath)
              writer = getattr(df, writer_name)
  
-@@ -377,7 +377,7 @@ Look,a snake,🐍"""
+@@ -382,7 +382,7 @@ Look,a snake,🐍"""
          # Same test as write_fspath_all, except HDF5 files aren't
          # necessarily byte-for-byte identical for a given dataframe, so we'll
          # have to read and compare equality
@@ -2862,21 +2818,30 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- import pandas as pd
- import pandas._testing as tm
- from pandas.core.arrays import (
-@@ -15,7 +16,7 @@ pytestmark = pytest.mark.filterwarnings(
-     "ignore:Passing a BlockManager to DataFrame:DeprecationWarning"
+ from pandas.compat.pyarrow import (
+     pa_version_under18p0,
+     pa_version_under19p0,
+@@ -17,7 +18,7 @@ pytestmark = pytest.mark.filterwarnings(
  )
+ 
  
 -pa = pytest.importorskip("pyarrow")
 +pa = td.versioned_importorskip("pyarrow")
  
  
  @pytest.mark.single_cpu
+@@ -192,7 +193,7 @@ class TestFeather:
+                 result = read_feather(path, dtype_backend=dtype_backend)
+ 
+         if dtype_backend == "pyarrow":
+-            pa = pytest.importorskip("pyarrow")
++            pa = td.versioned_importorskip("pyarrow")
+             if using_infer_string:
+                 string_dtype = pd.ArrowDtype(pa.large_string())
+             else:
 --- a/pandas/tests/io/test_fsspec.py
 +++ b/pandas/tests/io/test_fsspec.py
-@@ -25,7 +25,7 @@ pytestmark = pytest.mark.filterwarnings(
+@@ -27,7 +27,7 @@ pytestmark = pytest.mark.filterwarnings(
  
  @pytest.fixture
  def fsspectest():
@@ -2885,7 +2850,7 @@ Forwarded: no
      from fsspec import register_implementation
      from fsspec.implementations.memory import MemoryFileSystem
      from fsspec.registry import _registry as registry
-@@ -59,7 +59,7 @@ def df1():
+@@ -61,7 +61,7 @@ def df1():
  
  @pytest.fixture
  def cleared_fs():
@@ -2894,7 +2859,7 @@ Forwarded: no
  
      memfs = fsspec.filesystem("memory")
      yield memfs
-@@ -99,7 +99,7 @@ def test_to_csv(cleared_fs, df1):
+@@ -101,7 +101,7 @@ def test_to_csv(cleared_fs, df1):
  
  
  def test_to_excel(cleared_fs, df1):
@@ -2903,7 +2868,7 @@ Forwarded: no
      ext = "xlsx"
      path = f"memory://test/test.{ext}"
      df1.to_excel(path, index=True)
-@@ -111,7 +111,7 @@ def test_to_excel(cleared_fs, df1):
+@@ -113,7 +113,7 @@ def test_to_excel(cleared_fs, df1):
  
  @pytest.mark.parametrize("binary_mode", [False, True])
  def test_to_csv_fsspec_object(cleared_fs, binary_mode, df1):
@@ -2912,7 +2877,7 @@ Forwarded: no
  
      path = "memory://test/test.csv"
      mode = "wb" if binary_mode else "w"
-@@ -153,7 +153,7 @@ def test_read_table_options(fsspectest):
+@@ -155,7 +155,7 @@ def test_read_table_options(fsspectest):
  
  
  def test_excel_options(fsspectest):
@@ -2921,7 +2886,7 @@ Forwarded: no
      extension = "xlsx"
  
      df = DataFrame({"a": [0]})
-@@ -168,7 +168,7 @@ def test_excel_options(fsspectest):
+@@ -170,7 +170,7 @@ def test_excel_options(fsspectest):
  
  def test_to_parquet_new_file(cleared_fs, df1):
      """Regression test for writing to a not-yet-existent GCS Parquet file."""
@@ -2930,7 +2895,7 @@ Forwarded: no
  
      df1.to_parquet(
          "memory://test/test.csv", index=True, engine="fastparquet", compression=None
-@@ -177,7 +177,7 @@ def test_to_parquet_new_file(cleared_fs,
+@@ -179,7 +179,7 @@ def test_to_parquet_new_file(cleared_fs,
  
  def test_arrowparquet_options(fsspectest):
      """Regression test for writing to a not-yet-existent GCS Parquet file."""
@@ -2939,7 +2904,7 @@ Forwarded: no
      df = DataFrame({"a": [0]})
      df.to_parquet(
          "testmem://test/test.csv",
-@@ -197,7 +197,7 @@ def test_arrowparquet_options(fsspectest
+@@ -199,7 +199,7 @@ def test_arrowparquet_options(fsspectest
  @td.skip_array_manager_not_yet_implemented  # TODO(ArrayManager) fastparquet
  def test_fastparquet_options(fsspectest):
      """Regression test for writing to a not-yet-existent GCS Parquet file."""
@@ -2948,7 +2913,7 @@ Forwarded: no
  
      df = DataFrame({"a": [0]})
      df.to_parquet(
-@@ -217,7 +217,7 @@ def test_fastparquet_options(fsspectest)
+@@ -219,7 +219,7 @@ def test_fastparquet_options(fsspectest)
  
  @pytest.mark.single_cpu
  def test_from_s3_csv(s3_public_bucket_with_data, tips_file, s3so):
@@ -2957,7 +2922,7 @@ Forwarded: no
      tm.assert_equal(
          read_csv(
              f"s3://{s3_public_bucket_with_data.name}/tips.csv", storage_options=s3so
-@@ -242,7 +242,7 @@ def test_from_s3_csv(s3_public_bucket_wi
+@@ -244,7 +244,7 @@ def test_from_s3_csv(s3_public_bucket_wi
  @pytest.mark.single_cpu
  @pytest.mark.parametrize("protocol", ["s3", "s3a", "s3n"])
  def test_s3_protocols(s3_public_bucket_with_data, tips_file, protocol, s3so):
@@ -2966,7 +2931,7 @@ Forwarded: no
      tm.assert_equal(
          read_csv(
              f"{protocol}://{s3_public_bucket_with_data.name}/tips.csv",
-@@ -255,8 +255,8 @@ def test_s3_protocols(s3_public_bucket_w
+@@ -258,8 +258,8 @@ def test_s3_protocols(s3_public_bucket_w
  @pytest.mark.single_cpu
  @td.skip_array_manager_not_yet_implemented  # TODO(ArrayManager) fastparquet
  def test_s3_parquet(s3_public_bucket, s3so, df1):
@@ -2977,7 +2942,7 @@ Forwarded: no
  
      fn = f"s3://{s3_public_bucket.name}/test.parquet"
      df1.to_parquet(
-@@ -274,7 +274,7 @@ def test_not_present_exception():
+@@ -277,7 +277,7 @@ def test_not_present_exception():
  
  
  def test_feather_options(fsspectest):
@@ -2986,7 +2951,7 @@ Forwarded: no
      df = DataFrame({"a": [0]})
      df.to_feather("testmem://mockfile", storage_options={"test": "feather_write"})
      assert fsspectest.test[0] == "feather_write"
-@@ -321,7 +321,7 @@ def test_stata_options(fsspectest):
+@@ -324,7 +324,7 @@ def test_stata_options(fsspectest):
  
  
  def test_markdown_options(fsspectest):
@@ -2995,7 +2960,7 @@ Forwarded: no
      df = DataFrame({"a": [0]})
      df.to_markdown("testmem://mockfile", storage_options={"test": "md_write"})
      assert fsspectest.test[0] == "md_write"
-@@ -329,7 +329,7 @@ def test_markdown_options(fsspectest):
+@@ -332,7 +332,7 @@ def test_markdown_options(fsspectest):
  
  
  def test_non_fsspec_options():
@@ -3050,7 +3015,7 @@ Forwarded: no
  
 --- a/pandas/tests/io/test_html.py
 +++ b/pandas/tests/io/test_html.py
-@@ -71,8 +71,8 @@ def assert_framelist_equal(list1, list2,
+@@ -67,8 +67,8 @@ def assert_framelist_equal(list1, list2,
  
  
  def test_bs4_version_fails(monkeypatch, datapath):
@@ -3061,7 +3026,7 @@ Forwarded: no
  
      monkeypatch.setattr(bs4, "__version__", "4.2")
      with pytest.raises(ImportError, match="Pandas requires version"):
-@@ -89,9 +89,9 @@ def test_invalid_flavor():
+@@ -85,9 +85,9 @@ def test_invalid_flavor():
  
  
  def test_same_ordering(datapath):
@@ -3074,25 +3039,18 @@ Forwarded: no
  
      filename = datapath("io", "data", "html", "valid_markup.html")
      dfs_lxml = read_html(filename, index_col=0, flavor=["lxml"])
-@@ -184,13 +184,13 @@ class TestReadHtml:
-             string_array = StringArray(np.array(["a", "b", "c"], dtype=np.object_))
-             string_array_na = StringArray(np.array(["a", "b", NA], dtype=np.object_))
-         elif dtype_backend == "pyarrow":
+@@ -181,7 +181,7 @@ class TestReadHtml:
+             result = flavor_read_html(StringIO(out), dtype_backend=dtype_backend)[0]
+ 
+         if dtype_backend == "pyarrow":
 -            pa = pytest.importorskip("pyarrow")
 +            pa = td.versioned_importorskip("pyarrow")
-             from pandas.arrays import ArrowExtensionArray
- 
-             string_array = ArrowExtensionArray(pa.array(["a", "b", "c"]))
-             string_array_na = ArrowExtensionArray(pa.array(["a", "b", None]))
+             string_dtype = pd.ArrowDtype(pa.string())
          else:
--            pa = pytest.importorskip("pyarrow")
-+            pa = td.versioned_importorskip("pyarrow")
-             string_array = ArrowStringArray(pa.array(["a", "b", "c"]))
-             string_array_na = ArrowStringArray(pa.array(["a", "b", None]))
- 
+             string_dtype = pd.StringDtype(string_storage)
 --- a/pandas/tests/io/test_http_headers.py
 +++ b/pandas/tests/io/test_http_headers.py
-@@ -161,7 +161,7 @@ def test_to_parquet_to_disk_with_storage
+@@ -164,7 +164,7 @@ def test_to_parquet_to_disk_with_storage
          "Auth": "other_custom",
      }
  
@@ -3118,7 +3076,7 @@ Forwarded: no
  
  import pyarrow as pa
  
-@@ -248,7 +249,7 @@ def test_orc_reader_snappy_compressed(di
+@@ -249,7 +250,7 @@ def test_orc_reader_snappy_compressed(di
  def test_orc_roundtrip_file(dirpath):
      # GH44554
      # PyArrow gained ORC write support with the current argument order
@@ -3127,7 +3085,7 @@ Forwarded: no
  
      data = {
          "boolean1": np.array([False, True], dtype="bool"),
-@@ -273,7 +274,7 @@ def test_orc_roundtrip_file(dirpath):
+@@ -274,7 +275,7 @@ def test_orc_roundtrip_file(dirpath):
  def test_orc_roundtrip_bytesio():
      # GH44554
      # PyArrow gained ORC write support with the current argument order
@@ -3136,7 +3094,7 @@ Forwarded: no
  
      data = {
          "boolean1": np.array([False, True], dtype="bool"),
-@@ -297,7 +298,7 @@ def test_orc_roundtrip_bytesio():
+@@ -298,7 +299,7 @@ def test_orc_roundtrip_bytesio():
  def test_orc_writer_dtypes_not_supported(orc_writer_dtypes_not_supported):
      # GH44554
      # PyArrow gained ORC write support with the current argument order
@@ -3145,16 +3103,16 @@ Forwarded: no
  
      msg = "The dtype of one or more columns is not supported yet."
      with pytest.raises(NotImplementedError, match=msg):
-@@ -305,7 +306,7 @@ def test_orc_writer_dtypes_not_supported
+@@ -306,7 +307,7 @@ def test_orc_writer_dtypes_not_supported
  
  
- def test_orc_dtype_backend_pyarrow():
+ def test_orc_dtype_backend_pyarrow(using_infer_string):
 -    pytest.importorskip("pyarrow")
 +    td.versioned_importorskip("pyarrow")
      df = pd.DataFrame(
          {
              "string": list("abc"),
-@@ -341,7 +342,7 @@ def test_orc_dtype_backend_pyarrow():
+@@ -349,7 +350,7 @@ def test_orc_dtype_backend_pyarrow(using
  
  def test_orc_dtype_backend_numpy_nullable():
      # GH#50503
@@ -3170,19 +3128,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas._config import using_copy_on_write
- from pandas._config.config import _get_option
- 
-@@ -389,7 +390,7 @@ class Base:
-     @pytest.mark.single_cpu
-     def test_parquet_read_from_url(self, httpserver, datapath, df_compat, engine):
-         if engine != "auto":
--            pytest.importorskip(engine)
-+            td.versioned_importorskip(engine)
-         with open(datapath("io", "data", "parquet", "simple.parquet"), mode="rb") as f:
-             httpserver.serve_content(content=f.read())
-             df = read_parquet(httpserver.url)
-@@ -611,7 +612,7 @@ class TestBasic(Base):
+ from pandas._config import (
+     using_copy_on_write,
+     using_string_dtype,
+@@ -619,7 +620,7 @@ class TestBasic(Base):
              check_round_trip(df, engine)
  
      def test_dtype_backend(self, engine, request):
@@ -3191,7 +3140,16 @@ Forwarded: no
  
          if engine == "fastparquet":
              # We are manually disabling fastparquet's
-@@ -799,7 +800,7 @@ class TestParquetPyArrow(Base):
+@@ -704,7 +705,7 @@ class TestBasic(Base):
+     @pytest.mark.single_cpu
+     def test_parquet_read_from_url(self, httpserver, datapath, df_compat, engine):
+         if engine != "auto":
+-            pytest.importorskip(engine)
++            td.versioned_importorskip(engine)
+         with open(datapath("io", "data", "parquet", "simple.parquet"), mode="rb") as f:
+             httpserver.serve_content(content=f.read())
+             df = read_parquet(httpserver.url, engine=engine)
+@@ -820,7 +821,7 @@ class TestParquetPyArrow(Base):
  
      @pytest.mark.single_cpu
      def test_s3_roundtrip_explicit_fs(self, df_compat, s3_public_bucket, pa, s3so):
@@ -3200,7 +3158,7 @@ Forwarded: no
          s3 = s3fs.S3FileSystem(**s3so)
          kw = {"filesystem": s3}
          check_round_trip(
-@@ -833,7 +834,7 @@ class TestParquetPyArrow(Base):
+@@ -854,7 +855,7 @@ class TestParquetPyArrow(Base):
      def test_s3_roundtrip_for_dir(
          self, df_compat, s3_public_bucket, pa, partition_col, s3so
      ):
@@ -3209,15 +3167,16 @@ Forwarded: no
          # GH #26388
          expected_df = df_compat.copy()
  
-@@ -862,14 +863,14 @@ class TestParquetPyArrow(Base):
+@@ -883,7 +884,7 @@ class TestParquetPyArrow(Base):
          )
  
-     def test_read_file_like_obj_support(self, df_compat):
+     def test_read_file_like_obj_support(self, df_compat, using_infer_string):
 -        pytest.importorskip("pyarrow")
 +        td.versioned_importorskip("pyarrow")
          buffer = BytesIO()
          df_compat.to_parquet(buffer)
          df_from_buf = read_parquet(buffer)
+@@ -892,7 +893,7 @@ class TestParquetPyArrow(Base):
          tm.assert_frame_equal(df_compat, df_from_buf)
  
      def test_expand_user(self, df_compat, monkeypatch):
@@ -3226,8 +3185,8 @@ Forwarded: no
          monkeypatch.setenv("HOME", "TestingUser")
          monkeypatch.setenv("USERPROFILE", "TestingUser")
          with pytest.raises(OSError, match=r".*TestingUser.*"):
-@@ -924,7 +925,7 @@ class TestParquetPyArrow(Base):
-     def test_additional_extension_arrays(self, pa):
+@@ -947,7 +948,7 @@ class TestParquetPyArrow(Base):
+     def test_additional_extension_arrays(self, pa, using_infer_string):
          # test additional ExtensionArrays that are supported through the
          # __arrow_array__ protocol
 -        pytest.importorskip("pyarrow")
@@ -3235,16 +3194,16 @@ Forwarded: no
          df = pd.DataFrame(
              {
                  "a": pd.Series([1, 2, 3], dtype="Int64"),
-@@ -939,7 +940,7 @@ class TestParquetPyArrow(Base):
+@@ -965,7 +966,7 @@ class TestParquetPyArrow(Base):
  
-     def test_pyarrow_backed_string_array(self, pa, string_storage):
+     def test_pyarrow_backed_string_array(self, pa, string_storage, using_infer_string):
          # test ArrowStringArray supported through the __arrow_array__ protocol
 -        pytest.importorskip("pyarrow")
 +        td.versioned_importorskip("pyarrow")
          df = pd.DataFrame({"a": pd.Series(["a", None, "c"], dtype="string[pyarrow]")})
          with pd.option_context("string_storage", string_storage):
-             check_round_trip(df, pa, expected=df.astype(f"string[{string_storage}]"))
-@@ -947,7 +948,7 @@ class TestParquetPyArrow(Base):
+             if using_infer_string:
+@@ -981,7 +982,7 @@ class TestParquetPyArrow(Base):
      def test_additional_extension_types(self, pa):
          # test additional ExtensionArrays that are supported through the
          # __arrow_array__ protocol + by defining a custom ExtensionType
@@ -3253,7 +3212,16 @@ Forwarded: no
          df = pd.DataFrame(
              {
                  "c": pd.IntervalIndex.from_tuples([(0, 1), (1, 2), (3, 4)]),
-@@ -992,7 +993,7 @@ class TestParquetPyArrow(Base):
+@@ -1003,7 +1004,7 @@ class TestParquetPyArrow(Base):
+         check_round_trip(df, pa, write_kwargs={"version": ver})
+ 
+     def test_timezone_aware_index(self, pa, timezone_aware_date_list):
+-        pytest.importorskip("pyarrow", "11.0.0")
++        td.versioned_importorskip("pyarrow", "11.0.0")
+ 
+         idx = 5 * [timezone_aware_date_list]
+         df = pd.DataFrame(index=idx, data={"index_as_col": idx})
+@@ -1037,7 +1038,7 @@ class TestParquetPyArrow(Base):
  
      def test_filter_row_groups(self, pa):
          # https://github.com/pandas-dev/pandas/issues/26551
@@ -3262,7 +3230,7 @@ Forwarded: no
          df = pd.DataFrame({"a": list(range(3))})
          with tm.ensure_clean() as path:
              df.to_parquet(path, engine=pa)
-@@ -1349,7 +1350,7 @@ class TestParquetFastParquet(Base):
+@@ -1424,7 +1425,7 @@ class TestParquetFastParquet(Base):
          tm.assert_frame_equal(result, df)
  
      def test_filesystem_notimplemented(self):
@@ -3271,7 +3239,7 @@ Forwarded: no
          df = pd.DataFrame(data={"A": [0, 1], "B": [1, 0]})
          with tm.ensure_clean() as path:
              with pytest.raises(
-@@ -1365,7 +1366,7 @@ class TestParquetFastParquet(Base):
+@@ -1440,7 +1441,7 @@ class TestParquetFastParquet(Base):
                  read_parquet(path, engine="fastparquet", filesystem="foo")
  
      def test_invalid_filesystem(self):
@@ -3280,7 +3248,7 @@ Forwarded: no
          df = pd.DataFrame(data={"A": [0, 1], "B": [1, 0]})
          with tm.ensure_clean() as path:
              with pytest.raises(
-@@ -1381,7 +1382,7 @@ class TestParquetFastParquet(Base):
+@@ -1456,7 +1457,7 @@ class TestParquetFastParquet(Base):
                  read_parquet(path, engine="pyarrow", filesystem="foo")
  
      def test_unsupported_pa_filesystem_storage_options(self):
@@ -3291,7 +3259,7 @@ Forwarded: no
              with pytest.raises(
 --- a/pandas/tests/io/test_pickle.py
 +++ b/pandas/tests/io/test_pickle.py
-@@ -499,7 +499,7 @@ def test_pickle_generalurl_read(monkeypa
+@@ -505,7 +505,7 @@ def test_pickle_generalurl_read(monkeypa
  
  
  def test_pickle_fsspec_roundtrip():
@@ -3363,7 +3331,7 @@ Forwarded: no
  
 --- a/pandas/tests/io/test_sql.py
 +++ b/pandas/tests/io/test_sql.py
-@@ -601,8 +601,8 @@ def drop_view(
+@@ -602,8 +602,8 @@ def drop_view(
  
  @pytest.fixture
  def mysql_pymysql_engine():
@@ -3374,7 +3342,7 @@ Forwarded: no
      engine = sqlalchemy.create_engine(
          "mysql+pymysql://root@localhost:3306/pandas",
          connect_args={"client_flag": pymysql.constants.CLIENT.MULTI_STATEMENTS},
-@@ -649,8 +649,8 @@ def mysql_pymysql_conn_types(mysql_pymys
+@@ -650,8 +650,8 @@ def mysql_pymysql_conn_types(mysql_pymys
  
  @pytest.fixture
  def postgresql_psycopg2_engine():
@@ -3385,16 +3353,18 @@ Forwarded: no
      engine = sqlalchemy.create_engine(
          "postgresql+psycopg2://postgres:postgres@localhost:5432/pandas",
          poolclass=sqlalchemy.pool.NullPool,
-@@ -684,7 +684,7 @@ def postgresql_psycopg2_conn(postgresql_
+@@ -685,8 +685,8 @@ def postgresql_psycopg2_conn(postgresql_
  
  @pytest.fixture
  def postgresql_adbc_conn():
+-    pytest.importorskip("pyarrow")
 -    pytest.importorskip("adbc_driver_postgresql")
++    td.versioned_importorskip("pyarrow")
 +    td.versioned_importorskip("adbc_driver_postgresql")
      from adbc_driver_postgresql import dbapi
  
      uri = "postgresql://postgres:postgres@localhost:5432/pandas"
-@@ -747,14 +747,14 @@ def postgresql_psycopg2_conn_types(postg
+@@ -749,14 +749,14 @@ def postgresql_psycopg2_conn_types(postg
  
  @pytest.fixture
  def sqlite_str():
@@ -3411,7 +3381,7 @@ Forwarded: no
      engine = sqlalchemy.create_engine(sqlite_str, poolclass=sqlalchemy.pool.NullPool)
      yield engine
      for view in get_all_views(engine):
-@@ -772,7 +772,7 @@ def sqlite_conn(sqlite_engine):
+@@ -774,7 +774,7 @@ def sqlite_conn(sqlite_engine):
  
  @pytest.fixture
  def sqlite_str_iris(sqlite_str, iris_path):
@@ -3420,7 +3390,7 @@ Forwarded: no
      engine = sqlalchemy.create_engine(sqlite_str)
      create_and_load_iris(engine, iris_path)
      create_and_load_iris_view(engine)
-@@ -795,7 +795,7 @@ def sqlite_conn_iris(sqlite_engine_iris)
+@@ -797,7 +797,7 @@ def sqlite_conn_iris(sqlite_engine_iris)
  
  @pytest.fixture
  def sqlite_str_types(sqlite_str, types_data):
@@ -3429,16 +3399,18 @@ Forwarded: no
      engine = sqlalchemy.create_engine(sqlite_str)
      create_and_load_types(engine, types_data, "sqlite")
      engine.dispose()
-@@ -816,7 +816,7 @@ def sqlite_conn_types(sqlite_engine_type
+@@ -818,8 +818,8 @@ def sqlite_conn_types(sqlite_engine_type
  
  @pytest.fixture
  def sqlite_adbc_conn():
+-    pytest.importorskip("pyarrow")
 -    pytest.importorskip("adbc_driver_sqlite")
++    td.versioned_importorskip("pyarrow")
 +    td.versioned_importorskip("adbc_driver_sqlite")
      from adbc_driver_sqlite import dbapi
  
      with tm.ensure_clean() as name:
-@@ -1001,7 +1001,7 @@ def test_dataframe_to_sql_empty(conn, te
+@@ -1004,7 +1004,7 @@ def test_dataframe_to_sql_empty(conn, te
  @pytest.mark.parametrize("conn", all_connectable)
  def test_dataframe_to_sql_arrow_dtypes(conn, request):
      # GH 52046
@@ -3447,7 +3419,7 @@ Forwarded: no
      df = DataFrame(
          {
              "int": pd.array([1], dtype="int8[pyarrow]"),
-@@ -1035,7 +1035,7 @@ def test_dataframe_to_sql_arrow_dtypes(c
+@@ -1038,7 +1038,7 @@ def test_dataframe_to_sql_arrow_dtypes(c
  @pytest.mark.parametrize("conn", all_connectable)
  def test_dataframe_to_sql_arrow_dtypes_missing(conn, request, nulls_fixture):
      # GH 52046
@@ -3456,7 +3428,16 @@ Forwarded: no
      df = DataFrame(
          {
              "datetime": pd.array(
-@@ -2515,7 +2515,7 @@ def test_sqlalchemy_integer_overload_map
+@@ -2323,7 +2323,7 @@ def test_api_escaped_table_name(conn, re
+ def test_api_read_sql_duplicate_columns(conn, request):
+     # GH#53117
+     if "adbc" in conn:
+-        pa = pytest.importorskip("pyarrow")
++        pa = td.versioned_importorskip("pyarrow")
+         if not (
+             Version(pa.__version__) >= Version("16.0")
+             and conn in ["sqlite_adbc_conn", "postgresql_adbc_conn"]
+@@ -2518,7 +2518,7 @@ def test_sqlalchemy_integer_overload_map
  
  @pytest.mark.parametrize("conn", all_connectable)
  def test_database_uri_string(conn, request, test_frame1):
@@ -3465,7 +3446,7 @@ Forwarded: no
      conn = request.getfixturevalue(conn)
      # Test read_sql and .to_sql method with a database URI (GH10654)
      # db_uri = 'sqlite:///:memory:' # raises
-@@ -2537,7 +2537,7 @@ def test_database_uri_string(conn, reque
+@@ -2540,7 +2540,7 @@ def test_database_uri_string(conn, reque
  @td.skip_if_installed("pg8000")
  @pytest.mark.parametrize("conn", all_connectable)
  def test_pg8000_sqlalchemy_passthrough_error(conn, request):
@@ -3474,7 +3455,7 @@ Forwarded: no
      conn = request.getfixturevalue(conn)
      # using driver that will not be installed on CI to trigger error
      # in sqlalchemy.create_engine -> test passing of this error to user
-@@ -3414,7 +3414,7 @@ def test_to_sql_with_negative_npinf(conn
+@@ -3417,7 +3417,7 @@ def test_to_sql_with_negative_npinf(conn
          # The input {"foo": [-np.inf], "infe0": ["bar"]} does not raise any error
          # for pymysql version >= 0.10
          # TODO(GH#36465): remove this version check after GH 36465 is fixed
@@ -3483,7 +3464,7 @@ Forwarded: no
  
          if Version(pymysql.__version__) < Version("1.0.3") and "infe0" in df.columns:
              mark = pytest.mark.xfail(reason="GH 36465")
-@@ -3529,7 +3529,7 @@ def test_options_auto(conn, request, tes
+@@ -3532,7 +3532,7 @@ def test_options_auto(conn, request, tes
  
  
  def test_options_get_engine():
@@ -3492,24 +3473,16 @@ Forwarded: no
      assert isinstance(get_engine("sqlalchemy"), SQLAlchemyEngine)
  
      with pd.option_context("io.sql.engine", "sqlalchemy"):
-@@ -3681,14 +3681,14 @@ def dtype_backend_expected():
-             string_array_na = StringArray(np.array(["a", "b", pd.NA], dtype=np.object_))
- 
-         elif dtype_backend == "pyarrow":
+@@ -3680,7 +3680,7 @@ def dtype_backend_expected():
+     def func(string_storage, dtype_backend, conn_name) -> DataFrame:
+         string_dtype: pd.StringDtype | pd.ArrowDtype
+         if dtype_backend == "pyarrow":
 -            pa = pytest.importorskip("pyarrow")
 +            pa = td.versioned_importorskip("pyarrow")
-             from pandas.arrays import ArrowExtensionArray
- 
-             string_array = ArrowExtensionArray(pa.array(["a", "b", "c"]))  # type: ignore[assignment]
-             string_array_na = ArrowExtensionArray(pa.array(["a", "b", None]))  # type: ignore[assignment]
- 
+             string_dtype = pd.ArrowDtype(pa.string())
          else:
--            pa = pytest.importorskip("pyarrow")
-+            pa = td.versioned_importorskip("pyarrow")
-             string_array = ArrowStringArray(pa.array(["a", "b", "c"]))
-             string_array_na = ArrowStringArray(pa.array(["a", "b", None]))
- 
-@@ -3705,7 +3705,7 @@ def dtype_backend_expected():
+             string_dtype = pd.StringDtype(string_storage)
+@@ -3698,7 +3698,7 @@ def dtype_backend_expected():
              }
          )
          if dtype_backend == "pyarrow":
@@ -3518,18 +3491,9 @@ Forwarded: no
  
              from pandas.arrays import ArrowExtensionArray
  
-@@ -3850,7 +3850,7 @@ def test_row_object_is_named_tuple(sqlit
- def test_read_sql_string_inference(sqlite_engine):
-     conn = sqlite_engine
-     # GH#54430
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
-     table = "test"
-     df = DataFrame({"a": ["x", "y"]})
-     df.to_sql(table, con=conn, index=False, if_exists="replace")
 --- a/pandas/tests/io/test_stata.py
 +++ b/pandas/tests/io/test_stata.py
-@@ -2045,11 +2045,11 @@ def test_compression(compression, versio
+@@ -2062,11 +2062,11 @@ def test_compression(compression, versio
              with bz2.open(path, "rb") as comp:
                  fp = io.BytesIO(comp.read())
          elif compression == "zstd":
@@ -3684,7 +3648,7 @@ Forwarded: no
          fs = s3fs.S3FileSystem(anon=True)
 --- a/pandas/tests/io/xml/test_xml.py
 +++ b/pandas/tests/io/xml/test_xml.py
-@@ -249,7 +249,7 @@ df_kml = DataFrame(
+@@ -244,7 +244,7 @@ df_kml = DataFrame(
  
  def test_literal_xml_deprecation():
      # GH 53809
@@ -3693,7 +3657,7 @@ Forwarded: no
      msg = (
          "Passing literal xml to 'read_xml' is deprecated and "
          "will be removed in a future version. To read from a "
-@@ -289,7 +289,7 @@ def read_xml_iterparse_comp(comp_path, c
+@@ -284,7 +284,7 @@ def read_xml_iterparse_comp(comp_path, c
  
  
  def test_parser_consistency_file(xml_books):
@@ -3702,7 +3666,7 @@ Forwarded: no
      df_file_lxml = read_xml(xml_books, parser="lxml")
      df_file_etree = read_xml(xml_books, parser="etree")
  
-@@ -462,7 +462,7 @@ def test_file_handle_close(xml_books, pa
+@@ -457,7 +457,7 @@ def test_file_handle_close(xml_books, pa
  
  @pytest.mark.parametrize("val", ["", b""])
  def test_empty_string_lxml(val):
@@ -3711,7 +3675,7 @@ Forwarded: no
  
      msg = "|".join(
          [
-@@ -505,7 +505,7 @@ def test_wrong_file_path(parser, datapat
+@@ -500,7 +500,7 @@ def test_wrong_file_path(parser, datapat
  @pytest.mark.network
  @pytest.mark.single_cpu
  def test_url(httpserver, xml_file):
@@ -3720,7 +3684,7 @@ Forwarded: no
      with open(xml_file, encoding="utf-8") as f:
          httpserver.serve_content(content=f.read())
          df_url = read_xml(httpserver.url, xpath=".//book[count(*)=4]")
-@@ -587,7 +587,7 @@ def test_whitespace(parser):
+@@ -582,7 +582,7 @@ def test_whitespace(parser):
  
  
  def test_empty_xpath_lxml(xml_books):
@@ -3729,7 +3693,7 @@ Forwarded: no
      with pytest.raises(ValueError, match=("xpath does not return any nodes")):
          read_xml(xml_books, xpath=".//python", parser="lxml")
  
-@@ -600,7 +600,7 @@ def test_bad_xpath_etree(xml_books):
+@@ -595,7 +595,7 @@ def test_bad_xpath_etree(xml_books):
  
  
  def test_bad_xpath_lxml(xml_books):
@@ -3738,7 +3702,7 @@ Forwarded: no
  
      with pytest.raises(lxml_etree.XPathEvalError, match=("Invalid expression")):
          read_xml(xml_books, xpath=".//[book]", parser="lxml")
-@@ -659,7 +659,7 @@ def test_prefix_namespace(parser):
+@@ -654,7 +654,7 @@ def test_prefix_namespace(parser):
  
  
  def test_consistency_default_namespace():
@@ -3747,7 +3711,7 @@ Forwarded: no
      df_lxml = read_xml(
          StringIO(xml_default_nmsp),
          xpath=".//ns:row",
-@@ -678,7 +678,7 @@ def test_consistency_default_namespace()
+@@ -673,7 +673,7 @@ def test_consistency_default_namespace()
  
  
  def test_consistency_prefix_namespace():
@@ -3756,7 +3720,7 @@ Forwarded: no
      df_lxml = read_xml(
          StringIO(xml_prefix_nmsp),
          xpath=".//doc:row",
-@@ -710,7 +710,7 @@ def test_missing_prefix_definition_etree
+@@ -705,7 +705,7 @@ def test_missing_prefix_definition_etree
  
  
  def test_missing_prefix_definition_lxml(kml_cta_rail_lines):
@@ -3765,7 +3729,7 @@ Forwarded: no
  
      with pytest.raises(lxml_etree.XPathEvalError, match=("Undefined namespace prefix")):
          read_xml(kml_cta_rail_lines, xpath=".//kml:Placemark", parser="lxml")
-@@ -718,7 +718,7 @@ def test_missing_prefix_definition_lxml(
+@@ -713,7 +713,7 @@ def test_missing_prefix_definition_lxml(
  
  @pytest.mark.parametrize("key", ["", None])
  def test_none_namespace_prefix(key):
@@ -3774,7 +3738,7 @@ Forwarded: no
      with pytest.raises(
          TypeError, match=("empty namespace prefix is not supported in XPath")
      ):
-@@ -831,7 +831,7 @@ def test_empty_elems_only(parser):
+@@ -826,7 +826,7 @@ def test_empty_elems_only(parser):
  
  
  def test_attribute_centric_xml():
@@ -3783,7 +3747,7 @@ Forwarded: no
      xml = """\
  <?xml version="1.0" encoding="UTF-8"?>
  <TrainSchedule>
-@@ -1061,7 +1061,7 @@ def test_ascii_encoding(xml_baby_names,
+@@ -1056,7 +1056,7 @@ def test_ascii_encoding(xml_baby_names,
  
  
  def test_parser_consistency_with_encoding(xml_baby_names):
@@ -3792,7 +3756,7 @@ Forwarded: no
      df_xpath_lxml = read_xml(xml_baby_names, parser="lxml", encoding="ISO-8859-1")
      df_xpath_etree = read_xml(xml_baby_names, parser="etree", encoding="iso-8859-1")
  
-@@ -1084,7 +1084,7 @@ def test_parser_consistency_with_encodin
+@@ -1079,7 +1079,7 @@ def test_parser_consistency_with_encodin
  
  
  def test_wrong_encoding_for_lxml():
@@ -3801,7 +3765,7 @@ Forwarded: no
      # GH#45133
      data = """<data>
    <row>
-@@ -1131,7 +1131,7 @@ def test_wrong_parser(xml_books):
+@@ -1126,7 +1126,7 @@ def test_wrong_parser(xml_books):
  
  
  def test_stylesheet_file(kml_cta_rail_lines, xsl_flatten_doc):
@@ -3810,7 +3774,7 @@ Forwarded: no
      df_style = read_xml(
          kml_cta_rail_lines,
          xpath=".//k:Placemark",
-@@ -1158,7 +1158,7 @@ def test_stylesheet_file(kml_cta_rail_li
+@@ -1153,7 +1153,7 @@ def test_stylesheet_file(kml_cta_rail_li
  
  
  def test_stylesheet_file_like(kml_cta_rail_lines, xsl_flatten_doc, mode):
@@ -3819,7 +3783,7 @@ Forwarded: no
      with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
          df_style = read_xml(
              kml_cta_rail_lines,
-@@ -1173,7 +1173,7 @@ def test_stylesheet_file_like(kml_cta_ra
+@@ -1168,7 +1168,7 @@ def test_stylesheet_file_like(kml_cta_ra
  def test_stylesheet_io(kml_cta_rail_lines, xsl_flatten_doc, mode):
      # note: By default the bodies of untyped functions are not checked,
      # consider using --check-untyped-defs
@@ -3828,7 +3792,7 @@ Forwarded: no
      xsl_obj: BytesIO | StringIO  # type: ignore[annotation-unchecked]
  
      with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
-@@ -1193,7 +1193,7 @@ def test_stylesheet_io(kml_cta_rail_line
+@@ -1188,7 +1188,7 @@ def test_stylesheet_io(kml_cta_rail_line
  
  
  def test_stylesheet_buffered_reader(kml_cta_rail_lines, xsl_flatten_doc, mode):
@@ -3837,7 +3801,7 @@ Forwarded: no
      with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
          xsl_obj = f.read()
  
-@@ -1208,7 +1208,7 @@ def test_stylesheet_buffered_reader(kml_
+@@ -1203,7 +1203,7 @@ def test_stylesheet_buffered_reader(kml_
  
  
  def test_style_charset():
@@ -3846,7 +3810,7 @@ Forwarded: no
      xml = "<中文標籤><row><c1>1</c1><c2>2</c2></row></中文標籤>"
  
      xsl = """\
-@@ -1237,7 +1237,7 @@ def test_style_charset():
+@@ -1232,7 +1232,7 @@ def test_style_charset():
  
  
  def test_not_stylesheet(kml_cta_rail_lines, xml_books):
@@ -3855,7 +3819,7 @@ Forwarded: no
  
      with pytest.raises(
          lxml_etree.XSLTParseError, match=("document is not a stylesheet")
-@@ -1246,7 +1246,7 @@ def test_not_stylesheet(kml_cta_rail_lin
+@@ -1241,7 +1241,7 @@ def test_not_stylesheet(kml_cta_rail_lin
  
  
  def test_incorrect_xsl_syntax(kml_cta_rail_lines):
@@ -3864,7 +3828,7 @@ Forwarded: no
  
      xsl = """\
  <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-@@ -1275,7 +1275,7 @@ def test_incorrect_xsl_syntax(kml_cta_ra
+@@ -1270,7 +1270,7 @@ def test_incorrect_xsl_syntax(kml_cta_ra
  
  
  def test_incorrect_xsl_eval(kml_cta_rail_lines):
@@ -3873,7 +3837,7 @@ Forwarded: no
  
      xsl = """\
  <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-@@ -1302,7 +1302,7 @@ def test_incorrect_xsl_eval(kml_cta_rail
+@@ -1297,7 +1297,7 @@ def test_incorrect_xsl_eval(kml_cta_rail
  
  
  def test_incorrect_xsl_apply(kml_cta_rail_lines):
@@ -3882,7 +3846,7 @@ Forwarded: no
  
      xsl = """\
  <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-@@ -1321,7 +1321,7 @@ def test_incorrect_xsl_apply(kml_cta_rai
+@@ -1316,7 +1316,7 @@ def test_incorrect_xsl_apply(kml_cta_rai
  
  
  def test_wrong_stylesheet(kml_cta_rail_lines, xml_data_path):
@@ -3891,7 +3855,7 @@ Forwarded: no
  
      xsl = xml_data_path / "flatten.xsl"
  
-@@ -1335,7 +1335,7 @@ def test_wrong_stylesheet(kml_cta_rail_l
+@@ -1330,7 +1330,7 @@ def test_wrong_stylesheet(kml_cta_rail_l
  def test_stylesheet_file_close(kml_cta_rail_lines, xsl_flatten_doc, mode):
      # note: By default the bodies of untyped functions are not checked,
      # consider using --check-untyped-defs
@@ -3900,7 +3864,7 @@ Forwarded: no
      xsl_obj: BytesIO | StringIO  # type: ignore[annotation-unchecked]
  
      with open(xsl_flatten_doc, mode, encoding="utf-8" if mode == "r" else None) as f:
-@@ -1350,7 +1350,7 @@ def test_stylesheet_file_close(kml_cta_r
+@@ -1345,7 +1345,7 @@ def test_stylesheet_file_close(kml_cta_r
  
  
  def test_stylesheet_with_etree(kml_cta_rail_lines, xsl_flatten_doc):
@@ -3909,7 +3873,7 @@ Forwarded: no
      with pytest.raises(
          ValueError, match=("To use stylesheet, you need lxml installed")
      ):
-@@ -1359,7 +1359,7 @@ def test_stylesheet_with_etree(kml_cta_r
+@@ -1354,7 +1354,7 @@ def test_stylesheet_with_etree(kml_cta_r
  
  @pytest.mark.parametrize("val", ["", b""])
  def test_empty_stylesheet(val, datapath):
@@ -3918,7 +3882,7 @@ Forwarded: no
      msg = (
          "Passing literal xml to 'read_xml' is deprecated and "
          "will be removed in a future version. To read from a "
-@@ -1662,7 +1662,7 @@ def test_empty_data(xml_books, parser):
+@@ -1657,7 +1657,7 @@ def test_empty_data(xml_books, parser):
  
  
  def test_online_stylesheet():
@@ -3927,7 +3891,7 @@ Forwarded: no
      xml = """\
  <?xml version="1.0" encoding="UTF-8"?>
  <catalog>
-@@ -1993,8 +1993,8 @@ def test_unsuported_compression(parser):
+@@ -1988,8 +1988,8 @@ def test_unsuported_compression(parser):
  @pytest.mark.network
  @pytest.mark.single_cpu
  def test_s3_parser_consistency(s3_public_bucket_with_data, s3so):
@@ -3938,33 +3902,16 @@ Forwarded: no
      s3 = f"s3://{s3_public_bucket_with_data.name}/books.xml"
  
      df_lxml = read_xml(s3, parser="lxml", storage_options=s3so)
-@@ -2035,7 +2035,7 @@ def test_read_xml_nullable_dtypes(
- </data>"""
+@@ -2033,7 +2033,7 @@ def test_read_xml_nullable_dtypes(
+         result = read_xml(StringIO(data), parser=parser, dtype_backend=dtype_backend)
  
-     if using_infer_string:
+     if dtype_backend == "pyarrow":
 -        pa = pytest.importorskip("pyarrow")
 +        pa = td.versioned_importorskip("pyarrow")
-         string_array = ArrowStringArrayNumpySemantics(pa.array(["x", "y"]))
-         string_array_na = ArrowStringArrayNumpySemantics(pa.array(["x", None]))
- 
-@@ -2044,14 +2044,14 @@ def test_read_xml_nullable_dtypes(
-         string_array_na = StringArray(np.array(["x", NA], dtype=np.object_))
- 
-     elif dtype_backend == "pyarrow":
--        pa = pytest.importorskip("pyarrow")
-+        pa = td.versioned_importorskip("pyarrow")
-         from pandas.arrays import ArrowExtensionArray
- 
-         string_array = ArrowExtensionArray(pa.array(["x", "y"]))
-         string_array_na = ArrowExtensionArray(pa.array(["x", None]))
- 
+         string_dtype = pd.ArrowDtype(pa.string())
      else:
--        pa = pytest.importorskip("pyarrow")
-+        pa = td.versioned_importorskip("pyarrow")
-         string_array = ArrowStringArray(pa.array(["x", "y"]))
-         string_array_na = ArrowStringArray(pa.array(["x", None]))
- 
-@@ -2073,7 +2073,7 @@ def test_read_xml_nullable_dtypes(
+         string_dtype = pd.StringDtype(string_storage)
+@@ -2053,7 +2053,7 @@ def test_read_xml_nullable_dtypes(
      )
  
      if dtype_backend == "pyarrow":
@@ -4009,7 +3956,7 @@ Forwarded: no
  
  
  class TestDataFramePlots:
-@@ -1119,7 +1119,7 @@ class TestDataFramePlots:
+@@ -1144,7 +1144,7 @@ class TestDataFramePlots:
          _check_box_return_type(result, return_type)
  
      def test_kde_df(self):
@@ -4018,7 +3965,7 @@ Forwarded: no
          df = DataFrame(np.random.default_rng(2).standard_normal((100, 4)))
          ax = _check_plot_works(df.plot, kind="kde")
          expected = [pprint_thing(c) for c in df.columns]
-@@ -1127,13 +1127,13 @@ class TestDataFramePlots:
+@@ -1152,13 +1152,13 @@ class TestDataFramePlots:
          _check_ticks_props(ax, xrot=0)
  
      def test_kde_df_rot(self):
@@ -4034,7 +3981,7 @@ Forwarded: no
          df = DataFrame(np.random.default_rng(2).standard_normal((10, 4)))
          axes = _check_plot_works(
              df.plot,
-@@ -1144,13 +1144,13 @@ class TestDataFramePlots:
+@@ -1169,13 +1169,13 @@ class TestDataFramePlots:
          _check_axes_shape(axes, axes_num=4, layout=(4, 1))
  
      def test_kde_df_logy(self):
@@ -4050,7 +3997,7 @@ Forwarded: no
          df = DataFrame(np.random.default_rng(2).uniform(size=(100, 4)))
          df.loc[0, 0] = np.nan
          _check_plot_works(df.plot, kind="kde")
-@@ -1447,14 +1447,14 @@ class TestDataFramePlots:
+@@ -1472,14 +1472,14 @@ class TestDataFramePlots:
  
      @pytest.mark.parametrize("kind", plotting.PlotAccessor._common_kinds)
      def test_kind_both_ways(self, kind):
@@ -4067,7 +4014,7 @@ Forwarded: no
          df = DataFrame({"x": [1, 2, 3]})
          df.plot("x", "x", kind=kind)
          getattr(df.plot, kind)("x", "x")
-@@ -2100,7 +2100,7 @@ class TestDataFramePlots:
+@@ -2125,7 +2125,7 @@ class TestDataFramePlots:
      @pytest.mark.parametrize("kind", plotting.PlotAccessor._all_kinds)
      def test_memory_leak(self, kind):
          """Check that every plot type gets properly collected."""
@@ -4076,7 +4023,7 @@ Forwarded: no
          args = {}
          if kind in ["hexbin", "scatter", "pie"]:
              df = DataFrame(
-@@ -2427,7 +2427,7 @@ class TestDataFramePlots:
+@@ -2452,7 +2452,7 @@ class TestDataFramePlots:
          "kind", ("line", "bar", "barh", "hist", "kde", "density", "area", "pie")
      )
      def test_group_subplot(self, kind):
@@ -4300,7 +4247,7 @@ Forwarded: no
  @pytest.fixture
 --- a/pandas/tests/plotting/test_boxplot_method.py
 +++ b/pandas/tests/plotting/test_boxplot_method.py
-@@ -6,6 +6,7 @@ import string
+@@ -8,6 +8,7 @@ import string
  import numpy as np
  import pytest
  
@@ -4308,7 +4255,7 @@ Forwarded: no
  from pandas import (
      DataFrame,
      MultiIndex,
-@@ -25,8 +26,8 @@ from pandas.tests.plotting.common import
+@@ -28,8 +29,8 @@ from pandas.util.version import Version
  
  from pandas.io.formats.printing import pprint_thing
  
@@ -4654,25 +4601,6 @@ Forwarded: no
  from pandas.plotting._matplotlib.style import get_standard_colors
  
  
---- a/pandas/tests/reductions/test_reductions.py
-+++ b/pandas/tests/reductions/test_reductions.py
-@@ -7,6 +7,7 @@ from decimal import Decimal
- import numpy as np
- import pytest
- 
-+import pandas.util._test_decorators as td
- import pandas as pd
- from pandas import (
-     Categorical,
-@@ -1091,7 +1092,7 @@ class TestSeriesReductions:
- 
-     def test_any_all_pyarrow_string(self):
-         # GH#54591
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         ser = Series(["", "a"], dtype="string[pyarrow_numpy]")
-         assert ser.any()
-         assert not ser.all()
 --- a/pandas/tests/reductions/test_stat_reductions.py
 +++ b/pandas/tests/reductions/test_stat_reductions.py
 @@ -6,6 +6,7 @@ import inspect
@@ -4703,7 +4631,7 @@ Forwarded: no
  
 --- a/pandas/tests/resample/test_datetime_index.py
 +++ b/pandas/tests/resample/test_datetime_index.py
-@@ -1110,7 +1110,7 @@ def test_resample_dtype_preservation(uni
+@@ -1104,7 +1104,7 @@ def test_resample_dtype_preservation(uni
  
  
  def test_resample_dtype_coercion(unit):
@@ -4714,15 +4642,15 @@ Forwarded: no
      df = {"a": [1, 3, 1, 4]}
 --- a/pandas/tests/reshape/merge/test_merge.py
 +++ b/pandas/tests/reshape/merge/test_merge.py
-@@ -8,6 +8,7 @@ import re
- import numpy as np
- import pytest
+@@ -10,6 +10,7 @@ import pytest
+ 
+ from pandas.compat import PY314
  
 +import pandas.util._test_decorators as td
  from pandas.core.dtypes.common import (
      is_object_dtype,
      is_string_dtype,
-@@ -2817,7 +2818,7 @@ def test_merge_ea_and_non_ea(any_numeric
+@@ -2827,7 +2828,7 @@ def test_merge_ea_and_non_ea(any_numeric
  @pytest.mark.parametrize("dtype", ["int64", "int64[pyarrow]"])
  def test_merge_arrow_and_numpy_dtypes(dtype):
      # GH#52406
@@ -4731,7 +4659,7 @@ Forwarded: no
      df = DataFrame({"a": [1, 2]}, dtype=dtype)
      df2 = DataFrame({"a": [1, 2]}, dtype="int64[pyarrow]")
      result = df.merge(df2)
-@@ -2967,7 +2968,7 @@ def test_merge_ea_int_and_float_numpy():
+@@ -2977,7 +2978,7 @@ def test_merge_ea_int_and_float_numpy():
  
  def test_merge_arrow_string_index(any_string_dtype):
      # GH#54894
@@ -4740,25 +4668,6 @@ Forwarded: no
      left = DataFrame({"a": ["a", "b"]}, dtype=any_string_dtype)
      right = DataFrame({"b": 1}, index=Index(["a", "c"], dtype=any_string_dtype))
      result = left.merge(right, left_on="a", right_index=True, how="left")
---- a/pandas/tests/reshape/test_melt.py
-+++ b/pandas/tests/reshape/test_melt.py
-@@ -3,6 +3,7 @@ import re
- import numpy as np
- import pytest
- 
-+import pandas.util._test_decorators as td
- import pandas as pd
- from pandas import (
-     DataFrame,
-@@ -1224,7 +1225,7 @@ class TestWideToLong:
- 
- def test_wide_to_long_pyarrow_string_columns():
-     # GH 57066
--    pytest.importorskip("pyarrow")
-+    td.versioned_importorskip("pyarrow")
-     df = DataFrame(
-         {
-             "ID": {0: 1},
 --- a/pandas/tests/series/accessors/test_list_accessor.py
 +++ b/pandas/tests/series/accessors/test_list_accessor.py
 @@ -2,13 +2,14 @@ import re
@@ -4805,10 +4714,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas._libs import lib
+ from pandas._config import using_string_dtype
  
- import pandas as pd
-@@ -291,7 +292,7 @@ class TestSeriesConvertDtypes:
+ from pandas._libs import lib
+@@ -294,7 +295,7 @@ class TestSeriesConvertDtypes:
  
      def test_convert_dtypes_pyarrow_to_np_nullable(self):
          # GH 53648
@@ -4817,7 +4726,7 @@ Forwarded: no
          ser = pd.Series(range(2), dtype="int32[pyarrow]")
          result = ser.convert_dtypes(dtype_backend="numpy_nullable")
          expected = pd.Series(range(2), dtype="Int32")
-@@ -299,7 +300,7 @@ class TestSeriesConvertDtypes:
+@@ -302,7 +303,7 @@ class TestSeriesConvertDtypes:
  
      def test_convert_dtypes_pyarrow_null(self):
          # GH#55346
@@ -5082,7 +4991,7 @@ Forwarded: no
          expected = Series([np.nan, 0, 1, 1, 3, 0])
 --- a/pandas/tests/series/methods/test_rank.py
 +++ b/pandas/tests/series/methods/test_rank.py
-@@ -56,7 +56,7 @@ def dtype(request):
+@@ -74,7 +74,7 @@ def expected_dtype(dtype, method, pct=Fa
  
  class TestSeriesRank:
      def test_rank(self, datetime_series):
@@ -5091,7 +5000,7 @@ Forwarded: no
  
          datetime_series[::2] = np.nan
          datetime_series[:10:3] = 4.0
-@@ -269,7 +269,7 @@ class TestSeriesRank:
+@@ -293,7 +293,7 @@ class TestSeriesRank:
      def test_rank_tie_methods_on_infs_nans(
          self, method, na_option, ascending, dtype, na_value, pos_inf, neg_inf
      ):
@@ -5100,7 +5009,7 @@ Forwarded: no
          if dtype == "float64[pyarrow]":
              if method == "average":
                  exp_dtype = "float64[pyarrow]"
-@@ -318,7 +318,7 @@ class TestSeriesRank:
+@@ -342,7 +342,7 @@ class TestSeriesRank:
          ],
      )
      def test_rank_methods_series(self, method, op, value):
@@ -5128,81 +5037,6 @@ Forwarded: no
          ser = Series(["a", "b", "c"], dtype=object)
          with option_context("future.infer_string", True):
              result = ser.reset_index(drop=True)
---- a/pandas/tests/series/test_api.py
-+++ b/pandas/tests/series/test_api.py
-@@ -4,6 +4,7 @@ import pydoc
- import numpy as np
- import pytest
- 
-+import pandas.util._test_decorators as td
- import pandas as pd
- from pandas import (
-     DataFrame,
-@@ -169,7 +170,7 @@ class TestSeriesMisc:
- 
-     def test_inspect_getmembers(self):
-         # GH38782
--        pytest.importorskip("jinja2")
-+        td.versioned_importorskip("jinja2")
-         ser = Series(dtype=object)
-         msg = "Series._data is deprecated"
-         with tm.assert_produces_warning(
---- a/pandas/tests/series/test_constructors.py
-+++ b/pandas/tests/series/test_constructors.py
-@@ -2094,7 +2094,7 @@ class TestSeriesConstructors:
- 
-     def test_series_string_inference(self):
-         # GH#54430
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         dtype = "string[pyarrow_numpy]"
-         expected = Series(["a", "b"], dtype=dtype)
-         with pd.option_context("future.infer_string", True):
-@@ -2109,7 +2109,7 @@ class TestSeriesConstructors:
-     @pytest.mark.parametrize("na_value", [None, np.nan, pd.NA])
-     def test_series_string_with_na_inference(self, na_value):
-         # GH#54430
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         dtype = "string[pyarrow_numpy]"
-         expected = Series(["a", na_value], dtype=dtype)
-         with pd.option_context("future.infer_string", True):
-@@ -2118,7 +2118,7 @@ class TestSeriesConstructors:
- 
-     def test_series_string_inference_scalar(self):
-         # GH#54430
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         expected = Series("a", index=[1], dtype="string[pyarrow_numpy]")
-         with pd.option_context("future.infer_string", True):
-             ser = Series("a", index=[1])
-@@ -2126,7 +2126,7 @@ class TestSeriesConstructors:
- 
-     def test_series_string_inference_array_string_dtype(self):
-         # GH#54496
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         expected = Series(["a", "b"], dtype="string[pyarrow_numpy]")
-         with pd.option_context("future.infer_string", True):
-             ser = Series(np.array(["a", "b"]))
-@@ -2134,7 +2134,7 @@ class TestSeriesConstructors:
- 
-     def test_series_string_inference_storage_definition(self):
-         # GH#54793
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         expected = Series(["a", "b"], dtype="string[pyarrow_numpy]")
-         with pd.option_context("future.infer_string", True):
-             result = Series(["a", "b"], dtype="string")
-@@ -2150,7 +2150,7 @@ class TestSeriesConstructors:
- 
-     def test_series_string_inference_na_first(self):
-         # GH#55655
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
-         expected = Series([pd.NA, "b"], dtype="string[pyarrow_numpy]")
-         with pd.option_context("future.infer_string", True):
-             result = Series([pd.NA, "b"])
 --- a/pandas/tests/series/test_formats.py
 +++ b/pandas/tests/series/test_formats.py
 @@ -6,6 +6,7 @@ from datetime import (
@@ -5210,9 +5044,9 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas._config import using_pyarrow_string_dtype
- 
  import pandas as pd
+ from pandas import (
+     Categorical,
 @@ -227,7 +228,7 @@ class TestSeriesRepr:
          repr(ts2).splitlines()[-1]
  
@@ -5229,17 +5063,17 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
- from pandas import (
-     DataFrame,
-     Index,
-@@ -533,7 +534,7 @@ class TestSeriesLogicalOps:
+ from pandas._config import using_string_dtype
  
+ from pandas import (
+@@ -533,7 +534,7 @@ class TestSeriesLogicalOps:
+     # TODO: this belongs in comparison tests
      def test_pyarrow_numpy_string_invalid(self):
          # GH#56008
--        pytest.importorskip("pyarrow")
-+        td.versioned_importorskip("pyarrow")
+-        pa = pytest.importorskip("pyarrow")
++        pa = td.versioned_importorskip("pyarrow")
          ser = Series([False, True])
-         ser2 = Series(["a", "b"], dtype="string[pyarrow_numpy]")
+         ser2 = Series(["a", "b"], dtype=StringDtype(na_value=np.nan))
          result = ser == ser2
 --- a/pandas/tests/series/test_reductions.py
 +++ b/pandas/tests/series/test_reductions.py
@@ -5286,10 +5120,10 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
+ from pandas._config import using_string_dtype
+ 
  from pandas._libs import (
-     algos as libalgos,
-     hashtable as ht,
-@@ -1789,7 +1790,7 @@ class TestRank:
+@@ -1804,7 +1805,7 @@ class TestRank:
          ],
      )
      def test_scipy_compat(self, arr):
@@ -5311,7 +5145,7 @@ Forwarded: no
  
          ddf = dd.from_pandas(df, npartitions=3)
          assert ddf.A is not None
-@@ -61,8 +61,8 @@ def test_dask_ufunc():
+@@ -60,8 +60,8 @@ def test_dask_ufunc():
      olduse = pd.get_option("compute.use_numexpr")
  
      try:
@@ -5322,7 +5156,7 @@ Forwarded: no
  
          s = Series([1.5, 2.3, 3.7, 4.0])
          ds = dd.from_pandas(s, npartitions=2)
-@@ -78,7 +78,7 @@ def test_dask_ufunc():
+@@ -76,7 +76,7 @@ def test_dask_ufunc():
  def test_construct_dask_float_array_int_dtype_match_ndarray():
      # GH#40110 make sure we treat a float-dtype dask array with the same
      #  rules we would for an ndarray
@@ -5331,7 +5165,7 @@ Forwarded: no
  
      arr = np.array([1, 2.5, 3])
      darr = dd.from_array(arr)
-@@ -102,15 +102,15 @@ def test_construct_dask_float_array_int_
+@@ -100,15 +100,15 @@ def test_construct_dask_float_array_int_
  
  
  def test_xarray(df):
@@ -5350,7 +5184,7 @@ Forwarded: no
  
      times = xarray.cftime_range("0001", periods=2)
      key = cftime.DatetimeGregorian(2000, 1, 1)
-@@ -142,7 +142,7 @@ def test_oo_optimized_datetime_index_unp
+@@ -140,7 +140,7 @@ def test_oo_optimized_datetime_index_unp
  
  
  def test_statsmodels():
@@ -5359,7 +5193,7 @@ Forwarded: no
  
      df = DataFrame(
          {"Lottery": range(5), "Literacy": range(5), "Pop1831": range(100, 105)}
-@@ -151,7 +151,7 @@ def test_statsmodels():
+@@ -149,7 +149,7 @@ def test_statsmodels():
  
  
  def test_scikit_learn():
@@ -5368,7 +5202,7 @@ Forwarded: no
      from sklearn import (
          datasets,
          svm,
-@@ -164,7 +164,7 @@ def test_scikit_learn():
+@@ -162,7 +162,7 @@ def test_scikit_learn():
  
  
  def test_seaborn():
@@ -5377,7 +5211,7 @@ Forwarded: no
      tips = DataFrame(
          {"day": pd.date_range("2023", freq="D", periods=5), "total_bill": range(5)}
      )
-@@ -172,12 +172,12 @@ def test_seaborn():
+@@ -170,12 +170,12 @@ def test_seaborn():
  
  
  def test_pandas_datareader():
@@ -5392,7 +5226,7 @@ Forwarded: no
      table = pyarrow.Table.from_pandas(df)
      result = table.to_pandas()
      tm.assert_frame_equal(result, df)
-@@ -185,7 +185,7 @@ def test_pyarrow(df):
+@@ -183,7 +183,7 @@ def test_pyarrow(df):
  
  def test_yaml_dump(df):
      # GH#42748
@@ -5401,16 +5235,18 @@ Forwarded: no
  
      dumped = yaml.dump(df)
  
-@@ -247,7 +247,7 @@ def test_frame_setitem_dask_array_into_n
+@@ -245,8 +245,8 @@ def test_frame_setitem_dask_array_into_n
      olduse = pd.get_option("compute.use_numexpr")
  
      try:
+-        dask = pytest.importorskip("dask")
 -        da = pytest.importorskip("dask.array")
++        dask = td.versioned_importorskip("dask")
 +        da = td.versioned_importorskip("dask.array")
- 
-         dda = da.array([1, 2])
-         df = DataFrame({"a": ["a", "b"]})
-@@ -348,7 +348,7 @@ def test_dataframe_consortium() -> None:
+         if Version(dask.__version__) <= Version("2025.1.0") and Version(
+             np.__version__
+         ) >= Version("2.1"):
+@@ -353,7 +353,7 @@ def test_dataframe_consortium() -> None:
      Full testing is done at https://github.com/data-apis/dataframe-api-compat,
      this is just to check that the entry point works as expected.
      """
@@ -5419,7 +5255,7 @@ Forwarded: no
      df_pd = DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
      df = df_pd.__dataframe_consortium_standard__()
      result_1 = df.get_column_names()
-@@ -362,7 +362,7 @@ def test_dataframe_consortium() -> None:
+@@ -367,7 +367,7 @@ def test_dataframe_consortium() -> None:
  
  def test_xarray_coerce_unit():
      # GH44053
@@ -5505,7 +5341,7 @@ Forwarded: no
  
 --- a/pandas/tests/tools/test_to_datetime.py
 +++ b/pandas/tests/tools/test_to_datetime.py
-@@ -1002,7 +1002,7 @@ class TestToDatetime:
+@@ -1014,7 +1014,7 @@ class TestToDatetime:
      @pytest.mark.parametrize("utc", [True, False])
      @pytest.mark.parametrize("tz", [None, "US/Central"])
      def test_to_datetime_arrow(self, tz, utc, arg_class):
@@ -5514,7 +5350,7 @@ Forwarded: no
  
          dti = date_range("1965-04-03", periods=19, freq="2W", tz=tz)
          dti = arg_class(dti)
-@@ -1357,7 +1357,7 @@ class TestToDatetime:
+@@ -1367,7 +1367,7 @@ class TestToDatetime:
  
      def test_to_datetime_tz_psycopg2(self, request, cache):
          # xref 8260
@@ -5523,7 +5359,7 @@ Forwarded: no
  
          # misc cases
          tz1 = psycopg2_tz.FixedOffsetTimezone(offset=-300, name=None)
-@@ -3742,7 +3742,7 @@ def test_ignoring_unknown_tz_deprecated(
+@@ -3757,7 +3757,7 @@ def test_ignoring_unknown_tz_deprecated(
  
  def test_from_numeric_arrow_dtype(any_numeric_ea_dtype):
      # GH 52425
@@ -5607,6 +5443,17 @@ Forwarded: no
      expected = Series([timedelta(1)], dtype=f"duration[{unit}][pyarrow]")
      result = to_timedelta(expected)
      tm.assert_series_equal(result, expected)
+--- a/pandas/tests/window/test_numba.py
++++ b/pandas/tests/window/test_numba.py
+@@ -22,7 +22,7 @@ from pandas.util.version import Version
+ 
+ pytestmark = [pytest.mark.single_cpu]
+ 
+-numba = pytest.importorskip("numba")
++numba = td.versioned_importorskip("numba")
+ pytestmark.append(
+     pytest.mark.skipif(
+         Version(numba.__version__) == Version("0.61") and is_platform_arm(),
 --- a/pandas/tests/window/test_online.py
 +++ b/pandas/tests/window/test_online.py
 @@ -1,6 +1,7 @@
@@ -5614,18 +5461,18 @@ Forwarded: no
  import pytest
  
 +import pandas.util._test_decorators as td
+ from pandas.compat import is_platform_arm
+ 
  from pandas import (
-     DataFrame,
-     Series,
-@@ -9,7 +10,7 @@ import pandas._testing as tm
+@@ -12,7 +13,7 @@ from pandas.util.version import Version
  
- pytestmark = pytest.mark.single_cpu
+ pytestmark = [pytest.mark.single_cpu]
  
--pytest.importorskip("numba")
-+td.versioned_importorskip("numba")
- 
- 
- @pytest.mark.filterwarnings("ignore")
+-numba = pytest.importorskip("numba")
++numba = td.versioned_importorskip("numba")
+ pytestmark.append(
+     pytest.mark.skipif(
+         Version(numba.__version__) == Version("0.61") and is_platform_arm(),
 --- a/pandas/tests/window/test_rolling_skew_kurt.py
 +++ b/pandas/tests/window/test_rolling_skew_kurt.py
 @@ -3,6 +3,7 @@ from functools import partial
