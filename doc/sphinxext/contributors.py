@@ -14,10 +14,8 @@ use::
 While the v0.23.1 tag does not exist, that will use the HEAD of the
 branch as the end of the revision range.
 """
-from announce import build_components
 from docutils import nodes
 from docutils.parsers.rst import Directive
-import git
 
 
 class ContributorsDirective(Directive):
@@ -25,6 +23,7 @@ class ContributorsDirective(Directive):
     name = "contributors"
 
     def run(self):
+        return [nodes.paragraph(), nodes.Text("For contributors, please see /usr/share/doc/contributors_list.txt or https://github.com/pandas-dev/pandas/graphs/contributors")]
         range_ = self.arguments[0]
         if range_.endswith("x..HEAD"):
             return [nodes.paragraph(), nodes.bullet_list()]
