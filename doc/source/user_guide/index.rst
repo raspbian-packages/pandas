@@ -88,4 +88,3 @@ Guides
     sparse
     migration-3-strings
     gotchas
-    cookbook
