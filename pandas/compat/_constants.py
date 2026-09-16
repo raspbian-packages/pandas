@@ -17,6 +17,7 @@ PY310 = sys.version_info >= (3, 10)
 PY311 = sys.version_info >= (3, 11)
 PY312 = sys.version_info >= (3, 12)
 PY314 = sys.version_info >= (3, 14)
+PY315 = sys.version_info >= (3, 15)
 PYPY = platform.python_implementation() == "PyPy"
 ISMUSL = "musl" in (sysconfig.get_config_var("HOST_GNU_TYPE") or "")
 REF_COUNT = 2 if PY311 else 3
@@ -30,5 +31,6 @@ __all__ = [
     "PY311",
     "PY312",
     "PY314",
+    "PY315",
     "PYPY",
 ]
