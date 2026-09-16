@@ -59,6 +59,7 @@ def test_context(setup_path):
             assert type(tbl["a"]) == DataFrame
 
 
+@pytest.mark.xfail(reason="fails due to nondeterminism in HDF5 2.x",strict=False)
 def test_no_track_times(tmp_path, setup_path):
     # GH 32682
     # enables to set track_times (see `pytables` `create_table` documentation)
