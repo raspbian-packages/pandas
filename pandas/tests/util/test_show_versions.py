@@ -56,7 +56,7 @@ def test_show_versions_console(capsys):
     assert "INSTALLED VERSIONS" in result
 
     # check full commit hash
-    assert re.search(r"commit\s*:\s[0-9a-f]{40}\n", result)
+    assert re.search(r"commit\s*:\snot-from-upstream-git\n", result)
 
     # check required dependency
     # 2020-12-09 npdev has "dirty" in the tag
