@@ -168,6 +168,8 @@ def test_select(setup_path):
         tm.assert_frame_equal(expected, result)
 
 
+from pandas.compat import PY312
+@pytest.mark.xfail(condition=PY312, reason="python3.12 https://bugs.debian.org/1055801",raises=ValueError,strict=False)
 def test_select_dtypes(setup_path):
     with ensure_clean_store(setup_path) as store:
         # with a Timestamp data column (GH #2637)
@@ -607,6 +609,7 @@ def test_select_iterator_many_empty_frames(setup_path):
         assert len(results) == 0
 
 
+@pytest.mark.xfail(condition=PY312, reason="python3.12 https://bugs.debian.org/1055801",raises=TypeError,strict=False)
 def test_frame_select(setup_path):
     df = DataFrame(
         np.random.default_rng(2).standard_normal((10, 4)),
