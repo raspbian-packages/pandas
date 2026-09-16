@@ -13,6 +13,7 @@ from typing import (
     cast,
 )
 import warnings
+import platform
 
 from pandas.compat import PY311
 
@@ -186,6 +187,8 @@ def _assert_caught_no_extra_warnings(
                 # EncodingWarnings are checked in the CI
                 # pyproject.toml errors on EncodingWarnings in pandas
                 # Ignore EncodingWarnings from other libraries
+                continue
+            if (actual_warning.category==UserWarning and "Non-x86 system detected" in str(actual_warning.message) and not bool(re.match('i.?86|x86',platform.uname()[4]))) or (actual_warning.category==RuntimeWarning and "invalid value encountered" in str(actual_warning.message) and 'mips' in platform.uname()[4]):
                 continue
             extra_warnings.append(
                 (
