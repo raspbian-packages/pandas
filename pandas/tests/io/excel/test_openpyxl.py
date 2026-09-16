@@ -124,13 +124,14 @@ def test_engine_kwargs_append_invalid(ext):
                 DataFrame(["good"]).to_excel(writer, sheet_name="Sheet2")
 
 
+@td.skip_if_no("xlsxwriter")
 @pytest.mark.parametrize("data_only, expected", [(True, 0), (False, "=1+1")])
 def test_engine_kwargs_append_data_only(ext, data_only, expected):
     # GH 43445
     # tests whether the data_only engine_kwarg actually works well for
     # openpyxl's load_workbook
     with tm.ensure_clean(ext) as f:
-        DataFrame(["=1+1"]).to_excel(f)
+        DataFrame(["=1+1"]).to_excel(f, engine="xlsxwriter") # with openpyxl here, data_only=True gives None/np.nan not 0
         with ExcelWriter(
             f, engine="openpyxl", mode="a", engine_kwargs={"data_only": data_only}
         ) as writer:
