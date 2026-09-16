@@ -49,7 +49,7 @@ VERSIONS = {
     "sqlalchemy": "2.0.0",
     "tables": "3.8.0",
     "tabulate": "0.9.0",
-    "xarray": "2022.12.0",
+    "xarray": "999",#Debian xarray 2023.08.0-1 says it's 999
     "xlrd": "2.0.1",
     "xlsxwriter": "3.0.5",
     "zstandard": "0.19.0",
