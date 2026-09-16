@@ -1,0 +1,16 @@
+Description: ignore expected DeprecationWarning
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: no
+
+--- a/pandas/tests/computation/test_eval.py
++++ b/pandas/tests/computation/test_eval.py
+@@ -564,7 +564,7 @@ class TestEval:
+     def test_scalar_unary(self, engine, parser):
+         msg = "bad operand type for unary ~: 'float'"
+         warn = None
+-        if PY312 and not (engine == "numexpr" and parser == "pandas"):
++        if PY312:
+             warn = DeprecationWarning
+         with pytest.raises(TypeError, match=msg):
+             pd.eval("~1.0", engine=engine, parser=parser)

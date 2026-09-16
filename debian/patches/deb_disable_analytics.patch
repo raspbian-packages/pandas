@@ -1,0 +1,88 @@
+Description: Avoid privacy breach by analytics
+
+Author: Yaroslav Halchenko <debian@onerussian.com>,
+        Andreas Tille <tille@debian.org>,
+        Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- a/pandas/tests/io/data/html/spam.html
++++ b/pandas/tests/io/data/html/spam.html
+@@ -27,45 +27,9 @@
+ 
+ <link rel="stylesheet" href="/ndb/static/css/main.css" />
+ 
+-      	<script type="text/JavaScript">
+-		 var _gaq = _gaq || [];
+-		 // NAL
+-		  _gaq.push(['_setAccount', 'UA-28627214-1']);
+-		  _gaq.push(['_setDomainName', 'nal.usda.gov']);
+-		  _gaq.push(['_setAllowLinker', true]);
+-		  _gaq.push(['_trackPageview']);
+-		 //
+-		// _gaq.push(['_setAccount', 'UA-3876418-1']);
+-		//  _gaq.push(['_trackPageview']);
+-		  // for NDB
+-		  _gaq.push(['_setAccount', 'UA-36442725-1']);
+-		  _gaq.push(['_trackPageview']);
+-			// USDA servers
+-		  _gaq.push(['_setAccount', 'UA-466807-3']);
+-		  _gaq.push(['_setDomainName', 'usda.gov']);
+-		  _gaq.push(['_setAllowLinker', true]);
+-		  _gaq.push(['_trackPageview']);
+-		  //
+-		  _gaq.push(['a._setAccount', 'UA-27627304-18']);
+-		  _gaq.push(['a._setDomainName', 'usda.gov']);
+-		  _gaq.push(['a._setAllowLinker', true]);
+-		  _gaq.push(['a._trackPageview']);
+-			//
+-		  _gaq.push(['b._setAccount', 'UA-27627304-1']);
+-		  _gaq.push(['b._setDomainName', 'usda.gov']);
+-		  _gaq.push(['b._setAllowLinker', true]);
+-		  _gaq.push(['b._trackPageview']);
+-
+-		  (function() {
+-		    var ga = document.createElement('script'); ga.type =
+-		'text/javascript'; ga.async = true;
+-		    ga.src = ('https:' == document.location.protocol ? 'https://ssl' :
+-		'http://www') + '.google-analytics.com/ga.js';
+-		    var s = document.getElementsByTagName('script')[0];
+-		s.parentNode.insertBefore(ga, s);
+-		  })();
+-	</script>
+-
++<!-- google analytics snippet was completely removed by Debian maintainers.
++     See http://lintian.debian.org/tags/privacy-breach-google-adsense.html
++     for more information -->
+ 
+ 
+         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+@@ -794,4 +758,4 @@ handler: function() {this.cancel();},
+ 			&nbsp;&nbsp;Software v.1.2.2
+ 		</div>
+     </body>
+-</html>
+\ No newline at end of file
++</html>
+--- a/web/pandas/_templates/layout.html
++++ b/web/pandas/_templates/layout.html
+@@ -1,7 +1,6 @@
+ <!DOCTYPE html>
+ <html>
+     <head>
+-        <script defer data-domain="pandas.pydata.org" src="https://views.scientific-python.org/js/script.js"></script>
+         <title>pandas - Python Data Analysis Library</title>
+         <meta charset="utf-8">
+         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -243,10 +243,6 @@ html_theme_options = {
+     "footer_start": ["pandas_footer", "sphinx-version"],
+     "github_url": "https://github.com/pandas-dev/pandas",
+     "twitter_url": "https://twitter.com/pandas_dev",
+-    "analytics": {
+-        "plausible_analytics_domain": "pandas.pydata.org",
+-        "plausible_analytics_url": "https://views.scientific-python.org/js/script.js",
+-    },
+     "logo": {"image_dark": "https://pandas.pydata.org/static/img/pandas_white.svg"},
+     "navbar_align": "left",
+     "navbar_end": ["version-switcher", "theme-switcher", "navbar-icon-links"],

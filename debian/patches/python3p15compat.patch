@@ -1,0 +1,410 @@
+Description: Python 3.15 compatibility fixes
+
+Backport of upstream commit 7bb284ac43 (PR #66473) for Python 3.15 support:
+ - Support optional %z and %:z (colon_z) in strptime
+ - Explicitly close XML iterparse parser to avoid unclosed iterator ResourceWarning
+ - Accept Python 3.15 TypeError / ValueError error message changes in tests
+ - Define and export PY315 in pandas.compat
+
+Origin: upstream 7bb284ac438d2b981a7f42e3bdd0fe5ee26aada0
+Author: Álvaro Kothe, Maximiliano Curia
+Bug: https://github.com/pandas-dev/pandas/issues/66473
+Bug-Debian: https://bugs.debian.org/1144864
+Forwarded: not-needed
+
+--- a/pandas/_libs/tslibs/strptime.pyx
++++ b/pandas/_libs/tslibs/strptime.pyx
+@@ -168,6 +168,7 @@ cdef dict _parse_code_table = {"y": 0,
+                                "Z": 17,
+                                "p": 18,  # an additional key, only with I
+                                "z": 19,
++                               "colon_z": 24,
+                                "G": 20,
+                                "V": 21,
+                                "u": 22}
+@@ -179,7 +180,7 @@ cdef _validate_fmt(str fmt):
+             raise ValueError("Cannot use '%W' or '%U' without day and year")
+         if "%A" not in fmt and "%a" not in fmt and "%w" not in fmt:
+             raise ValueError("Cannot use '%W' or '%U' without day and year")
+-    elif "%Z" in fmt and "%z" in fmt:
++    elif "%Z" in fmt and ("%z" in fmt or "%:z" in fmt):
+         raise ValueError("Cannot parse both %Z and %z")
+     elif "%j" in fmt and "%G" in fmt:
+         raise ValueError("Day of the year directive '%j' is not "
+@@ -584,9 +585,19 @@ cdef tzinfo _parse_with_format(
+                 f"time data \"{val}\" doesn't match format \"{fmt}\""
+             )
+         if len(val) != found.end():
++            rest = val[found.end():]
++            # Specific check for '%:z' directive
++            if (
++                "colon_z" in found.re.groupindex
++                and found.group("colon_z") is not None
++                and rest[0] != ":"
++            ):
++                raise ValueError(
++                    f"Missing colon in %:z before '{rest}', got '{val}'"
++                )
+             raise ValueError(
+                 "unconverted data remains when parsing with "
+-                f"format \"{fmt}\": \"{val[found.end():]}\""
++                f"format \"{fmt}\": \"{rest}\""
+             )
+ 
+     else:
+@@ -726,9 +737,15 @@ cdef tzinfo _parse_with_format(
+         elif parse_code == 17:
+             # e.g. val='2011-12-30T00:00:00.000000UTC'; fmt='%Y-%m-%dT%H:%M:%S.%f%Z'
+             tz = pytz.timezone(found_dict["Z"])
+-        elif parse_code == 19:
++        # elif group_key in ('z', 'colon_z'):
++        elif parse_code == 19 or parse_code == 24:
+             # e.g. val='March 1, 2018 12:00:00+0400'; fmt='%B %d, %Y %H:%M:%S%z'
+-            tz = parse_timezone_directive(found_dict["z"])
++            if found_dict[group_key] is None:
++                raise ValueError(
++                    f"time data \"{val}\" doesn't match format \"{fmt}\""
++                )
++
++            tz = parse_timezone_directive(found_dict[group_key])
+         elif parse_code == 20:
+             # e.g. val='2015-1-7'; fmt='%G-%V-%u'
+             iso_year = int(found_dict["G"])
+--- a/pandas/compat/__init__.py
++++ b/pandas/compat/__init__.py
+@@ -21,6 +21,7 @@ from pandas.compat._constants import (
+     PY311,
+     PY312,
+     PY314,
++    PY315,
+     PYPY,
+     WARNING_CHECK_DISABLED,
+ )
+@@ -208,6 +209,7 @@ __all__ = [
+     "PY311",
+     "PY312",
+     "PY314",
++    "PY315",
+     "PYPY",
+     "WARNING_CHECK_DISABLED",
+ ]
+--- a/pandas/compat/_constants.py
++++ b/pandas/compat/_constants.py
+@@ -17,6 +17,7 @@ PY310 = sys.version_info >= (3, 10)
+ PY311 = sys.version_info >= (3, 11)
+ PY312 = sys.version_info >= (3, 12)
+ PY314 = sys.version_info >= (3, 14)
++PY315 = sys.version_info >= (3, 15)
+ PYPY = platform.python_implementation() == "PyPy"
+ ISMUSL = "musl" in (sysconfig.get_config_var("HOST_GNU_TYPE") or "")
+ REF_COUNT = 2 if PY311 else 3
+@@ -30,5 +31,6 @@ __all__ = [
+     "PY311",
+     "PY312",
+     "PY314",
++    "PY315",
+     "PYPY",
+ ]
+--- a/pandas/io/xml.py
++++ b/pandas/io/xml.py
+@@ -333,42 +333,51 @@ class _XMLFrameParser:
+             set(self.iterparse[row_node])
+         )
+ 
+-        for event, elem in iterparse(self.path_or_buffer, events=("start", "end")):
+-            curr_elem = elem.tag.split("}")[1] if "}" in elem.tag else elem.tag
+-
+-            if event == "start":
+-                if curr_elem == row_node:
+-                    row = {}
+-
+-            if row is not None:
+-                if self.names and iterparse_repeats:
+-                    for col, nm in zip(self.iterparse[row_node], self.names):
+-                        if curr_elem == col:
+-                            elem_val = elem.text if elem.text else None
+-                            if elem_val not in row.values() and nm not in row:
+-                                row[nm] = elem_val
+-
+-                        if col in elem.attrib:
+-                            if elem.attrib[col] not in row.values() and nm not in row:
+-                                row[nm] = elem.attrib[col]
+-                else:
+-                    for col in self.iterparse[row_node]:
+-                        if curr_elem == col:
+-                            row[col] = elem.text if elem.text else None
+-                        if col in elem.attrib:
+-                            row[col] = elem.attrib[col]
+-
+-            if event == "end":
+-                if curr_elem == row_node and row is not None:
+-                    dicts.append(row)
+-                    row = None
+-
+-                elem.clear()
+-                if hasattr(elem, "getprevious"):
+-                    while (
+-                        elem.getprevious() is not None and elem.getparent() is not None
+-                    ):
+-                        del elem.getparent()[0]
++        parser = iterparse(self.path_or_buffer, events=("start", "end"))
++        try:
++            for event, elem in parser:
++                curr_elem = elem.tag.split("}")[1] if "}" in elem.tag else elem.tag
++
++                if event == "start":
++                    if curr_elem == row_node:
++                        row = {}
++
++                if row is not None:
++                    if self.names and iterparse_repeats:
++                        for col, nm in zip(self.iterparse[row_node], self.names):
++                            if curr_elem == col:
++                                elem_val = elem.text if elem.text else None
++                                if elem_val not in row.values() and nm not in row:
++                                    row[nm] = elem_val
++
++                            if col in elem.attrib:
++                                if (
++                                    elem.attrib[col] not in row.values()
++                                    and nm not in row
++                                ):
++                                    row[nm] = elem.attrib[col]
++                    else:
++                        for col in self.iterparse[row_node]:
++                            if curr_elem == col:
++                                row[col] = elem.text if elem.text else None
++                            if col in elem.attrib:
++                                row[col] = elem.attrib[col]
++
++                if event == "end":
++                    if curr_elem == row_node and row is not None:
++                        dicts.append(row)
++                        row = None
++
++                    elem.clear()
++                    if hasattr(elem, "getprevious"):
++                        while (
++                            elem.getprevious() is not None
++                            and elem.getparent() is not None
++                        ):
++                            del elem.getparent()[0]
++        finally:
++            if hasattr(parser, "close"):
++                parser.close()
+ 
+         if dicts == []:
+             raise ParserError("No result from selected items in iterparse.")
+--- a/pandas/tests/frame/indexing/test_indexing.py
++++ b/pandas/tests/frame/indexing/test_indexing.py
+@@ -19,6 +19,7 @@ from pandas.errors import (
+ )
+ import pandas.util._test_decorators as td
+ 
++from pandas.compat import PY315
+ from pandas.core.dtypes.common import is_integer
+ 
+ import pandas as pd
+@@ -38,7 +39,10 @@ from pandas import (
+ import pandas._testing as tm
+ 
+ # We pass through a TypeError raised by numpy
+-_slice_msg = "slice indices must be integers or None or have an __index__ method"
++if PY315:
++    _slice_msg = "slice indices must be integers or have an __index__ method"
++else:
++    _slice_msg = "slice indices must be integers or None or have an __index__ method"
+ 
+ 
+ class TestDataFrameIndexing:
+--- a/pandas/tests/indexes/period/test_partial_slicing.py
++++ b/pandas/tests/indexes/period/test_partial_slicing.py
+@@ -1,6 +1,8 @@
+ import numpy as np
+ import pytest
+ 
++from pandas.compat import PY315
++
+ from pandas import (
+     DataFrame,
+     PeriodIndex,
+@@ -59,7 +61,10 @@ class TestPeriodIndex:
+         # GH#6716
+         idx = make_range(start="2013/01/01", freq="D", periods=400)
+ 
+-        msg = "slice indices must be integers or None or have an __index__ method"
++        if PY315:
++            msg = "slice indices must be integers or have an __index__ method"
++        else:
++            msg = "slice indices must be integers or None or have an __index__ method"
+         # slices against index should raise IndexError
+         values = [
+             "2014",
+@@ -88,7 +93,10 @@ class TestPeriodIndex:
+     def test_range_slice_seconds(self, make_range):
+         # GH#6716
+         idx = make_range(start="2013/01/01 09:00:00", freq="s", periods=4000)
+-        msg = "slice indices must be integers or None or have an __index__ method"
++        if PY315:
++            msg = "slice indices must be integers or have an __index__ method"
++        else:
++            msg = "slice indices must be integers or None or have an __index__ method"
+ 
+         # slices against index should raise IndexError
+         values = [
+--- a/pandas/tests/indexes/test_old_base.py
++++ b/pandas/tests/indexes/test_old_base.py
+@@ -7,6 +7,7 @@ import numpy as np
+ import pytest
+ 
+ from pandas._libs.tslibs import Timestamp
++from pandas.compat import PY315
+ 
+ from pandas.core.dtypes.common import (
+     is_integer_dtype,
+@@ -439,6 +440,8 @@ class TestBase:
+         if len(index) == 0:
+             # 0 vs 0.5 in error message varies with numpy version
+             msg = "index (0|0.5) is out of bounds for axis 0 with size 0"
++        elif PY315:
++            msg = "slice indices must be integers or have an __index__ method"
+         else:
+             msg = "slice indices must be integers or None or have an __index__ method"
+ 
+--- a/pandas/tests/indexing/test_floats.py
++++ b/pandas/tests/indexing/test_floats.py
+@@ -1,6 +1,8 @@
+ import numpy as np
+ import pytest
+ 
++from pandas.compat import PY315
++
+ from pandas import (
+     DataFrame,
+     Index,
+@@ -254,7 +256,12 @@ class TestFloatIndexers:
+         # setitem
+         if indexer_sli is tm.iloc:
+             # otherwise we keep the same message as above
+-            msg = "slice indices must be integers or None or have an __index__ method"
++            if PY315:
++                msg = "slice indices must be integers or have an __index__ method"
++            else:
++                msg = (
++                    "slice indices must be integers or None or have an __index__ method"
++                )
+         with pytest.raises(TypeError, match=msg):
+             indexer_sli(s)[idx] = 0
+ 
+--- a/pandas/tests/scalar/timestamp/test_constructors.py
++++ b/pandas/tests/scalar/timestamp/test_constructors.py
+@@ -21,6 +21,7 @@ from pandas._libs.tslibs.dtypes import N
+ from pandas.compat import (
+     PY310,
+     PY314,
++    PY315,
+ )
+ from pandas.errors import OutOfBoundsDatetime
+ 
+@@ -245,7 +246,13 @@ class TestTimestampConstructorPositional
+ 
+     def test_constructor_keyword(self):
+         # GH#10758
+-        msg = "function missing required argument 'day'|Required argument 'day'"
++        msg = "|".join(
++            [
++                r"datetime\(\) missing required argument 'day'",  # PY315
++                "function missing required argument 'day'",
++                "Required argument 'day'",
++            ]
++        )
+         with pytest.raises(TypeError, match=msg):
+             Timestamp(year=2000, month=1)
+ 
+@@ -304,7 +311,15 @@ class TestTimestampConstructorPositional
+         # GH#31200
+ 
+         # The exact error message of datetime() depends on its version
+-        msg1 = r"function missing required argument '(year|month|day)' \(pos [123]\)"
++        if PY315:
++            msg1 = (
++                r"datetime\(\) missing required argument "
++                r"'(year|month|day)' \(pos [123]\)"
++            )
++        else:
++            msg1 = (
++                r"function missing required argument '(year|month|day)' \(pos [123]\)"
++            )
+         msg2 = r"Required argument '(year|month|day)' \(pos [123]\) not found"
+         msg = "|".join([msg1, msg2])
+ 
+--- a/pandas/tests/tools/test_to_datetime.py
++++ b/pandas/tests/tools/test_to_datetime.py
+@@ -22,7 +22,10 @@ from pandas._libs.tslibs import (
+     iNaT,
+     parsing,
+ )
+-from pandas.compat import PY314
++from pandas.compat import (
++    PY314,
++    PY315,
++)
+ from pandas.errors import (
+     OutOfBoundsDatetime,
+     OutOfBoundsTimedelta,
+@@ -557,6 +560,39 @@ class TestTimeConversionFormats:
+         expected = DatetimeIndex(expected_dates)
+         tm.assert_index_equal(result, expected)
+ 
++    @pytest.mark.xfail(
++        not PY315, reason="%:z directive not supported prior to 3.15", raises=ValueError
++    )
++    def test_to_datetime_colon_z_offset(self):
++        dates = [
++            "2010-01-01 12:00:00+04:00",
++            "2010-01-01 12:00:00+04:30",
++            "2010-01-01 12:00:00-05:00",
++        ]
++        expected_dates = [
++            "2010-01-01 08:00:00+00:00",
++            "2010-01-01 07:30:00+00:00",
++            "2010-01-01 17:00:00+00:00",
++        ]
++        fmt = "%Y-%m-%d %H:%M:%S%:z"
++
++        result = to_datetime(dates, format=fmt, utc=True)
++        expected = DatetimeIndex(expected_dates)
++        tm.assert_index_equal(result, expected)
++
++    def test_to_datetime_missing_colon_z_offset(self):
++        # test adapted from python/cpython#136961
++        dates = ["+04:0030"]
++        fmt = "%:z"
++
++        if PY315:
++            msg = r"Missing colon in %:z before '30', got '\+04:0030'"
++        else:
++            msg = "':' is a bad directive in format '%:z'"
++
++        with pytest.raises(ValueError, match=msg):
++            to_datetime(dates, format=fmt, utc=True)
++
+     @pytest.mark.parametrize(
+         "offset", ["+0", "-1foo", "UTCbar", ":10", "+01:000:01", ""]
+     )
+@@ -1441,9 +1477,12 @@ class TestToDatetime:
+     @pytest.mark.parametrize("errors", ["coerce", "raise", "ignore"])
+     def test_invalid_format_raises(self, errors):
+         # https://github.com/pandas-dev/pandas/issues/50255
+-        with pytest.raises(
+-            ValueError, match="':' is a bad directive in format 'H%:M%:S%"
+-        ):
++        if PY315:
++            msg = r"':M' is a bad directive in format 'H%:M%:S%"
++        else:
++            msg = "':' is a bad directive in format 'H%:M%:S%"
++
++        with pytest.raises(ValueError, match=msg):
+             to_datetime(["00:00:00"], format="H%:M%:S%", errors=errors)
+ 
+     @pytest.mark.parametrize("value", ["a", "00:01:99"])
