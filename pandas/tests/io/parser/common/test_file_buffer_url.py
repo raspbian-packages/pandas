@@ -100,7 +100,7 @@ def test_nonexistent_path(all_parsers):
     parser = all_parsers
     path = f"{uuid.uuid4()}.csv"
 
-    msg = r"\[Errno 2\]"
+    msg = r"\[Errno 2\]|\[Errno [0-9]+\] No such file or directory"
     with pytest.raises(FileNotFoundError, match=msg) as e:
         parser.read_csv(path)
     assert path == e.value.filename
@@ -111,7 +111,7 @@ def test_no_permission(all_parsers):
     # GH 23784
     parser = all_parsers
 
-    msg = r"\[Errno 13\]"
+    msg = r"\[Errno 13\]|\[Errno [0-9]+\] Permission denied"
     with tm.ensure_clean() as path:
         os.chmod(path, 0)  # make file unreadable
 

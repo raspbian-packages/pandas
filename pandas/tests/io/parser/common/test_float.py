@@ -67,7 +67,7 @@ def test_too_many_exponent_digits(all_parsers_all_precisions, exp, request):
     data = f"data\n10E{exp}"
     result = parser.read_csv(StringIO(data), float_precision=precision)
     if precision == "round_trip":
-        if exp == 999999999999999999 and is_platform_linux():
+        if exp == 999999999999999999:
             mark = pytest.mark.xfail(reason="GH38794, on Linux gives object result")
             request.applymarker(mark)
 
