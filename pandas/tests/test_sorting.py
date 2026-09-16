@@ -4,6 +4,7 @@ from itertools import product
 
 import numpy as np
 import pytest
+from pandas.compat import IS64
 
 from pandas import (
     NA,
@@ -218,6 +219,7 @@ class TestMerge:
         assert result.name is None
 
     @pytest.mark.slow
+    @pytest.mark.xfail(condition=not IS64, reason="assumes default int is int64")
     @pytest.mark.parametrize("how", ["left", "right", "outer", "inner"])
     def test_int64_overflow_how_merge(self, left_right, how):
         left, right = left_right
@@ -228,6 +230,7 @@ class TestMerge:
         tm.assert_frame_equal(out, merge(left, right, how=how, sort=True))
 
     @pytest.mark.slow
+    @pytest.mark.xfail(condition=not IS64, reason="assumes default int is int64")
     def test_int64_overflow_sort_false_order(self, left_right):
         left, right = left_right
 
@@ -239,6 +242,7 @@ class TestMerge:
         tm.assert_frame_equal(right, out[right.columns.tolist()])
 
     @pytest.mark.slow
+    @pytest.mark.xfail(condition=not IS64, reason="assumes default int is int64", strict=False)
     @pytest.mark.parametrize("how", ["left", "right", "outer", "inner"])
     @pytest.mark.parametrize("sort", [True, False])
     def test_int64_overflow_one_to_many_none_match(self, how, sort):
