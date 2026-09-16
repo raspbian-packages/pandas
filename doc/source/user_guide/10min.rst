@@ -701,6 +701,11 @@ We use the standard convention for referencing the matplotlib API:
 The ``plt.close`` method is used to `close <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.close.html>`__ a figure window:
 
 .. ipython:: python
+   :suppress:
+
+   np.random.seed(123456)  # for reproducibility
+
+.. ipython:: python
 
    ts = pd.Series(np.random.randn(1000), index=pd.date_range("1/1/2000", periods=1000))
    ts = ts.cumsum()
@@ -715,6 +720,11 @@ The ``plt.close`` method is used to `close <https://matplotlib.org/stable/api/_a
    `matplotlib.pyplot.savefig <https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.savefig.html>`__ to write it to a file.
 
 :meth:`~DataFrame.plot` plots all columns:
+
+.. ipython:: python
+   :suppress:
+
+   np.random.seed(123456)  # for reproducibility
 
 .. ipython:: python
 
