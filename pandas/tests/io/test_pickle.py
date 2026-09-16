@@ -505,7 +505,7 @@ def test_pickle_generalurl_read(monkeypatch, mockurl):
 
 
 def test_pickle_fsspec_roundtrip():
-    pytest.importorskip("fsspec")
+    td.versioned_importorskip("fsspec")
     with tm.ensure_clean():
         mockurl = "memory://mockfile"
         df = DataFrame(

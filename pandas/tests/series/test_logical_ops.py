@@ -4,6 +4,7 @@ import operator
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_string_dtype
 
 from pandas import (
@@ -533,7 +534,7 @@ class TestSeriesLogicalOps:
     # TODO: this belongs in comparison tests
     def test_pyarrow_numpy_string_invalid(self):
         # GH#56008
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         ser = Series([False, True])
         ser2 = Series(["a", "b"], dtype=StringDtype(na_value=np.nan))
         result = ser == ser2

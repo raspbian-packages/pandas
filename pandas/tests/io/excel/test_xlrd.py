@@ -3,6 +3,7 @@ import io
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import is_platform_windows
 
 import pandas as pd
@@ -11,7 +12,7 @@ import pandas._testing as tm
 from pandas.io.excel import ExcelFile
 from pandas.io.excel._base import inspect_excel_format
 
-xlrd = pytest.importorskip("xlrd")
+xlrd = td.versioned_importorskip("xlrd")
 
 if is_platform_windows():
     pytestmark = pytest.mark.single_cpu

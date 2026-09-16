@@ -2,6 +2,7 @@ import contextlib
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import is_platform_windows
 
 from pandas import DataFrame
@@ -9,7 +10,7 @@ import pandas._testing as tm
 
 from pandas.io.excel import ExcelWriter
 
-xlsxwriter = pytest.importorskip("xlsxwriter")
+xlsxwriter = td.versioned_importorskip("xlsxwriter")
 
 if is_platform_windows():
     pytestmark = pytest.mark.single_cpu
@@ -23,7 +24,7 @@ def ext():
 def test_column_format(ext):
     # Test that column formats are applied to cells. Test for issue #9167.
     # Applicable to xlsxwriter only.
-    openpyxl = pytest.importorskip("openpyxl")
+    openpyxl = td.versioned_importorskip("openpyxl")
 
     with tm.ensure_clean(ext) as path:
         frame = DataFrame({"A": [123456, 123456], "B": [123456, 123456]})

@@ -109,7 +109,8 @@ def round_trip_localpath(writer, reader, path: str | None = None):
     """
     import pytest
 
-    LocalPath = pytest.importorskip("py.path").local
+    import pandas.util._test_decorators as td
+    LocalPath = td.versioned_importorskip("py.path").local
     if path is None:
         path = "___localpath___"
     with ensure_clean(path) as path:

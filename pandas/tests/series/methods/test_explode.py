@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 
@@ -146,7 +147,7 @@ def test_explode_scalars_can_ignore_index():
 @pytest.mark.parametrize("ignore_index", [True, False])
 def test_explode_pyarrow_list_type(ignore_index):
     # GH 53602
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     data = [
         [None, None],
@@ -167,7 +168,7 @@ def test_explode_pyarrow_list_type(ignore_index):
 
 @pytest.mark.parametrize("ignore_index", [True, False])
 def test_explode_pyarrow_non_list_type(ignore_index):
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     data = [1, 2, 3]
     ser = pd.Series(data, dtype=pd.ArrowDtype(pa.int64()))
     result = ser.explode(ignore_index=ignore_index)

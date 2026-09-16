@@ -3,6 +3,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs import lib
 
 import pandas as pd
@@ -282,7 +283,7 @@ def test_axis1_numeric_only(request, groupby_func, numeric_only, using_infer_str
             "operation 'sub' not supported for dtype 'str' with dtype 'float64'",
         )
         if using_infer_string:
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
 
             errs = (TypeError, pa.lib.ArrowNotImplementedError)
         else:

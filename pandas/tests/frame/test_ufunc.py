@@ -4,6 +4,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 import pandas._testing as tm
 from pandas.api.types import is_extension_array_dtype
@@ -250,7 +251,7 @@ def test_alignment_deprecation_many_inputs_enforced():
     # https://github.com/pandas-dev/pandas/issues/39184
     # test that the deprecation also works with > 2 inputs -> using a numba
     # written ufunc for this because numpy itself doesn't have such ufuncs
-    numba = pytest.importorskip("numba")
+    numba = td.versioned_importorskip("numba")
 
     @numba.vectorize([numba.float64(numba.float64, numba.float64, numba.float64)])
     def my_ufunc(x, y, z):

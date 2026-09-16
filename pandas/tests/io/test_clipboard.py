@@ -3,6 +3,7 @@ from textwrap import dedent
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import (
     PyperclipException,
     PyperclipWindowsException,
@@ -349,7 +350,7 @@ class TestClipboard:
     ):
         # GH#50502
         if dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             if engine == "c" and string_storage == "pyarrow":
                 # TODO avoid this exception?
                 string_dtype = pd.ArrowDtype(pa.large_string())

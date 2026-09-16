@@ -16,7 +16,7 @@ import pandas._testing as tm
 from pandas.io.excel import ExcelWriter
 from pandas.io.formats.excel import ExcelFormatter
 
-pytest.importorskip("jinja2")
+td.versioned_importorskip("jinja2")
 # jinja2 is currently required for Styler.__init__(). Technically Styler.to_excel
 # could compute styles and render to excel without jinja2, since there is no
 # 'template' file, but this needs the import error to delayed until render time.
@@ -41,14 +41,14 @@ def assert_equal_cell_styles(cell1, cell2):
 )
 def test_styler_to_excel_unstyled(engine):
     # compare DataFrame.to_excel and Styler.to_excel when no styles applied
-    pytest.importorskip(engine)
+    td.versioned_importorskip(engine)
     df = DataFrame(np.random.default_rng(2).standard_normal((2, 2)))
     with tm.ensure_clean(".xlsx") as path:
         with ExcelWriter(path, engine=engine) as writer:
             df.to_excel(writer, sheet_name="dataframe")
             df.style.to_excel(writer, sheet_name="unstyled")
 
-        openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+        openpyxl = td.versioned_importorskip("openpyxl")  # test loading only with openpyxl
         with contextlib.closing(openpyxl.load_workbook(path)) as wb:
             for col1, col2 in zip(wb["dataframe"].columns, wb["unstyled"].columns):
                 assert len(col1) == len(col2)
@@ -133,7 +133,7 @@ shared_style_params = [
 )
 @pytest.mark.parametrize("css, attrs, expected", shared_style_params)
 def test_styler_to_excel_basic(engine, css, attrs, expected):
-    pytest.importorskip(engine)
+    td.versioned_importorskip(engine)
     df = DataFrame(np.random.default_rng(2).standard_normal((1, 1)))
     styler = df.style.map(lambda x: css)
 
@@ -142,7 +142,7 @@ def test_styler_to_excel_basic(engine, css, attrs, expected):
             df.to_excel(writer, sheet_name="dataframe")
             styler.to_excel(writer, sheet_name="styled")
 
-        openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+        openpyxl = td.versioned_importorskip("openpyxl")  # test loading only with openpyxl
         with contextlib.closing(openpyxl.load_workbook(path)) as wb:
             # test unstyled data cell does not have expected styles
             # test styled cell has expected styles
@@ -164,7 +164,7 @@ def test_styler_to_excel_basic(engine, css, attrs, expected):
 )
 @pytest.mark.parametrize("css, attrs, expected", shared_style_params)
 def test_styler_to_excel_basic_indexes(engine, css, attrs, expected):
-    pytest.importorskip(engine)
+    td.versioned_importorskip(engine)
     df = DataFrame(np.random.default_rng(2).standard_normal((1, 1)))
 
     styler = df.style
@@ -181,7 +181,7 @@ def test_styler_to_excel_basic_indexes(engine, css, attrs, expected):
             null_styler.to_excel(writer, sheet_name="null_styled")
             styler.to_excel(writer, sheet_name="styled")
 
-        openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+        openpyxl = td.versioned_importorskip("openpyxl")  # test loading only with openpyxl
         with contextlib.closing(openpyxl.load_workbook(path)) as wb:
             # test null styled index cells does not have expected styles
             # test styled cell has expected styles
@@ -233,7 +233,7 @@ def test_styler_to_excel_border_style(engine, border_style):
     attrs = ["border", "left", "style"]
     expected = border_style
 
-    pytest.importorskip(engine)
+    td.versioned_importorskip(engine)
     df = DataFrame(np.random.default_rng(2).standard_normal((1, 1)))
     styler = df.style.map(lambda x: css)
 
@@ -242,7 +242,7 @@ def test_styler_to_excel_border_style(engine, border_style):
             df.to_excel(writer, sheet_name="dataframe")
             styler.to_excel(writer, sheet_name="styled")
 
-        openpyxl = pytest.importorskip("openpyxl")  # test loading only with openpyxl
+        openpyxl = td.versioned_importorskip("openpyxl")  # test loading only with openpyxl
         with contextlib.closing(openpyxl.load_workbook(path)) as wb:
             # test unstyled data cell does not have expected styles
             # test styled cell has expected styles
@@ -259,7 +259,7 @@ def test_styler_to_excel_border_style(engine, border_style):
 
 
 def test_styler_custom_converter():
-    openpyxl = pytest.importorskip("openpyxl")
+    openpyxl = td.versioned_importorskip("openpyxl")
 
     def custom_converter(css):
         return {"font": {"color": {"rgb": "111222"}}}

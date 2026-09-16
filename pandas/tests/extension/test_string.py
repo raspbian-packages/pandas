@@ -21,6 +21,7 @@ from typing import cast
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import HAS_PYARROW
 
 from pandas.core.dtypes.base import StorageExtensionDtype
@@ -40,7 +41,7 @@ def maybe_split_array(arr, chunked):
     elif arr.dtype.storage != "pyarrow":
         return arr
 
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     arrow_array = arr._pa_array
     split = len(arrow_array) // 2

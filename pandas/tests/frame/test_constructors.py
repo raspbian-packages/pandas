@@ -2891,7 +2891,7 @@ class TestDataFrameConstructorIndexInference:
     )
     def test_dict_data_arrow_column_expansion(self, key_val, col_vals, col_type):
         # GH 53617
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         cols = pd.arrays.ArrowExtensionArray(
             pa.array(col_vals, type=pa.dictionary(pa.int8(), getattr(pa, col_type)()))
         )

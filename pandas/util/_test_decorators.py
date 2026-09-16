@@ -79,8 +79,8 @@ def skip_if_no(package: str, min_version: str | None = None) -> pytest.MarkDecor
 
     The mark can be used as either a decorator for a test class or to be
     applied to parameters in pytest.mark.parametrize calls or parametrized
-    fixtures. Use pytest.importorskip if an imported moduled is later needed
-    or for test functions.
+    fixtures. Use td.versioned_importorskip if an imported module is later
+    needed or for test functions.
 
     If the import and version check are unsuccessful, then the test function
     (or test case when used in conjunction with parametrization) will be
@@ -171,3 +171,22 @@ skip_copy_on_write_invalid_test = pytest.mark.skipif(
     get_option("mode.copy_on_write") is True,
     reason="Test not valid for Copy-on-Write mode",
 )
+
+def versioned_importorskip(*args, **kwargs):
+    """
+    (warning - this is currently Debian-specific, the name may change if upstream request this)
+
+    Return the requested module, or skip the test if it is
+    not available in a new enough version.
+
+    Intended as a replacement for pytest.importorskip that
+    defaults to requiring at least pandas' minimum version for that
+    optional dependency, rather than any version.
+
+    See import_optional_dependency for full parameter documentation.
+    """
+    try:
+        module = import_optional_dependency(*args, **kwargs)
+    except ImportError as exc:
+        pytest.skip(str(exc), allow_module_level=True)
+    return module

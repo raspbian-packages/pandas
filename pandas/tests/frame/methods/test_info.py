@@ -7,6 +7,7 @@ import textwrap
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_string_dtype
 
 from pandas.compat import (
@@ -549,7 +550,7 @@ def test_memory_usage_empty_no_warning(using_infer_string):
 @pytest.mark.single_cpu
 def test_info_compute_numba():
     # GH#51922
-    numba = pytest.importorskip("numba")
+    numba = td.versioned_importorskip("numba")
     if Version(numba.__version__) == Version("0.61") and is_platform_arm():
         pytest.skip(f"Segfaults on ARM platforms with numba {numba.__version__}")
     df = DataFrame([[1, 2], [3, 4]])

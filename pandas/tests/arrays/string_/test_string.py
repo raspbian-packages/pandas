@@ -66,7 +66,7 @@ def string_dtype_highest_priority(dtype1, dtype2):
 
 
 def test_dtype_constructor():
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     with tm.assert_produces_warning(FutureWarning):
         dtype = pd.StringDtype("pyarrow_numpy")
@@ -74,7 +74,7 @@ def test_dtype_constructor():
 
 
 def test_dtype_equality():
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     dtype1 = pd.StringDtype("python")
     dtype2 = pd.StringDtype("pyarrow")
@@ -596,7 +596,7 @@ def test_fillna_args(dtype):
 
 def test_arrow_array(dtype):
     # protocol added in 0.15.0
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     import pyarrow.compute as pc
 
     data = pd.array(["a", "b", "c"], dtype=dtype)
@@ -612,7 +612,7 @@ def test_arrow_array(dtype):
 @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
 def test_arrow_roundtrip(dtype, string_storage, using_infer_string):
     # roundtrip possible from arrow 1.0.0
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     data = pd.array(["a", "b", None], dtype=dtype)
     df = pd.DataFrame({"a": data})
@@ -640,7 +640,7 @@ def test_arrow_roundtrip(dtype, string_storage, using_infer_string):
 @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
 def test_arrow_from_string(using_infer_string):
     # not roundtrip,  but starting with pyarrow table without pandas metadata
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     table = pa.table({"a": pa.array(["a", "b", None], type=pa.string())})
 
     result = table.to_pandas()
@@ -655,7 +655,7 @@ def test_arrow_from_string(using_infer_string):
 @pytest.mark.filterwarnings("ignore:Passing a BlockManager:DeprecationWarning")
 def test_arrow_load_from_zero_chunks(dtype, string_storage, using_infer_string):
     # GH-41040
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     data = pd.array([], dtype=dtype)
     df = pd.DataFrame({"a": data})
@@ -821,7 +821,7 @@ def test_isin_string_array(dtype, dtype2):
 
 
 def test_isin_arrow_string_array(dtype):
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
     s = pd.Series(["a", "b", None], dtype=dtype)
 
     result = s.isin(pd.array(["a", "c"], dtype=pd.ArrowDtype(pa.string())))

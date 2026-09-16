@@ -6,6 +6,7 @@ from textwrap import dedent
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     IndexSlice,
@@ -16,7 +17,7 @@ from pandas import (
 import pandas._testing as tm
 import pandas.util._test_decorators as td
 
-jinja2 = pytest.importorskip("jinja2")
+jinja2 = td.versioned_importorskip("jinja2")
 from pandas.io.formats.style import (  # isort:skip
     Styler,
 )

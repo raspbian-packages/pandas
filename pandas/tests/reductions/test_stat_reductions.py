@@ -6,6 +6,7 @@ import inspect
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -231,7 +232,7 @@ class TestSeriesStatReductions:
         assert pd.isna(result)
 
     def test_skew(self):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         string_series = Series(range(20), dtype=np.float64, name="series")
 
@@ -253,7 +254,7 @@ class TestSeriesStatReductions:
                 assert (df.skew() == 0).all()
 
     def test_kurt(self):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         string_series = Series(range(20), dtype=np.float64, name="series")
 

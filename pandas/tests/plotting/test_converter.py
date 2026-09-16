@@ -8,6 +8,7 @@ import sys
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas._config.config as cf
 
 from pandas._libs.tslibs import to_offset
@@ -41,8 +42,8 @@ except ImportError:
     # causing an improper skip
     pass
 
-pytest.importorskip("matplotlib.pyplot")
-dates = pytest.importorskip("matplotlib.dates")
+td.versioned_importorskip("matplotlib.pyplot")
+dates = td.versioned_importorskip("matplotlib.dates")
 
 
 @pytest.mark.single_cpu
@@ -79,7 +80,7 @@ class TestRegistration:
         assert subprocess.check_call(call) == 0
 
     def test_registering_no_warning(self):
-        plt = pytest.importorskip("matplotlib.pyplot")
+        plt = td.versioned_importorskip("matplotlib.pyplot")
         s = Series(range(12), index=date_range("2017", periods=12))
         _, ax = plt.subplots()
 
@@ -89,7 +90,7 @@ class TestRegistration:
         plt.close()
 
     def test_pandas_plots_register(self):
-        plt = pytest.importorskip("matplotlib.pyplot")
+        plt = td.versioned_importorskip("matplotlib.pyplot")
         s = Series(range(12), index=date_range("2017", periods=12))
         # Set to the "warn" state, in case this isn't the first test run
         with tm.assert_produces_warning(None) as w:
@@ -101,7 +102,7 @@ class TestRegistration:
             plt.close()
 
     def test_matplotlib_formatters(self):
-        units = pytest.importorskip("matplotlib.units")
+        units = td.versioned_importorskip("matplotlib.units")
 
         # Can't make any assertion about the start state.
         # We we check that toggling converters off removes it, and toggling it
@@ -113,9 +114,9 @@ class TestRegistration:
             assert Timestamp in units.registry
 
     def test_option_no_warning(self):
-        pytest.importorskip("matplotlib.pyplot")
+        td.versioned_importorskip("matplotlib.pyplot")
         ctx = cf.option_context("plotting.matplotlib.register_converters", False)
-        plt = pytest.importorskip("matplotlib.pyplot")
+        plt = td.versioned_importorskip("matplotlib.pyplot")
         s = Series(range(12), index=date_range("2017", periods=12))
         _, ax = plt.subplots()
 
@@ -130,8 +131,8 @@ class TestRegistration:
         plt.close()
 
     def test_registry_resets(self):
-        units = pytest.importorskip("matplotlib.units")
-        dates = pytest.importorskip("matplotlib.dates")
+        units = td.versioned_importorskip("matplotlib.units")
+        dates = td.versioned_importorskip("matplotlib.dates")
 
         # make a copy, to reset to
         original = dict(units.registry)

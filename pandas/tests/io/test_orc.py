@@ -8,12 +8,13 @@ import pathlib
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import read_orc
 import pandas._testing as tm
 from pandas.core.arrays import StringArray
 
-pytest.importorskip("pyarrow.orc")
+td.versioned_importorskip("pyarrow.orc")
 
 import pyarrow as pa
 
@@ -249,7 +250,7 @@ def test_orc_reader_snappy_compressed(dirpath):
 def test_orc_roundtrip_file(dirpath):
     # GH44554
     # PyArrow gained ORC write support with the current argument order
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     data = {
         "boolean1": np.array([False, True], dtype="bool"),
@@ -274,7 +275,7 @@ def test_orc_roundtrip_file(dirpath):
 def test_orc_roundtrip_bytesio():
     # GH44554
     # PyArrow gained ORC write support with the current argument order
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     data = {
         "boolean1": np.array([False, True], dtype="bool"),
@@ -298,7 +299,7 @@ def test_orc_roundtrip_bytesio():
 def test_orc_writer_dtypes_not_supported(orc_writer_dtypes_not_supported):
     # GH44554
     # PyArrow gained ORC write support with the current argument order
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
 
     msg = "The dtype of one or more columns is not supported yet."
     with pytest.raises(NotImplementedError, match=msg):
@@ -306,7 +307,7 @@ def test_orc_writer_dtypes_not_supported(orc_writer_dtypes_not_supported):
 
 
 def test_orc_dtype_backend_pyarrow(using_infer_string):
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = pd.DataFrame(
         {
             "string": list("abc"),
@@ -349,7 +350,7 @@ def test_orc_dtype_backend_pyarrow(using_infer_string):
 
 def test_orc_dtype_backend_numpy_nullable():
     # GH#50503
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     df = pd.DataFrame(
         {
             "string": list("abc"),

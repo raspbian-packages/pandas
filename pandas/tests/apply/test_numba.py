@@ -14,7 +14,7 @@ from pandas.util.version import Version
 
 pytestmark = [td.skip_if_no("numba"), pytest.mark.single_cpu, pytest.mark.skipif()]
 
-numba = pytest.importorskip("numba")
+numba = td.versioned_importorskip("numba")
 pytestmark.append(
     pytest.mark.skipif(
         Version(numba.__version__) == Version("0.61") and is_platform_arm(),
@@ -110,7 +110,7 @@ def test_numba_nonunique_unsupported(apply_axis):
 
 
 def test_numba_unsupported_dtypes(apply_axis):
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     f = lambda x: x
     df = DataFrame({"a": [1, 2], "b": ["a", "b"], "c": [4, 5]})
     df["c"] = df["c"].astype("double[pyarrow]")

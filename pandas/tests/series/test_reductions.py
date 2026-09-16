@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import Series
 import pandas._testing as tm
@@ -53,7 +54,7 @@ def test_mode_nullable_dtype(any_numeric_ea_dtype):
 
 def test_mode_infer_string():
     # GH#56183
-    pytest.importorskip("pyarrow")
+    td.versioned_importorskip("pyarrow")
     ser = Series(["a", "b"], dtype=object)
     with pd.option_context("future.infer_string", True):
         result = ser.mode()

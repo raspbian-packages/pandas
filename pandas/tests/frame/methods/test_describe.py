@@ -1,6 +1,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     Categorical,
@@ -398,7 +399,7 @@ class TestDataFrameDescribe:
 
     def test_describe_exclude_pa_dtype(self):
         # GH#52570
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         df = DataFrame(
             {
                 "a": Series([1, 2, 3], dtype=pd.ArrowDtype(pa.int8())),

@@ -6,7 +6,7 @@ import pandas.util._test_decorators as td
 
 import pandas as pd
 
-pa = pytest.importorskip("pyarrow")
+pa = td.versioned_importorskip("pyarrow")
 
 
 @td.skip_if_no("pyarrow", min_version="14.0")

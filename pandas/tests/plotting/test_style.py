@@ -1,8 +1,9 @@
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import Series
 
-pytest.importorskip("matplotlib")
+td.versioned_importorskip("matplotlib")
 from pandas.plotting._matplotlib.style import get_standard_colors
 
 

@@ -8,6 +8,7 @@ import string
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     MultiIndex,
@@ -28,8 +29,8 @@ from pandas.util.version import Version
 
 from pandas.io.formats.printing import pprint_thing
 
-mpl = pytest.importorskip("matplotlib")
-plt = pytest.importorskip("matplotlib.pyplot")
+mpl = td.versioned_importorskip("matplotlib")
+plt = td.versioned_importorskip("matplotlib.pyplot")
 
 
 def _check_ax_limits(col, ax):

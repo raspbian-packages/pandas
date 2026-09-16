@@ -500,7 +500,7 @@ class TestnanopsDataFrame:
 
     @pytest.mark.parametrize("ddof", range(3))
     def test_nansem(self, ddof, skipna):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         with np.errstate(invalid="ignore"):
             self.check_funs(
@@ -559,7 +559,7 @@ class TestnanopsDataFrame:
         return result
 
     def test_nanskew(self, skipna):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         func = partial(self._skew_kurt_wrap, func=sp_stats.skew)
         with np.errstate(invalid="ignore"):
@@ -573,7 +573,7 @@ class TestnanopsDataFrame:
             )
 
     def test_nankurt(self, skipna):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         func1 = partial(sp_stats.kurtosis, fisher=True)
         func = partial(self._skew_kurt_wrap, func=func1)
@@ -704,7 +704,7 @@ class TestnanopsDataFrame:
         self.check_nancorr_nancov_1d(nanops.nancorr, targ0, targ1, method="pearson")
 
     def test_nancorr_kendall(self):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         targ0 = sp_stats.kendalltau(self.arr_float_2d, self.arr_float1_2d)[0]
         targ1 = sp_stats.kendalltau(self.arr_float_2d.flat, self.arr_float1_2d.flat)[0]
@@ -714,7 +714,7 @@ class TestnanopsDataFrame:
         self.check_nancorr_nancov_1d(nanops.nancorr, targ0, targ1, method="kendall")
 
     def test_nancorr_spearman(self):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         targ0 = sp_stats.spearmanr(self.arr_float_2d, self.arr_float1_2d)[0]
         targ1 = sp_stats.spearmanr(self.arr_float_2d.flat, self.arr_float1_2d.flat)[0]
@@ -724,7 +724,7 @@ class TestnanopsDataFrame:
         self.check_nancorr_nancov_1d(nanops.nancorr, targ0, targ1, method="spearman")
 
     def test_invalid_method(self):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         targ0 = np.corrcoef(self.arr_float_2d, self.arr_float1_2d)[0, 1]
         targ1 = np.corrcoef(self.arr_float_2d.flat, self.arr_float1_2d.flat)[0, 1]
         msg = "Unknown method 'foo', expected one of 'kendall', 'spearman'"

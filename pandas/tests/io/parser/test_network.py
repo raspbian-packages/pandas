@@ -80,7 +80,7 @@ class TestS3:
     def test_parse_public_s3_bucket(self, s3_public_bucket_with_data, tips_df, s3so):
         # more of an integration test due to the not-public contents portion
         # can probably mock this though.
-        pytest.importorskip("s3fs")
+        td.versioned_importorskip("s3fs")
         for ext, comp in [("", None), (".gz", "gzip"), (".bz2", "bz2")]:
             df = read_csv(
                 f"s3://{s3_public_bucket_with_data.name}/tips.csv" + ext,
@@ -93,7 +93,7 @@ class TestS3:
 
     def test_parse_private_s3_bucket(self, s3_private_bucket_with_data, tips_df, s3so):
         # Read public file from bucket with not-public contents
-        pytest.importorskip("s3fs")
+        td.versioned_importorskip("s3fs")
         df = read_csv(
             f"s3://{s3_private_bucket_with_data.name}/tips.csv", storage_options=s3so
         )
@@ -258,7 +258,7 @@ class TestS3:
     def test_write_s3_parquet_fails(self, tips_df, s3so):
         # GH 27679
         # Attempting to write to an invalid S3 path should raise
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         import botocore
 
         # GH 34087
@@ -318,7 +318,7 @@ class TestS3:
         self, s3_public_bucket_with_data, feather_file, s3so
     ):
         # GH 29055
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
         expected = read_feather(feather_file)
         res = read_feather(
             f"s3://{s3_public_bucket_with_data.name}/simple_dataset.feather",
