@@ -19,6 +19,7 @@ from pandas.errors import (
 )
 import pandas.util._test_decorators as td
 
+from pandas.compat import PY315
 from pandas.core.dtypes.common import is_integer
 
 import pandas as pd
@@ -38,7 +39,10 @@ from pandas import (
 import pandas._testing as tm
 
 # We pass through a TypeError raised by numpy
-_slice_msg = "slice indices must be integers or None or have an __index__ method"
+if PY315:
+    _slice_msg = "slice indices must be integers or have an __index__ method"
+else:
+    _slice_msg = "slice indices must be integers or None or have an __index__ method"
 
 
 class TestDataFrameIndexing:

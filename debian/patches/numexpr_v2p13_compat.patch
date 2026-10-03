@@ -4,8 +4,6 @@ Origin: upstream 5fc3df37d772befbdba7cc2bd3e9ce572fe607c0
 Author: Álvaro Kothe
 Forwarded: not-needed
 
-diff --git a/pandas/tests/frame/test_arithmetic.py b/pandas/tests/frame/test_arithmetic.py
-index 195126f1c5..567183e451 100644
 --- a/pandas/tests/frame/test_arithmetic.py
 +++ b/pandas/tests/frame/test_arithmetic.py
 @@ -12,6 +12,7 @@ import numpy as np
@@ -46,8 +44,6 @@ index 195126f1c5..567183e451 100644
                      # "evaluating in Python space because ..."
                      warn = UserWarning
                  else:
-diff --git a/pandas/tests/series/test_arithmetic.py b/pandas/tests/series/test_arithmetic.py
-index a65d7687cf..28f12476c9 100644
 --- a/pandas/tests/series/test_arithmetic.py
 +++ b/pandas/tests/series/test_arithmetic.py
 @@ -11,6 +11,7 @@ import pytest
@@ -81,8 +77,6 @@ index a65d7687cf..28f12476c9 100644
              else None
          )
          ser = Series([True, None, False], dtype="boolean")
-diff --git a/pandas/tests/test_expressions.py b/pandas/tests/test_expressions.py
-index dfec99f078..1ea16f96b7 100644
 --- a/pandas/tests/test_expressions.py
 +++ b/pandas/tests/test_expressions.py
 @@ -4,6 +4,8 @@ import re

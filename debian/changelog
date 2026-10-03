@@ -1,11 +1,25 @@
-pandas (2.3.3+dfsg-3+rpi1) forky-staging; urgency=medium
+pandas (2.3.3+dfsg-5+rpi1) forky-staging; urgency=medium
 
   [changes brought forward from 2.2.3+dfsg-5+rpi1 by Peter Michael Green <plugwash@raspbian.org> at Sun, 02 Feb 2025 11:17:13 +0000]
   * Binary-only non-maintainer upload for armhf; no source changes.
   * Rebuild for python 3.13
   * Disable testsuite.
 
- -- Raspbian forward porter <root@raspbian.org>  Tue, 13 Jan 2026 21:57:36 +0000
+ -- Raspbian forward porter <root@raspbian.org>  Sat, 03 Oct 2026 15:06:54 +0000
+
+pandas (2.3.3+dfsg-5) unstable; urgency=medium
+
+  * Be compatible with Python 3.15. (Closes: #1144864)
+  * Reduce numerical instability in rolling var/skew/kurt.
+  * Use 64-bit type in skiprows. (Closes: #1148010)
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Wed, 16 Sep 2026 20:30:23 +0100
+
+pandas (2.3.3+dfsg-4) unstable; urgency=medium
+
+  * Tests: stop assuming hdf5 is deterministic. (Closes: #1145502)
+
+ -- Rebecca N. Palmer <rebecca_palmer@zoho.com>  Sat, 12 Sep 2026 17:50:33 +0100
 
 pandas (2.3.3+dfsg-3) unstable; urgency=medium
 

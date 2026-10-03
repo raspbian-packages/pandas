@@ -40,3 +40,7 @@ ignore_test_1088988.patch
 ignore_bitwiseinversion_deprecation.patch
 numexpr_v2p13_compat.patch
 python3p14_compat.patch
+hdf5_v2_compat.patch
+python3p15compat.patch
+reduce_numerical_instability.patch
+1148010_skiprow_type.patch

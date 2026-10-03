@@ -7,8 +7,8 @@ Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
 Bug-Debian: https://bugs.debian.org/1121955
 Forwarded: no
 
---- pandas-2.3.3+dfsg.orig/pandas/tests/computation/test_eval.py
-+++ pandas-2.3.3+dfsg/pandas/tests/computation/test_eval.py
+--- a/pandas/tests/computation/test_eval.py
++++ b/pandas/tests/computation/test_eval.py
 @@ -177,7 +177,7 @@ class TestEval:
                  r"only list-like( or dict-like)? objects are allowed to be "
                  r"passed to (DataFrame\.)?isin\(\), you passed a "
