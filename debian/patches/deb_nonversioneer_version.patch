@@ -1,0 +1,32 @@
+Description: In tests, expect a non-git version number
+
+(This number is set in debian/rules.)
+
+Needed as Debian buildds use tarballs
+
+Author: Rebecca N. Palmer <rebecca_palmer@zoho.com>
+Forwarded: not-needed
+
+--- a/pandas/tests/test_common.py
++++ b/pandas/tests/test_common.py
+@@ -163,8 +163,7 @@ def test_standardize_mapping():
+ def test_git_version():
+     # GH 21295
+     git_version = pd.__git_version__
+-    assert len(git_version) == 40
+-    assert all(c in string.hexdigits for c in git_version)
++    assert git_version == 'not-from-upstream-git'
+ 
+ 
+ def test_version_tag():
+--- a/pandas/tests/util/test_show_versions.py
++++ b/pandas/tests/util/test_show_versions.py
+@@ -56,7 +56,7 @@ def test_show_versions_console(capsys):
+     assert "INSTALLED VERSIONS" in result
+ 
+     # check full commit hash
+-    assert re.search(r"commit\s*:\s[0-9a-f]{40}\n", result)
++    assert re.search(r"commit\s*:\snot-from-upstream-git\n", result)
+ 
+     # check required dependency
+     # 2020-12-09 npdev has "dirty" in the tag

@@ -1,0 +1,16 @@
+Description: Use Debian packaged mathjax
+
+Author: Andreas Tille <tille@debian.org>
+Forwarded: not-needed
+
+--- a/doc/source/conf.py
++++ b/doc/source/conf.py
+@@ -71,6 +71,8 @@ extensions = [
+     "nbsphinx",
+ ]
+ 
++mathjax_path="MathJax.js"
++
+ exclude_patterns = [
+     "**.ipynb_checkpoints",
+     # to ensure that include files (partial pages) aren't built, exclude them
