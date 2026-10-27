@@ -2,6 +2,7 @@
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat.pyarrow import (
     pa_version_under18p0,
     pa_version_under19p0,
@@ -17,7 +18,7 @@ pytestmark = pytest.mark.filterwarnings(
 )
 
 
-pa = pytest.importorskip("pyarrow")
+pa = td.versioned_importorskip("pyarrow")
 
 
 @pytest.mark.single_cpu
@@ -192,7 +193,7 @@ class TestFeather:
                 result = read_feather(path, dtype_backend=dtype_backend)
 
         if dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             if using_infer_string:
                 string_dtype = pd.ArrowDtype(pa.large_string())
             else:

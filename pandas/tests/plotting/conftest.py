@@ -3,6 +3,7 @@ import gc
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     to_datetime,
@@ -15,9 +16,9 @@ def mpl_cleanup():
     # 1) Resets units registry
     # 2) Resets rc_context
     # 3) Closes all figures
-    mpl = pytest.importorskip("matplotlib")
-    mpl_units = pytest.importorskip("matplotlib.units")
-    plt = pytest.importorskip("matplotlib.pyplot")
+    mpl = td.versioned_importorskip("matplotlib")
+    mpl_units = td.versioned_importorskip("matplotlib.units")
+    plt = td.versioned_importorskip("matplotlib.pyplot")
     orig_units_registry = mpl_units.registry.copy()
     with mpl.rc_context():
         mpl.use("template")

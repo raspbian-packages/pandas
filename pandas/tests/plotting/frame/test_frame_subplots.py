@@ -6,6 +6,7 @@ import numpy as np
 from numpy.testing import assert_array_almost_equal_nulp
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat import is_platform_linux
 from pandas.compat.numpy import np_version_gte1p24
 
@@ -27,8 +28,8 @@ from pandas.tests.plotting.common import (
 
 from pandas.io.formats.printing import pprint_thing
 
-mpl = pytest.importorskip("matplotlib")
-plt = pytest.importorskip("matplotlib.pyplot")
+mpl = td.versioned_importorskip("matplotlib")
+plt = td.versioned_importorskip("matplotlib.pyplot")
 
 
 class TestDataFramePlotsSubplots:

@@ -867,7 +867,7 @@ def test_encoding_option_str(xml_baby_names, parser):
 
 
 def test_correct_encoding_file(xml_baby_names):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     df_file = read_xml(xml_baby_names, encoding="ISO-8859-1", parser="lxml")
 
     with tm.ensure_clean("test.xml") as path:
@@ -876,7 +876,7 @@ def test_correct_encoding_file(xml_baby_names):
 
 @pytest.mark.parametrize("encoding", ["UTF-8", "UTF-16", "ISO-8859-1"])
 def test_wrong_encoding_option_lxml(xml_baby_names, parser, encoding):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     df_file = read_xml(xml_baby_names, encoding="ISO-8859-1", parser="lxml")
 
     with tm.ensure_clean("test.xml") as path:
@@ -892,7 +892,7 @@ def test_misspelled_encoding(parser, geom_df):
 
 
 def test_xml_declaration_pretty_print(geom_df):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     expected = """\
 <data>
   <row>
@@ -1005,7 +1005,7 @@ xsl_expected = """\
 
 
 def test_stylesheet_file_like(xsl_row_field_output, mode, geom_df):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with open(
         xsl_row_field_output, mode, encoding="utf-8" if mode == "r" else None
     ) as f:
@@ -1015,7 +1015,7 @@ def test_stylesheet_file_like(xsl_row_field_output, mode, geom_df):
 def test_stylesheet_io(xsl_row_field_output, mode, geom_df):
     # note: By default the bodies of untyped functions are not checked,
     # consider using --check-untyped-defs
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xsl_obj: BytesIO | StringIO  # type: ignore[annotation-unchecked]
 
     with open(
@@ -1032,7 +1032,7 @@ def test_stylesheet_io(xsl_row_field_output, mode, geom_df):
 
 
 def test_stylesheet_buffered_reader(xsl_row_field_output, mode, geom_df):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     with open(
         xsl_row_field_output, mode, encoding="utf-8" if mode == "r" else None
     ) as f:
@@ -1044,7 +1044,7 @@ def test_stylesheet_buffered_reader(xsl_row_field_output, mode, geom_df):
 
 
 def test_stylesheet_wrong_path(geom_df):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = os.path.join("data", "xml", "row_field_output.xslt")
 
@@ -1057,7 +1057,7 @@ def test_stylesheet_wrong_path(geom_df):
 
 @pytest.mark.parametrize("val", ["", b""])
 def test_empty_string_stylesheet(val, geom_df):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     msg = "|".join(
         [
@@ -1073,7 +1073,7 @@ def test_empty_string_stylesheet(val, geom_df):
 
 
 def test_incorrect_xsl_syntax(geom_df):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1103,7 +1103,7 @@ def test_incorrect_xsl_syntax(geom_df):
 
 
 def test_incorrect_xsl_eval(geom_df):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1131,7 +1131,7 @@ def test_incorrect_xsl_eval(geom_df):
 
 
 def test_incorrect_xsl_apply(geom_df):
-    lxml_etree = pytest.importorskip("lxml.etree")
+    lxml_etree = td.versioned_importorskip("lxml.etree")
 
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
@@ -1169,7 +1169,7 @@ def test_stylesheet_with_etree(geom_df):
 
 
 def test_style_to_csv(geom_df):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:output method="text" indent="yes" />
@@ -1198,7 +1198,7 @@ def test_style_to_csv(geom_df):
 
 
 def test_style_to_string(geom_df):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:output method="text" indent="yes" />
@@ -1232,7 +1232,7 @@ def test_style_to_string(geom_df):
 
 
 def test_style_to_json(geom_df):
-    pytest.importorskip("lxml")
+    td.versioned_importorskip("lxml")
     xsl = """\
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
     <xsl:output method="text" indent="yes" />
@@ -1363,8 +1363,8 @@ def test_unsuported_compression(parser, geom_df):
 
 @pytest.mark.single_cpu
 def test_s3_permission_output(parser, s3_public_bucket, geom_df):
-    s3fs = pytest.importorskip("s3fs")
-    pytest.importorskip("lxml")
+    s3fs = td.versioned_importorskip("s3fs")
+    td.versioned_importorskip("lxml")
 
     with tm.external_error_raised((PermissionError, FileNotFoundError)):
         fs = s3fs.S3FileSystem(anon=True)

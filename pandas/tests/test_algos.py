@@ -4,6 +4,7 @@ import struct
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._config import using_string_dtype
 
 from pandas._libs import (
@@ -1804,7 +1805,7 @@ class TestRank:
         ],
     )
     def test_scipy_compat(self, arr):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         arr = np.array(arr)
 

@@ -3,6 +3,7 @@ from datetime import datetime
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.errors import MergeError
 
 import pandas as pd
@@ -163,7 +164,7 @@ def test_join_on_single_col_dup_on_right(left_no_dup, right_w_dups, dtype):
     # GH 46622
     # Dups on right allowed by one_to_many constraint
     if dtype == "string[pyarrow]":
-        pytest.importorskip("pyarrow")
+        td.versioned_importorskip("pyarrow")
     left_no_dup = left_no_dup.astype(dtype)
     right_w_dups.index = right_w_dups.index.astype(dtype)
     left_no_dup.join(

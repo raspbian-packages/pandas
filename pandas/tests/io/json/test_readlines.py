@@ -5,6 +5,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import (
     DataFrame,
@@ -28,7 +29,7 @@ def lines_json_df():
 @pytest.fixture(params=["ujson", "pyarrow"])
 def engine(request):
     if request.param == "pyarrow":
-        pytest.importorskip("pyarrow.json")
+        td.versioned_importorskip("pyarrow.json")
     return request.param
 
 

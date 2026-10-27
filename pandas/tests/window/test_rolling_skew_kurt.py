@@ -3,6 +3,7 @@ from functools import partial
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Series,
@@ -17,7 +18,7 @@ from pandas.tseries import offsets
 
 @pytest.mark.parametrize("sp_func, roll_func", [["kurtosis", "kurt"], ["skew", "skew"]])
 def test_series(series, sp_func, roll_func):
-    sp_stats = pytest.importorskip("scipy.stats")
+    sp_stats = td.versioned_importorskip("scipy.stats")
 
     compare_func = partial(getattr(sp_stats, sp_func), bias=False)
     result = getattr(series.rolling(50), roll_func)()
@@ -27,7 +28,7 @@ def test_series(series, sp_func, roll_func):
 
 @pytest.mark.parametrize("sp_func, roll_func", [["kurtosis", "kurt"], ["skew", "skew"]])
 def test_frame(raw, frame, sp_func, roll_func):
-    sp_stats = pytest.importorskip("scipy.stats")
+    sp_stats = td.versioned_importorskip("scipy.stats")
 
     compare_func = partial(getattr(sp_stats, sp_func), bias=False)
     result = getattr(frame.rolling(50), roll_func)()
@@ -41,7 +42,7 @@ def test_frame(raw, frame, sp_func, roll_func):
 
 @pytest.mark.parametrize("sp_func, roll_func", [["kurtosis", "kurt"], ["skew", "skew"]])
 def test_time_rule_series(series, sp_func, roll_func):
-    sp_stats = pytest.importorskip("scipy.stats")
+    sp_stats = td.versioned_importorskip("scipy.stats")
 
     compare_func = partial(getattr(sp_stats, sp_func), bias=False)
     win = 25
@@ -56,7 +57,7 @@ def test_time_rule_series(series, sp_func, roll_func):
 
 @pytest.mark.parametrize("sp_func, roll_func", [["kurtosis", "kurt"], ["skew", "skew"]])
 def test_time_rule_frame(raw, frame, sp_func, roll_func):
-    sp_stats = pytest.importorskip("scipy.stats")
+    sp_stats = td.versioned_importorskip("scipy.stats")
 
     compare_func = partial(getattr(sp_stats, sp_func), bias=False)
     win = 25
@@ -75,7 +76,7 @@ def test_time_rule_frame(raw, frame, sp_func, roll_func):
 
 @pytest.mark.parametrize("sp_func, roll_func", [["kurtosis", "kurt"], ["skew", "skew"]])
 def test_nans(sp_func, roll_func):
-    sp_stats = pytest.importorskip("scipy.stats")
+    sp_stats = td.versioned_importorskip("scipy.stats")
 
     compare_func = partial(getattr(sp_stats, sp_func), bias=False)
     obj = Series(np.random.default_rng(2).standard_normal(50))

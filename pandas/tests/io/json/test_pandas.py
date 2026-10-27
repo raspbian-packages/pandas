@@ -2050,7 +2050,7 @@ class TestPandasContainer:
             )
 
         if dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             string_dtype = pd.ArrowDtype(pa.string())
         else:
             string_dtype = pd.StringDtype(string_storage)
@@ -2069,7 +2069,7 @@ class TestPandasContainer:
         )
 
         if dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             from pandas.arrays import ArrowExtensionArray
 
             expected = DataFrame(
@@ -2089,7 +2089,7 @@ class TestPandasContainer:
     @pytest.mark.parametrize("orient", ["split", "records", "index"])
     def test_read_json_nullable_series(self, string_storage, dtype_backend, orient):
         # GH#50750
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         ser = Series([1, np.nan, 3], dtype="Int64")
 
         out = ser.to_json(orient=orient)

@@ -1,5 +1,6 @@
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.compat._optional import VERSIONS
 
 import pandas as pd
@@ -13,7 +14,7 @@ def test_compat():
 
     from pandas.core.computation.check import NUMEXPR_INSTALLED
 
-    ne = pytest.importorskip("numexpr")
+    ne = td.versioned_importorskip("numexpr")
 
     ver = ne.__version__
     if Version(ver) < Version(VERSIONS["numexpr"]):
@@ -26,7 +27,7 @@ def test_compat():
 @pytest.mark.parametrize("parser", expr.PARSERS)
 def test_invalid_numexpr_version(engine, parser):
     if engine == "numexpr":
-        pytest.importorskip("numexpr")
+        td.versioned_importorskip("numexpr")
     a, b = 1, 2  # noqa: F841
     res = pd.eval("a + b", engine=engine, parser=parser)
     assert res == 3

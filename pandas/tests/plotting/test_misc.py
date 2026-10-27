@@ -26,9 +26,9 @@ from pandas.tests.plotting.common import (
     _check_ticks_props,
 )
 
-mpl = pytest.importorskip("matplotlib")
-plt = pytest.importorskip("matplotlib.pyplot")
-cm = pytest.importorskip("matplotlib.cm")
+mpl = td.versioned_importorskip("matplotlib")
+plt = td.versioned_importorskip("matplotlib.pyplot")
+cm = td.versioned_importorskip("matplotlib.cm")
 
 
 @pytest.fixture
@@ -148,7 +148,7 @@ class TestSeriesPlots:
 class TestDataFramePlots:
     @pytest.mark.parametrize("pass_axis", [False, True])
     def test_scatter_matrix_axis(self, pass_axis):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         scatter_matrix = plotting.scatter_matrix
 
         ax = None
@@ -173,7 +173,7 @@ class TestDataFramePlots:
 
     @pytest.mark.parametrize("pass_axis", [False, True])
     def test_scatter_matrix_axis_smaller(self, pass_axis):
-        pytest.importorskip("scipy")
+        td.versioned_importorskip("scipy")
         scatter_matrix = plotting.scatter_matrix
 
         ax = None

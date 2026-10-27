@@ -5,9 +5,10 @@ import tempfile
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.io.pytables import HDFStore
 
-tables = pytest.importorskip("tables")
+tables = td.versioned_importorskip("tables")
 # set these parameters so we don't have file sharing
 tables.parameters.MAX_NUMEXPR_THREADS = 1
 tables.parameters.MAX_BLOSC_THREADS = 1

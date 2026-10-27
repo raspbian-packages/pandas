@@ -2,10 +2,11 @@
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import DataFrame
 from pandas.tests.plotting.common import _check_visible
 
-pytest.importorskip("matplotlib")
+td.versioned_importorskip("matplotlib")
 
 
 class TestDataFramePlotsGroupby:

@@ -67,8 +67,8 @@ def assert_framelist_equal(list1, list2, *args, **kwargs):
 
 
 def test_bs4_version_fails(monkeypatch, datapath):
-    bs4 = pytest.importorskip("bs4")
-    pytest.importorskip("html5lib")
+    bs4 = td.versioned_importorskip("bs4")
+    td.versioned_importorskip("html5lib")
 
     monkeypatch.setattr(bs4, "__version__", "4.2")
     with pytest.raises(ImportError, match="Pandas requires version"):
@@ -85,9 +85,9 @@ def test_invalid_flavor():
 
 
 def test_same_ordering(datapath):
-    pytest.importorskip("bs4")
-    pytest.importorskip("lxml")
-    pytest.importorskip("html5lib")
+    td.versioned_importorskip("bs4")
+    td.versioned_importorskip("lxml")
+    td.versioned_importorskip("html5lib")
 
     filename = datapath("io", "data", "html", "valid_markup.html")
     dfs_lxml = read_html(filename, index_col=0, flavor=["lxml"])
@@ -181,7 +181,7 @@ class TestReadHtml:
             result = flavor_read_html(StringIO(out), dtype_backend=dtype_backend)[0]
 
         if dtype_backend == "pyarrow":
-            pa = pytest.importorskip("pyarrow")
+            pa = td.versioned_importorskip("pyarrow")
             string_dtype = pd.ArrowDtype(pa.string())
         else:
             string_dtype = pd.StringDtype(string_storage)

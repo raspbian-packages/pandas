@@ -2,12 +2,13 @@ from textwrap import dedent
 
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas import (
     DataFrame,
     Series,
 )
 
-pytest.importorskip("jinja2")
+td.versioned_importorskip("jinja2")
 from pandas.io.formats.style import Styler
 
 

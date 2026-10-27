@@ -4,6 +4,7 @@ import re
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas.core.dtypes.dtypes import ArrowDtype
 
 from pandas import (
@@ -718,7 +719,7 @@ def test_extractall_same_as_extract_subject_index(any_string_dtype):
 def test_extractall_preserves_dtype():
     # Ensure that when extractall is called on a series with specific dtypes set, that
     # the dtype is preserved in the resulting DataFrame's column.
-    pa = pytest.importorskip("pyarrow")
+    pa = td.versioned_importorskip("pyarrow")
 
     result = Series(["abc", "ab"], dtype=ArrowDtype(pa.string())).str.extractall("(ab)")
     assert result.dtypes[0] == "string[pyarrow]"

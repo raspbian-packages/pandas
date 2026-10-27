@@ -15,6 +15,7 @@ except ImportError:
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 import pandas as pd
 from pandas import DataFrame
 import pandas._testing as tm
@@ -35,7 +36,7 @@ def test_multi_thread_string_io_read_csv(all_parsers, request):
     # see gh-11786
     parser = all_parsers
     if parser.engine == "pyarrow":
-        pa = pytest.importorskip("pyarrow")
+        pa = td.versioned_importorskip("pyarrow")
         if Version(pa.__version__) < Version("16.0"):
             request.applymarker(
                 pytest.mark.xfail(reason="# ValueError: Found non-unique column index")

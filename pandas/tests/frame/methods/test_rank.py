@@ -6,6 +6,7 @@ from datetime import (
 import numpy as np
 import pytest
 
+import pandas.util._test_decorators as td
 from pandas._libs.algos import (
     Infinity,
     NegInfinity,
@@ -39,7 +40,7 @@ class TestRank:
         return request.param
 
     def test_rank(self, float_frame):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         float_frame.loc[::2, "A"] = np.nan
         float_frame.loc[::3, "B"] = np.nan
@@ -143,7 +144,7 @@ class TestRank:
             float_string_frame.rank(axis=1)
 
     def test_rank_na_option(self, float_frame):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         float_frame.loc[::2, "A"] = np.nan
         float_frame.loc[::3, "B"] = np.nan
@@ -227,7 +228,7 @@ class TestRank:
     @pytest.mark.parametrize("ax", [0, 1])
     @pytest.mark.parametrize("m", ["average", "min", "max", "first", "dense"])
     def test_rank_methods_frame(self, ax, m):
-        sp_stats = pytest.importorskip("scipy.stats")
+        sp_stats = td.versioned_importorskip("scipy.stats")
 
         xs = np.random.default_rng(2).integers(0, 21, (100, 26))
         xs = (xs - 10.0) / 10.0
