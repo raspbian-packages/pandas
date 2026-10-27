@@ -21,6 +21,7 @@ from pandas.compat._constants import (
     PY311,
     PY312,
     PY314,
+    PY315,
     PYPY,
     WARNING_CHECK_DISABLED,
 )
@@ -208,6 +209,7 @@ __all__ = [
     "PY311",
     "PY312",
     "PY314",
+    "PY315",
     "PYPY",
     "WARNING_CHECK_DISABLED",
 ]
