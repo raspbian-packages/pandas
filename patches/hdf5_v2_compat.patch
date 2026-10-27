@@ -1,0 +1,19 @@
+Description: Xfail test that assumes HDF5 is deterministic
+
+It no longer is
+
+Origin: based on upstream
+Bug: https://github.com/pandas-dev/pandas/commit/389051d090579550f1a1259855f486d7f7e2159e
+Bug-Debian: https://bugs.debian.org/1145502
+Forwarded: not-needed
+
+--- a/pandas/tests/io/pytables/test_store.py
++++ b/pandas/tests/io/pytables/test_store.py
+@@ -59,6 +59,7 @@ def test_context(setup_path):
+             assert type(tbl["a"]) == DataFrame
+ 
+ 
++@pytest.mark.xfail(reason="fails due to nondeterminism in HDF5 2.x",strict=False)
+ def test_no_track_times(tmp_path, setup_path):
+     # GH 32682
+     # enables to set track_times (see `pytables` `create_table` documentation)
