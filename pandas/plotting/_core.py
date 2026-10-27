@@ -604,6 +604,7 @@ def boxplot_frame_groupby(
     .. plot::
         :context: close-figs
 
+        >>> np.random.seed(1234)
         >>> import itertools
         >>> tuples = [t for t in itertools.product(range(1000), range(4))]
         >>> index = pd.MultiIndex.from_tuples(tuples, names=['lvl0', 'lvl1'])
@@ -1328,6 +1329,7 @@ class PlotAccessor(PandasObject):
         .. plot::
             :context: close-figs
 
+            >>> np.random.seed(1234)
             >>> data = np.random.randn(25, 4)
             >>> df = pd.DataFrame(data, columns=list('ABCD'))
             >>> ax = df.plot.box()
@@ -1392,6 +1394,7 @@ class PlotAccessor(PandasObject):
         .. plot::
             :context: close-figs
 
+            >>> np.random.seed(1234)
             >>> df = pd.DataFrame(np.random.randint(1, 7, 6000), columns=['one'])
             >>> df['two'] = df['one'] + np.random.randint(1, 7, 6000)
             >>> ax = df.plot.hist(bins=12, alpha=0.5)
@@ -1811,6 +1814,7 @@ class PlotAccessor(PandasObject):
         .. plot::
             :context: close-figs
 
+            >>> np.random.seed(1234)
             >>> n = 10000
             >>> df = pd.DataFrame({'x': np.random.randn(n),
             ...                    'y': np.random.randn(n)})
